@@ -1,0 +1,34 @@
+{
+  "name": "signaldesk-loop-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A deterministic repository for teaching and testing agentic engineering loops.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "docs:check": "tsx scripts/check-docs.ts",
+    "migration:scan": "tsx scripts/migration-scan.ts",
+    "perf:test": "tsx scripts/benchmark.ts",
+    "logging:check": "vitest run tests/logging.test.ts",
+    "errors:triage": "tsx scripts/triage-errors.ts errors/sample-production.json",
+    "eval": "tsx scripts/evaluate-scenarios.ts",
+    "security:scan": "tsx scripts/secret-scan.ts",
+    "seo:audit": "tsx scripts/seo-audit.ts",
+    "verify": "pnpm typecheck && pnpm test && pnpm docs:check && pnpm perf:test && pnpm migration:scan && pnpm security:scan && pnpm eval && pnpm seo:audit",
+    "demo": "tsx scripts/demo-manager.ts",
+    "demo:list": "tsx scripts/demo-manager.ts list",
+    "demo:start": "tsx scripts/demo-manager.ts start",
+    "demo:doctor": "tsx scripts/demo-manager.ts doctor"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11",
+    "yaml": "^2.9.0"
+  }
+}

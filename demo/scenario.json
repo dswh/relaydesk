@@ -1,0 +1,14 @@
+{
+  "slug": "main",
+  "title": "Healthy reference",
+  "pattern": "reference",
+  "contract": null,
+  "preflight": [
+    {
+      "command": "pnpm verify",
+      "expectedExit": 0,
+      "outputIncludes": "SEO audit passed"
+    }
+  ]
+}
+
