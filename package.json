@@ -1,34 +1,35 @@
 {
-  "name": "signaldesk-loop-lab",
-  "version": "1.0.0",
+  "name": "relaydesk",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A deterministic repository for teaching and testing agentic engineering loops.",
+  "description": "AI customer support operations platform for fast, reliable service teams.",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "test": "vitest run",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "docs:check": "tsx scripts/check-docs.ts",
-    "migration:scan": "tsx scripts/migration-scan.ts",
-    "perf:test": "tsx scripts/benchmark.ts",
-    "logging:check": "vitest run tests/logging.test.ts",
-    "errors:triage": "tsx scripts/triage-errors.ts errors/sample-production.json",
-    "eval": "tsx scripts/evaluate-scenarios.ts",
-    "security:scan": "tsx scripts/secret-scan.ts",
-    "seo:audit": "tsx scripts/seo-audit.ts",
-    "verify": "pnpm typecheck && pnpm test && pnpm docs:check && pnpm perf:test && pnpm migration:scan && pnpm security:scan && pnpm eval && pnpm seo:audit",
-    "demo": "tsx scripts/demo-manager.ts",
-    "demo:list": "tsx scripts/demo-manager.ts list",
-    "demo:start": "tsx scripts/demo-manager.ts start",
-    "demo:doctor": "tsx scripts/demo-manager.ts doctor"
+    "test": "vitest run",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "lucide-react": "^1.38.0",
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@types/node": "^26.4.0",
-    "tsx": "^4.23.13",
-    "typescript": "^7.0.2",
-    "vitest": "^4.1.11",
-    "yaml": "^2.9.0"
-  }
+    "@types/node": "^26.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.3",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  },
+  "packageManager": "pnpm@10.10.0"
 }

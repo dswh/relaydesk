@@ -1,7 +1,13 @@
 node_modules/
-dist/
+.next/
+out/
 coverage/
 .worktrees/
 .DS_Store
 *.log
-
+*.tsbuildinfo
+.env
+.env.local
+.vercel
+playwright-report/
+test-results/

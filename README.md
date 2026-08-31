@@ -1,57 +1,58 @@
-# SignalDesk Loop Lab
+# RelayDesk
 
-SignalDesk is a small TypeScript support-ticket system designed for teaching loop engineering. It includes deterministic sensors, seeded defects, loop contracts, persistent state, and disposable Git worktrees.
+RelayDesk is an AI customer support operations platform for teams that need fast, accurate, and accountable service. It combines a working team inbox, customer context, approved knowledge, operational analytics, and grounded reply assistance in one product.
 
-The `main` branch is the healthy reference system. Every `demo/...` branch contains exactly one prepared scenario. Do not fix a seed branch directly.
+This repository is the product. Workshop scenarios are derived from real product surfaces only after the corresponding feature is working on `main`.
 
-## Quick start
+## Current product surface
+
+- Searchable and filterable support inbox
+- Ticket priority, ownership, status, tags, and first-response SLA tracking
+- Customer profiles with account health and relationship context
+- Conversation briefs and source-grounded response suggestions
+- Reply and internal-note workflows
+- Knowledge health and article freshness views
+- Service performance and AI answer-quality analytics
+- Read-only ticket API and service health endpoint
+- Responsive desktop and mobile layouts
+
+The first foundation release uses a synthetic Northstar Labs workspace so the application runs without credentials. PostgreSQL persistence, authentication, ingestion channels, and model-provider integrations are the next implementation milestones.
+
+## Run locally
+
+Requirements: Node.js 22 or newer and pnpm 10.
 
 ```bash
 pnpm install
-pnpm verify
-pnpm demo:list
-pnpm demo:start docs-freshness
+pnpm dev
 ```
 
-`pnpm demo:start <slug>` creates:
+Open [http://localhost:3000/inbox](http://localhost:3000/inbox).
 
-- an isolated worktree under `.worktrees/`;
-- a disposable branch named `run/<slug>-<timestamp>`;
-- a clean copy of the selected seeded defect.
-
-Open the printed worktree path in Codex or Claude Code. Read `SCENARIO.md`, then launch the contract under `loops/`.
-
-## Recommended workshop sequence
-
-1. `docs-freshness`: safe draft loop in a normal agent turn.
-2. `test-repair`: verifier-driven repair using Codex `/goal`.
-3. `pr-watch`: polling an external pull request using Claude Code `/loop`.
-4. `incremental-migration`: one unit per scheduled run.
-5. `production-error`: triage, reproduce, repair, and hand off.
-
-See `DEMO_GUIDE.md` for facilitator instructions and the complete branch map.
-
-## Core commands
+## Verify the product
 
 ```bash
-pnpm test
-pnpm typecheck
-pnpm docs:check
-pnpm perf:test
-pnpm migration:scan
-pnpm logging:check
-pnpm errors:triage
-pnpm eval
-pnpm security:scan
-pnpm seo:audit
 pnpm verify
 ```
 
-## Safety model
+The verification gate runs ESLint, strict TypeScript checks, domain tests, and a production Next.js build.
 
-- Seed branches are immutable starting points.
-- Run branches are disposable.
-- Sensors are deterministic and local.
-- Every contract has hard stop conditions.
-- Outputs remain local until a human approves a push or pull request.
+## Routes
 
+| Route | Purpose |
+| --- | --- |
+| `/inbox` | Triage and respond to customer conversations |
+| `/customers` | Review customer accounts, plan, health, and value |
+| `/knowledge` | Manage approved content and freshness |
+| `/analytics` | Track service performance and answer quality |
+| `/settings` | Configure workspace-level behavior |
+| `/api/tickets` | Read ticket queue data with query and filter parameters |
+| `/api/health` | Report service availability |
+
+## Repository model
+
+`main` is the deployable RelayDesk product. Normal work happens on `codex/` branches and enters `main` only after verification.
+
+Workshop scenario branches are frozen, believable product states. They are never the product architecture and they never replace `main`. Each scenario documents a customer or engineering impact, a measurable sensor, a bounded loop contract, and an objective stop condition.
+
+Read [docs/PRODUCT.md](docs/PRODUCT.md) for product scope, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical boundaries, and [docs/WORKSHOP_SCENARIOS.md](docs/WORKSHOP_SCENARIOS.md) for the planned loop demonstrations.

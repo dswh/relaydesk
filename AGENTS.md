@@ -1,19 +1,18 @@
-# SignalDesk agent instructions
+<!-- BEGIN:nextjs-agent-rules -->
 
-This repository is a controlled teaching fixture. Read `SCENARIO.md` and the linked loop contract before changing anything.
+# This is NOT the Next.js you know
 
-## Working rules
+This version has breaking changes. APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-- Work on a disposable `run/...` branch or an isolated worktree, never directly on a `demo/...` seed branch.
-- Make one small, coherent correction per iteration.
-- Treat scripts in `scripts/` as sensors and gates. Do not weaken or bypass them.
-- Existing tests are part of the verifier. You may add a regression test, but do not delete, skip, or loosen an existing test.
-- Keep `LOOP_STATE.md` current after every attempt.
-- Stop when the scenario succeeds, the same failure repeats twice, three repair attempts fail, or 25 minutes pass.
-- Do not push, merge, publish, deploy, or contact external systems without explicit human approval.
-- If a verifier appears wrong, stop and report the evidence instead of editing the verifier.
+This block is written and re-added by `next dev`. Verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
-## Required handoff
+<!-- END:nextjs-agent-rules -->
 
-Report the selected unit, baseline evidence, files changed, commands run, final evidence, remaining risks, and why the loop stopped.
+# RelayDesk project rules
 
+- RelayDesk is a real customer support operations product. Do not add workshop-only UI or artificial failure fixtures to the product baseline.
+- Keep `main` deployable. Product work uses `codex/` branches and must pass `pnpm verify` before merge.
+- Server Components perform reads. Client Components own interactive UI state. Use Route Handlers only for public or integration-facing HTTP APIs.
+- Keep customer data synthetic in the repository. Never commit production conversations, secrets, tokens, or personal data.
+- Preserve accessible names, keyboard focus, reduced motion, and responsive behavior when changing the interface.
+- Workshop scenario branches represent credible historical product states and use measurable acceptance criteria. Read `docs/WORKSHOP_SCENARIOS.md` before creating one.
