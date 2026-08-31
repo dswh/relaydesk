@@ -710,7 +710,7 @@
             <div>
               <h2>Only loops with measurable product outcomes.</h2>
               <p>
-                Two loops are ready now. The remaining loops stay planned until their
+                Two loops are ready now. Three approved loops stay planned until their
                 real product capability and evaluator exist on <code>main</code>.
               </p>
             </div>
@@ -840,69 +840,6 @@
                   <td>
                     It demonstrates autonomous maintenance across code and prose with
                     deterministic contract evidence.
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span class="badge planned">Planned</span>
-                    <strong>Critical-path observability coverage</strong>
-                  </td>
-                  <td>
-                    Implement ticket ingestion, retry, and reply paths with one real
-                    untraced product boundary in the scenario state.
-                  </td>
-                  <td>
-                    OpenTelemetry SDK and Collector, Jaeger, structured-log contract
-                    tests, PII scanning, and trace-overhead measurement.
-                  </td>
-                  <td>
-                    100% of frozen critical paths produce one connected trace, 100%
-                    required attributes, zero raw customer content, and overhead below
-                    5%. Pass twice.
-                  </td>
-                  <td>
-                    Maximum 8 iterations or 60 minutes. Instrument one boundary per
-                    iteration. Escalate any privacy tradeoff.
-                  </td>
-                  <td>
-                    A blind webhook retry becomes one searchable trace from receipt to
-                    acknowledgement.
-                  </td>
-                  <td>
-                    The result is visually compelling in a trace viewer and directly
-                    useful to operators, with privacy protected by gates.
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span class="badge planned">Planned</span>
-                    <strong>Production error to verified correction</strong>
-                  </td>
-                  <td>
-                    Start from a sanitized captured error tied to a reproducible
-                    attachment, import, or webhook payload. No workshop-only failure
-                    flags.
-                  </td>
-                  <td>
-                    Sentry, Playwright or contract tests, Vitest, GitHub Actions, and
-                    OpenTelemetry correlation.
-                  </td>
-                  <td>
-                    Reproduction fails before and passes after, regression suite is
-                    green, the fingerprint does not recur during replay, and no new
-                    high-severity event appears.
-                  </td>
-                  <td>
-                    Maximum 10 iterations or 90 minutes. Correct one fingerprint.
-                    Escalate migrations, customer communication, or destructive repair.
-                  </td>
-                  <td>
-                    A production symptom becomes a test, narrow correction, traceable
-                    pull request, and cleared replay.
-                  </td>
-                  <td>
-                    It demonstrates the complete professional path from an external
-                    signal to verified engineering change.
                   </td>
                 </tr>
                 <tr>
@@ -1127,6 +1064,14 @@ pnpm lighthouse</code></pre>
                 <tr>
                   <td><span class="badge removed">Removed</span><strong>Standalone test repair</strong></td>
                   <td>A useful five-minute introduction, but too small and familiar for the flagship effect. Regression tests remain sensors inside stronger loops.</td>
+                </tr>
+                <tr>
+                  <td><span class="badge removed">Removed</span><strong>Critical-path observability coverage</strong></td>
+                  <td>It requires a complete ingestion and telemetry environment, and its outcome is more operator-focused than this showcase needs.</td>
+                </tr>
+                <tr>
+                  <td><span class="badge removed">Removed</span><strong>Production error to verified correction</strong></td>
+                  <td>A credible demonstration requires live error-tracker state, replay infrastructure, and incident context that RelayDesk does not yet have.</td>
                 </tr>
               </tbody>
             </table>
