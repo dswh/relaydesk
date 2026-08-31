@@ -90,3 +90,5 @@ Lighthouse CI performs three production runs and requires 1.00 in accessibility,
 Workshop scenario branches are frozen, believable product states. They are never the product architecture and they never replace `main`. Each scenario documents a customer or engineering impact, a measurable sensor, a bounded loop contract, and an objective stop condition.
 
 Read [docs/PRODUCT.md](docs/PRODUCT.md) for product scope, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical boundaries, and [docs/WORKSHOP_SCENARIOS.md](docs/WORKSHOP_SCENARIOS.md) for the planned loop demonstrations.
+
+The print-friendly instructor version is available at [`/loop-runbook.html`](public/loop-runbook.html) when the app is running.

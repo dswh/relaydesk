@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Instructor runbook for measurable loop engineering demonstrations on RelayDesk."
+    />
+    <title>RelayDesk Loop Engineering Runbook</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #202422;
+        --soft-ink: #555b57;
+        --muted: #777d79;
+        --line: #eaeaea;
+        --line-strong: #dcdedc;
+        --paper: #ffffff;
+        --quiet: #f8f8f6;
+        --green-bg: #edf3ec;
+        --green: #346538;
+        --yellow-bg: #fbf3db;
+        --yellow: #7c5700;
+        --red-bg: #fdebec;
+        --red: #8d3430;
+        --blue-bg: #eaf4fa;
+        --blue: #315f78;
+        --mono: "SFMono-Regular", "SF Mono", "Roboto Mono", Consolas, monospace;
+        --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        --serif: Georgia, "Times New Roman", serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration-color: #a7aaa8;
+        text-underline-offset: 3px;
+      }
+
+      a:hover {
+        text-decoration-color: var(--ink);
+      }
+
+      button,
+      a.button {
+        background: #222624;
+        border: 1px solid #222624;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+        display: inline-flex;
+        font: 600 13px/1 var(--sans);
+        justify-content: center;
+        padding: 12px 16px;
+        text-decoration: none;
+      }
+
+      button:hover,
+      a.button:hover {
+        background: #383d3a;
+      }
+
+      button.secondary,
+      a.button.secondary {
+        background: white;
+        border-color: var(--line-strong);
+        color: var(--ink);
+      }
+
+      .page {
+        margin: 0 auto;
+        max-width: 1480px;
+        padding: 64px 44px 96px;
+      }
+
+      .document-header {
+        border-bottom: 1px solid var(--line-strong);
+        display: grid;
+        gap: 48px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding-bottom: 48px;
+      }
+
+      .eyebrow,
+      .section-label,
+      .meta-label {
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        font-family: var(--serif);
+        font-size: clamp(48px, 6vw, 82px);
+        font-weight: 400;
+        letter-spacing: -0.045em;
+        line-height: 0.98;
+        margin: 18px 0 24px;
+        max-width: 900px;
+      }
+
+      h2 {
+        font-family: var(--serif);
+        font-size: clamp(32px, 3.3vw, 48px);
+        font-weight: 400;
+        letter-spacing: -0.035em;
+        line-height: 1.05;
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        font-size: 18px;
+        letter-spacing: -0.015em;
+        margin-bottom: 10px;
+      }
+
+      .lede {
+        color: var(--soft-ink);
+        font-size: 18px;
+        line-height: 1.65;
+        max-width: 780px;
+      }
+
+      .header-actions {
+        align-items: flex-end;
+        display: flex;
+        gap: 8px;
+      }
+
+      .document-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        margin-top: 32px;
+      }
+
+      .document-meta div {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .document-meta strong {
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .summary-grid {
+        border-left: 1px solid var(--line);
+        border-top: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        margin-top: 48px;
+      }
+
+      .summary-card {
+        border-bottom: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        min-height: 126px;
+        padding: 22px;
+      }
+
+      .summary-card span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .summary-card strong {
+        display: block;
+        font-family: var(--serif);
+        font-size: 34px;
+        font-weight: 400;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        margin: 18px 0 6px;
+      }
+
+      .summary-card small {
+        color: var(--soft-ink);
+        font-size: 11px;
+      }
+
+      .contents {
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        gap: 22px;
+        min-height: 62px;
+        overflow-x: auto;
+      }
+
+      .contents a {
+        color: var(--soft-ink);
+        flex: 0 0 auto;
+        font-size: 12px;
+        text-decoration: none;
+      }
+
+      .contents a:hover {
+        color: var(--ink);
+      }
+
+      section {
+        padding: 88px 0 0;
+        scroll-margin-top: 24px;
+      }
+
+      .section-heading {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: 180px minmax(0, 720px);
+        margin-bottom: 36px;
+      }
+
+      .section-heading p {
+        color: var(--soft-ink);
+        margin-bottom: 0;
+      }
+
+      .table-wrap {
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+
+      table {
+        border-collapse: collapse;
+        font-size: 12px;
+        line-height: 1.55;
+        width: 100%;
+      }
+
+      .wide-table {
+        min-width: 1460px;
+      }
+
+      caption {
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        width: 1px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        padding: 16px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th:last-child,
+      td:last-child {
+        border-right: 0;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      th {
+        background: var(--quiet);
+        color: #4f5551;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        position: sticky;
+        text-transform: uppercase;
+        top: 0;
+        z-index: 1;
+      }
+
+      td strong {
+        display: block;
+        font-size: 13px;
+        line-height: 1.35;
+        margin-bottom: 7px;
+      }
+
+      code,
+      kbd {
+        background: var(--quiet);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        font-family: var(--mono);
+        font-size: 0.9em;
+        padding: 2px 5px;
+      }
+
+      pre {
+        background: #f8f8f6;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: #303532;
+        font: 12px/1.75 var(--mono);
+        margin: 0;
+        overflow-x: auto;
+        padding: 22px;
+        white-space: pre;
+      }
+
+      pre code {
+        background: transparent;
+        border: 0;
+        padding: 0;
+      }
+
+      .badge {
+        border-radius: 999px;
+        display: inline-flex;
+        font-family: var(--mono);
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        margin-bottom: 10px;
+        padding: 4px 8px;
+        text-transform: uppercase;
+      }
+
+      .ready {
+        background: var(--green-bg);
+        color: var(--green);
+      }
+
+      .planned {
+        background: var(--yellow-bg);
+        color: var(--yellow);
+      }
+
+      .removed {
+        background: var(--red-bg);
+        color: var(--red);
+      }
+
+      .reference {
+        background: var(--blue-bg);
+        color: var(--blue);
+      }
+
+      .branch-model,
+      .command-grid,
+      .rules-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .branch-model {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .branch-card,
+      .command-card,
+      .rule-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 24px;
+      }
+
+      .branch-card code {
+        display: inline-block;
+        margin-bottom: 16px;
+      }
+
+      .branch-card p,
+      .command-card p,
+      .rule-card p {
+        color: var(--soft-ink);
+        font-size: 13px;
+        margin-bottom: 0;
+      }
+
+      .command-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .command-card {
+        padding: 28px;
+      }
+
+      .command-card header {
+        align-items: flex-start;
+        display: flex;
+        gap: 18px;
+        justify-content: space-between;
+        margin-bottom: 22px;
+      }
+
+      .command-card header p {
+        max-width: 460px;
+      }
+
+      .score-strip {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(4, 1fr);
+        margin-top: 18px;
+      }
+
+      .score-strip div {
+        background: var(--green-bg);
+        color: var(--green);
+        padding: 12px;
+        text-align: center;
+      }
+
+      .score-strip strong {
+        display: block;
+        font-family: var(--serif);
+        font-size: 24px;
+        font-weight: 400;
+        line-height: 1;
+      }
+
+      .score-strip span {
+        font-size: 9px;
+        text-transform: uppercase;
+      }
+
+      .rules-grid {
+        counter-reset: rules;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .rule-card {
+        counter-increment: rules;
+        min-height: 156px;
+      }
+
+      .rule-card::before {
+        color: var(--muted);
+        content: counter(rules, decimal-leading-zero);
+        display: block;
+        font-family: var(--mono);
+        font-size: 10px;
+        margin-bottom: 34px;
+      }
+
+      .compact-list {
+        color: var(--soft-ink);
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding-left: 22px;
+      }
+
+      .callout {
+        background: var(--quiet);
+        border-left: 3px solid #777d79;
+        margin-top: 20px;
+        padding: 18px 20px;
+      }
+
+      .callout p {
+        color: var(--soft-ink);
+        font-size: 13px;
+        margin: 0;
+      }
+
+      footer {
+        align-items: center;
+        border-top: 1px solid var(--line-strong);
+        color: var(--muted);
+        display: flex;
+        font-size: 11px;
+        justify-content: space-between;
+        margin-top: 96px;
+        padding-top: 28px;
+      }
+
+      @media (max-width: 900px) {
+        .page {
+          padding: 36px 20px 72px;
+        }
+
+        .document-header,
+        .section-heading {
+          grid-template-columns: 1fr;
+        }
+
+        .header-actions {
+          align-items: stretch;
+        }
+
+        .summary-grid,
+        .branch-model,
+        .command-grid,
+        .rules-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 580px) {
+        h1 {
+          font-size: 48px;
+        }
+
+        .summary-grid,
+        .branch-model,
+        .command-grid,
+        .rules-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .document-meta,
+        footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+
+      @media print {
+        @page {
+          margin: 12mm;
+          size: A4 landscape;
+        }
+
+        body {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+
+        .page {
+          max-width: none;
+          padding: 0;
+        }
+
+        .header-actions,
+        .contents {
+          display: none;
+        }
+
+        .document-header {
+          display: block;
+        }
+
+        h1 {
+          font-size: 52px;
+        }
+
+        section {
+          break-before: page;
+          padding-top: 0;
+        }
+
+        .summary-card,
+        .branch-card,
+        .command-card,
+        .rule-card,
+        tr {
+          break-inside: avoid;
+        }
+
+        .table-wrap {
+          overflow: visible;
+        }
+
+        .wide-table {
+          font-size: 8px;
+          min-width: 0;
+        }
+
+        .wide-table th,
+        .wide-table td {
+          padding: 7px;
+        }
+
+        th {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="document-header" id="top">
+        <div>
+          <div class="eyebrow">Instructor edition · RelayDesk</div>
+          <h1>Loop Engineering Runbook</h1>
+          <p class="lede">
+            A measurable workshop system for demonstrating coding-agent loops on a
+            real customer-support product. Every loop has a fixed sensor, numeric
+            target, bounded contract, visible outcome, and explicit stop condition.
+          </p>
+          <div class="document-meta">
+            <div>
+              <span class="meta-label">Product baseline</span>
+              <strong>main</strong>
+            </div>
+            <div>
+              <span class="meta-label">Workshop-ready</span>
+              <strong>2 flagship loops</strong>
+            </div>
+            <div>
+              <span class="meta-label">Repository</span>
+              <strong>dswh/relaydesk</strong>
+            </div>
+            <div>
+              <span class="meta-label">Updated</span>
+              <strong>1 September 2026</strong>
+            </div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="secondary" onclick="window.print()">
+            Print runbook
+          </button>
+          <a class="button" href="https://github.com/dswh/relaydesk">Open repository</a>
+        </div>
+      </header>
+
+      <div class="summary-grid" aria-label="Runbook summary">
+        <div class="summary-card">
+          <span>PostgreSQL p95</span>
+          <strong>783 → 31 ms</strong>
+          <small>10 concurrent users, zero errors</small>
+        </div>
+        <div class="summary-card">
+          <span>Seeded product data</span>
+          <strong>100,007</strong>
+          <small>Synthetic support tickets</small>
+        </div>
+        <div class="summary-card">
+          <span>Lighthouse categories</span>
+          <strong>100 × 4</strong>
+          <small>Performance, accessibility, practices, SEO</small>
+        </div>
+        <div class="summary-card">
+          <span>GitHub gates</span>
+          <strong>3 green</strong>
+          <small>Product, database, Lighthouse</small>
+        </div>
+      </div>
+
+      <nav class="contents" aria-label="Runbook contents">
+        <span class="section-label">Contents</span>
+        <a href="#branch-model">Branch model</a>
+        <a href="#catalog">Loop catalog</a>
+        <a href="#commands">Instructor commands</a>
+        <a href="#judge-rules">LLM judge rules</a>
+        <a href="#removed">Removed loops</a>
+        <a href="#quality-gate">Quality gate</a>
+      </nav>
+
+      <main>
+        <section id="branch-model">
+          <div class="section-heading">
+            <div class="section-label">01 · Branch model</div>
+            <div>
+              <h2>Keep the product healthy and the scenario frozen.</h2>
+              <p>
+                Every participant starts from the same credible product state in a
+                disposable worktree. The evaluator never moves during the run.
+              </p>
+            </div>
+          </div>
+
+          <div class="branch-model">
+            <article class="branch-card">
+              <span class="badge ready">Healthy</span>
+              <h3>Product baseline</h3>
+              <code>main</code>
+              <p>Deployable RelayDesk with all evaluators passing.</p>
+            </article>
+            <article class="branch-card">
+              <span class="badge reference">Frozen</span>
+              <h3>Scenario state</h3>
+              <code>codex/scenario-&lt;name&gt;</code>
+              <p>A reproducible, credible historical product problem.</p>
+            </article>
+            <article class="branch-card">
+              <span class="badge planned">Disposable</span>
+              <h3>Participant run</h3>
+              <code>codex/run-&lt;name&gt;-&lt;date&gt;</code>
+              <p>The branch where the coding agent iterates and records evidence.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="catalog">
+          <div class="section-heading">
+            <div class="section-label">02 · Loop catalog</div>
+            <div>
+              <h2>Only loops with measurable product outcomes.</h2>
+              <p>
+                Two loops are ready now. The remaining loops stay planned until their
+                real product capability and evaluator exist on <code>main</code>.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="wide-table">
+              <caption>RelayDesk loop engineering showcase catalog</caption>
+              <colgroup>
+                <col style="width: 13%" />
+                <col style="width: 15%" />
+                <col style="width: 15%" />
+                <col style="width: 17%" />
+                <col style="width: 13%" />
+                <col style="width: 13%" />
+                <col style="width: 14%" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">Loop and status</th>
+                  <th scope="col">Product setup</th>
+                  <th scope="col">Evaluator and tools</th>
+                  <th scope="col">Pass gate and stop</th>
+                  <th scope="col">Bounded contract</th>
+                  <th scope="col">Ideal output</th>
+                  <th scope="col">Why show it</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="badge ready">Ready</span>
+                    <strong>PostgreSQL inbox page load and search</strong>
+                    <code>codex/scenario-postgres-page-load</code>
+                  </td>
+                  <td>
+                    Seed Northstar Labs with at least 100,000 tickets. Start from a
+                    credible query architecture that returns correct data but degrades
+                    under concurrency.
+                  </td>
+                  <td>
+                    Grafana k6, PostgreSQL
+                    <code>EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)</code>,
+                    <code>Server-Timing</code>, and Vitest correctness checks.
+                  </td>
+                  <td>
+                    p95 below 300 ms, failures below 1%, checks above 99%, PostgreSQL
+                    source confirmed, at least 100,000 rows, required indexes used,
+                    and target query below 100 ms. Pass twice consecutively.
+                  </td>
+                  <td>
+                    Maximum 8 iterations or 45 minutes. One bottleneck hypothesis and
+                    one measured change per iteration. Never edit the evaluator.
+                  </td>
+                  <td>
+                    Queue feels immediate. k6 changes from red to green. The execution
+                    plan changes from a large scan and join to an indexed plan.
+                  </td>
+                  <td>
+                    It links a visible delay to concurrency, database evidence,
+                    correctness, and a fixed performance budget. Baseline p95:
+                    783.15 ms. Healthy p95: 31.53 ms.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="badge ready">Ready</span>
+                    <strong>Landing page Lighthouse quality</strong>
+                    <code>codex/scenario-lighthouse-quality</code>
+                  </td>
+                  <td>
+                    Use the real RelayDesk landing page with credible pre-launch
+                    quality problems in contrast, crawl metadata, or browser console
+                    behavior. Preserve the product message and layout.
+                  </td>
+                  <td>
+                    Lighthouse CI with three runs, Chrome, the Next.js production
+                    build, Core Web Vitals, and visual browser inspection.
+                  </td>
+                  <td>
+                    Performance at least 95. Accessibility, best practices, and SEO at
+                    100. LCP below 2.5 s, CLS below 0.1, TBT below 200 ms, and Speed
+                    Index below 3 s. Every run passes twice.
+                  </td>
+                  <td>
+                    Maximum 10 iterations or 45 minutes. Keep the visual and product
+                    intent. Reject gains that remove content, accessibility, or core
+                    interaction.
+                  </td>
+                  <td>
+                    The same polished page remains intact while all four Lighthouse
+                    scores turn green and Core Web Vitals remain inside budget.
+                  </td>
+                  <td>
+                    A familiar scoreboard makes the loop easy to follow and prevents a
+                    narrow speed win that sacrifices accessibility or SEO. Baseline:
+                    100, 95, 96, 92. Healthy: 100 in all four.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="badge planned">Planned</span>
+                    <strong>API documentation contract freshness</strong>
+                  </td>
+                  <td>
+                    Ship a real webhook or API field change while the reference,
+                    TypeScript example, and help article still describe the prior
+                    contract.
+                  </td>
+                  <td>
+                    OpenAPI diff, generated-client typecheck, executable documentation
+                    snippets, link checker, and an optional frozen clarity judge.
+                  </td>
+                  <td>
+                    Zero undocumented fields, zero unapproved breaking changes, 100%
+                    snippet compilation, 100% links, and clarity at least 4.5 of 5.
+                    Pass twice.
+                  </td>
+                  <td>
+                    Maximum 8 iterations or 60 minutes. Treat implementation and API
+                    schema as read-only inputs. Escalate genuine ambiguity.
+                  </td>
+                  <td>
+                    API reference, executable example, and help article align in one
+                    verified pull request.
+                  </td>
+                  <td>
+                    It demonstrates autonomous maintenance across code and prose with
+                    deterministic contract evidence.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="badge planned">Planned</span>
+                    <strong>Critical-path observability coverage</strong>
+                  </td>
+                  <td>
+                    Implement ticket ingestion, retry, and reply paths with one real
+                    untraced product boundary in the scenario state.
+                  </td>
+                  <td>
+                    OpenTelemetry SDK and Collector, Jaeger, structured-log contract
+                    tests, PII scanning, and trace-overhead measurement.
+                  </td>
+                  <td>
+                    100% of frozen critical paths produce one connected trace, 100%
+                    required attributes, zero raw customer content, and overhead below
+                    5%. Pass twice.
+                  </td>
+                  <td>
+                    Maximum 8 iterations or 60 minutes. Instrument one boundary per
+                    iteration. Escalate any privacy tradeoff.
+                  </td>
+                  <td>
+                    A blind webhook retry becomes one searchable trace from receipt to
+                    acknowledgement.
+                  </td>
+                  <td>
+                    The result is visually compelling in a trace viewer and directly
+                    useful to operators, with privacy protected by gates.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="badge planned">Planned</span>
+                    <strong>Production error to verified correction</strong>
+                  </td>
+                  <td>
+                    Start from a sanitized captured error tied to a reproducible
+                    attachment, import, or webhook payload. No workshop-only failure
+                    flags.
+                  </td>
+                  <td>
+                    Sentry, Playwright or contract tests, Vitest, GitHub Actions, and
+                    OpenTelemetry correlation.
+                  </td>
+                  <td>
+                    Reproduction fails before and passes after, regression suite is
+                    green, the fingerprint does not recur during replay, and no new
+                    high-severity event appears.
+                  </td>
+                  <td>
+                    Maximum 10 iterations or 90 minutes. Correct one fingerprint.
+                    Escalate migrations, customer communication, or destructive repair.
+                  </td>
+                  <td>
+                    A production symptom becomes a test, narrow correction, traceable
+                    pull request, and cleared replay.
+                  </td>
+                  <td>
+                    It demonstrates the complete professional path from an external
+                    signal to verified engineering change.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="badge planned">Planned</span>
+                    <strong>Grounded AI reply quality</strong>
+                  </td>
+                  <td>
+                    Freeze versioned support conversations, approved sources, policy
+                    constraints, and expected actions. Start from a real prompt,
+                    retrieval, or policy regression.
+                  </td>
+                  <td>
+                    Promptfoo, deterministic policy and citation graders, pinned model
+                    settings, and a blinded LLM judge for helpfulness and completeness.
+                  </td>
+                  <td>
+                    100% policy compliance, citation precision at least 0.95, action
+                    recall at least 0.90, no safety regression, and judge mean at least
+                    4.5 of 5 across three runs.
+                  </td>
+                  <td>
+                    Maximum 12 iterations or 120 minutes. Dataset, rubric, model, and
+                    judge prompt remain immutable. Escalate segment tradeoffs.
+                  </td>
+                  <td>
+                    Replies become more accurate and actionable while the scorecard
+                    proves citations and policy did not regress.
+                  </td>
+                  <td>
+                    It is a defensible use of an LLM judge because subjective quality
+                    sits behind deterministic safety and grounding gates.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="badge planned">Planned</span>
+                    <strong>Help-center SEO and answer visibility</strong>
+                  </td>
+                  <td>
+                    Publish a real public help center with structured articles and a
+                    frozen set of high-intent support questions.
+                  </td>
+                  <td>
+                    Lighthouse CI, Playwright crawl checks, schema validation,
+                    search-console exports, and Promptfoo for answer and citation
+                    coverage.
+                  </td>
+                  <td>
+                    Zero critical crawl errors, 100% canonical and schema validity,
+                    accessibility at least 0.95, answer and citation coverage at least
+                    0.90, and judge usefulness at least 4 of 5.
+                  </td>
+                  <td>
+                    Maximum 10 iterations or 90 minutes. Never change the question set.
+                    Escalate when external ranking data is too sparse.
+                  </td>
+                  <td>
+                    A weak article becomes crawlable, answerable, citable, and visibly
+                    useful in the public help center.
+                  </td>
+                  <td>
+                    It separates technical SEO, answer coverage, citations, judgment,
+                    and real search evidence instead of relying on one vanity score.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="commands">
+          <div class="section-heading">
+            <div class="section-label">03 · Instructor commands</div>
+            <div>
+              <h2>Run each live loop from a clean worktree.</h2>
+              <p>
+                Keep the scenario branch frozen. Let participants or the coding agent
+                work only on the disposable <code>codex/run-*</code> branch.
+              </p>
+            </div>
+          </div>
+
+          <div class="command-grid">
+            <article class="command-card">
+              <header>
+                <div>
+                  <span class="badge ready">Ready</span>
+                  <h3>PostgreSQL performance loop</h3>
+                  <p>Terminal A prepares the branch, database, and product server.</p>
+                </div>
+              </header>
+              <pre><code>git fetch origin
+git worktree add .worktrees/postgres-loop \
+  -b codex/run-postgres-$(date +%Y%m%d) \
+  origin/codex/scenario-postgres-page-load
+
+cd .worktrees/postgres-loop
+pnpm install
+cp .env.example .env.local
+pnpm db:setup
+pnpm build
+pnpm start</code></pre>
+
+              <p style="margin: 22px 0 10px">Terminal B runs the frozen evaluator:</p>
+              <pre><code>cd .worktrees/postgres-loop
+pnpm db:verify
+pnpm perf:search</code></pre>
+
+              <div class="callout">
+                <p>
+                  Stop only after p95 is below 300 ms, failures stay below 1%, checks
+                  exceed 99%, and both index plans pass twice consecutively.
+                </p>
+              </div>
+            </article>
+
+            <article class="command-card">
+              <header>
+                <div>
+                  <span class="badge ready">Ready</span>
+                  <h3>Lighthouse quality loop</h3>
+                  <p>The evaluator starts its own production server and runs three times.</p>
+                </div>
+              </header>
+              <pre><code>git fetch origin
+git worktree add .worktrees/lighthouse-loop \
+  -b codex/run-lighthouse-$(date +%Y%m%d) \
+  origin/codex/scenario-lighthouse-quality
+
+cd .worktrees/lighthouse-loop
+pnpm install
+pnpm build
+pnpm lighthouse</code></pre>
+
+              <div class="score-strip" aria-label="Required Lighthouse scores">
+                <div><strong>95+</strong><span>Performance</span></div>
+                <div><strong>100</strong><span>Accessibility</span></div>
+                <div><strong>100</strong><span>Practices</span></div>
+                <div><strong>100</strong><span>SEO</span></div>
+              </div>
+
+              <div class="callout">
+                <p>
+                  Do not edit <code>lighthouserc.cjs</code>, lower a threshold, hide
+                  meaningful content, or remove keyboard access to create a passing run.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="judge-rules">
+          <div class="section-heading">
+            <div class="section-label">04 · LLM-as-judge</div>
+            <div>
+              <h2>Use judgment only after deterministic gates pass.</h2>
+              <p>
+                A judge is useful for clarity, completeness, and helpfulness. It should
+                never be the only sensor for policy, security, citations, schema, or
+                correctness.
+              </p>
+            </div>
+          </div>
+
+          <div class="rules-grid">
+            <article class="rule-card">
+              <p>Pin the dataset, rubric, judge prompt, model family, and model settings before the run.</p>
+            </article>
+            <article class="rule-card">
+              <p>Put policy, security, citation, schema, and correctness in deterministic graders.</p>
+            </article>
+            <article class="rule-card">
+              <p>Use the judge only for qualities that genuinely require interpretation.</p>
+            </article>
+            <article class="rule-card">
+              <p>Blind the judge to iteration labels, previous scores, and the expected winner.</p>
+            </article>
+            <article class="rule-card">
+              <p>Require repeated runs and report the distribution, not only the best result.</p>
+            </article>
+            <article class="rule-card">
+              <p>Never let the active loop edit its evaluator, threshold, rubric, or frozen cases.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="removed">
+          <div class="section-heading">
+            <div class="section-label">05 · Removed loops</div>
+            <div>
+              <h2>Useful workflows are not automatically strong demonstrations.</h2>
+              <p>
+                These items were removed from the flagship catalog because their value
+                is indirect, too generic, or too subjective for the intended workshop.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <caption>Items removed from the loop showcase</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Removed item</th>
+                  <th scope="col">Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge removed">Removed</span><strong>Pull-request watcher</strong></td>
+                  <td>It is a loop-hosting mechanism, not a product improvement use case. GitHub Actions and coding agents still support the stronger loops.</td>
+                </tr>
+                <tr>
+                  <td><span class="badge removed">Removed</span><strong>Incremental migration</strong></td>
+                  <td>Professionally useful, but too generic until RelayDesk has a specific migration tied to a measurable customer outcome.</td>
+                </tr>
+                <tr>
+                  <td><span class="badge removed">Removed</span><strong>Open-ended architecture satisfaction</strong></td>
+                  <td>A subjective architecture score can improve without proving product value. Concrete constraints belong inside specific loop gates.</td>
+                </tr>
+                <tr>
+                  <td><span class="badge removed">Removed</span><strong>Standalone test repair</strong></td>
+                  <td>A useful five-minute introduction, but too small and familiar for the flagship effect. Regression tests remain sensors inside stronger loops.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="quality-gate">
+          <div class="section-heading">
+            <div class="section-label">06 · Scenario gate</div>
+            <div>
+              <h2>Publish a scenario only when all eight conditions hold.</h2>
+              <p>
+                A frozen scenario must remain credible, reproducible, measurable, safe,
+                and easy to reset before an instructor uses it live.
+              </p>
+            </div>
+          </div>
+
+          <ol class="compact-list">
+            <li>A non-technical observer can explain the customer or operator impact.</li>
+            <li>The starting failure reproduces at least three times.</li>
+            <li>The baseline report is committed or attached to the scenario branch.</li>
+            <li>The evaluator measures real behavior and cannot pass through a workshop-only flag.</li>
+            <li>The loop has an iteration limit, time limit, escalation condition, and rollback path.</li>
+            <li>Correctness, security, accessibility, and privacy guardrails prevent metric hacking.</li>
+            <li>The final state is visible in the product and in a machine-readable report.</li>
+            <li>A fresh worktree resets the scenario without destructive cleanup.</li>
+          </ol>
+        </section>
+      </main>
+
+      <footer>
+        <span>RelayDesk · Loop Engineering Runbook</span>
+        <span><a href="#top">Back to top</a> · <a href="https://github.com/dswh/relaydesk">github.com/dswh/relaydesk</a></span>
+      </footer>
+    </div>
+  </body>
+</html>
