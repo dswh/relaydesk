@@ -9,14 +9,15 @@ This repository is the product. Workshop scenarios are derived from real product
 - Searchable and filterable support inbox
 - Ticket priority, ownership, status, tags, and first-response SLA tracking
 - Customer profiles with account health and relationship context
-- Conversation briefs and source-grounded response suggestions
+- Conversation briefs and source-grounded response suggestions through Vercel AI SDK and AI Gateway
 - Reply and internal-note workflows
 - Knowledge health and article freshness views
 - Service performance and AI answer-quality analytics
-- Read-only ticket API and service health endpoint
+- OpenAPI 3.1 ticket API, generated TypeScript contract, executable example, and developer reference
 - Responsive desktop and mobile layouts
 - PostgreSQL-backed queue search with a 100,000-ticket development dataset
-- Public RelayDesk product site with enforced Lighthouse budgets
+- Public RelayDesk product site and five-article help center with enforced Lighthouse budgets
+- Promptfoo evaluation suites for grounded replies and public answer visibility
 
 The Northstar Labs workspace is fully synthetic. PostgreSQL is used when `DATABASE_URL` is configured. A small in-memory dataset remains available for credential-free builds and product previews, but the performance verifier rejects that fallback.
 
@@ -41,7 +42,7 @@ Open [http://localhost:3000](http://localhost:3000) for the public site or [http
 pnpm verify
 ```
 
-The verification gate runs ESLint, strict TypeScript checks, domain tests, and a production Next.js build.
+The verification gate runs ESLint, strict TypeScript checks, OpenAPI validation, generated-type freshness, domain and contract tests, deterministic Promptfoo suites, and a production Next.js build.
 
 ## Run the measurable loop gates
 
@@ -69,6 +70,16 @@ pnpm lighthouse
 
 Lighthouse CI performs three production runs and requires 1.00 in accessibility, best practices, and SEO, at least 0.95 in performance, plus fixed Core Web Vitals budgets.
 
+Run the remaining showcase evaluators independently:
+
+```bash
+pnpm eval:api-docs
+pnpm eval:ai-replies
+pnpm eval:help-center
+```
+
+The grounded-reply gate works without credentials against frozen approved fixtures. Add `AI_GATEWAY_API_KEY` to `.env.local`, then run `pnpm eval:ai-replies:live` to enable live generation and the blinded LLM judge. Secrets are never committed.
+
 ## Routes
 
 | Route | Purpose |
@@ -77,11 +88,17 @@ Lighthouse CI performs three production runs and requires 1.00 in accessibility,
 | `/` | Public RelayDesk product site |
 | `/customers` | Review customer accounts, plan, health, and value |
 | `/knowledge` | Manage approved content and freshness |
+| `/help` | Browse the public RelayDesk help center |
+| `/help/:slug` | Read a server-rendered, structured help article |
+| `/developers/api` | Review the public API contract and TypeScript example |
 | `/analytics` | Track service performance and answer quality |
 | `/settings` | Configure workspace-level behavior |
 | `/api/tickets` | Read lightweight ticket queue data with query and filter parameters |
 | `/api/tickets/:id` | Read a complete ticket conversation and grounding context |
+| `/api/tickets/:id/suggested-reply` | Generate a reply from the ticket's approved grounding sources |
 | `/api/health` | Report service availability |
+| `/openapi.json` | Download the OpenAPI 3.1 contract |
+| `/llms.txt` | Discover public RelayDesk guidance for answer engines |
 
 ## Repository model
 

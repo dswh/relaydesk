@@ -13,3 +13,5 @@ coverage/
 playwright-report/
 test-results/
 .lighthouseci/
+.lighthouseci-help/
+.promptfoo/

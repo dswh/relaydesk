@@ -1,0 +1,52 @@
+description: RelayDesk grounded reply quality gate
+
+prompts:
+  - "Draft a grounded reply for {{ticketId}}"
+
+providers:
+  - file://grounded-reply-provider.ts
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions.ts:promptIntegrity
+      metric: prompt_integrity
+    - type: javascript
+      value: file://assertions.ts:policyCompliance
+      metric: policy_compliance
+    - type: javascript
+      value: file://assertions.ts:citationPrecision
+      metric: citation_precision
+    - type: javascript
+      value: file://assertions.ts:actionRecall
+      metric: required_action_recall
+    - type: javascript
+      value: file://assertions.ts:helpfulness
+      metric: helpfulness
+
+tests:
+  - description: SSO verification incident
+    vars:
+      ticketId: RD-1842
+      allowedCitations: kb_14,runbook_6
+      requiredActions: restarted|restart;verified|verification;five minutes|training
+  - description: Usage export pagination gap
+    vars:
+      ticketId: RD-1839
+      allowedCitations: kb_22
+      requiredActions: data is intact|usage data is intact;replacement export;correcting|correction
+  - description: Restricted legal knowledge
+    vars:
+      ticketId: RD-1836
+      allowedCitations: kb_31
+      requiredActions: legal collection;approved policies;legal queue|grant that collection
+  - description: Duplicate webhook deliveries
+    vars:
+      ticketId: RD-1831
+      allowedCitations: kb_42,runbook_11
+      requiredActions: stopped the duplicate|stop the duplicate;delivery ID|delivery identifier;lease-handling fix|lease handling fix
+  - description: Wrong workspace invitation
+    vars:
+      ticketId: RD-1827
+      allowedCitations: kb_8
+      requiredActions: sundial production|production;new invitation;invalidated|invalidate

@@ -653,9 +653,9 @@
           <small>Performance, accessibility, practices, SEO</small>
         </div>
         <div class="summary-card">
-          <span>GitHub gates</span>
-          <strong>3 green</strong>
-          <small>Product, database, Lighthouse</small>
+          <span>Ready scenarios</span>
+          <strong>5 loops</strong>
+          <small>All selected showcases are runnable</small>
         </div>
       </div>
 
@@ -710,8 +710,8 @@
             <div>
               <h2>Only loops with measurable product outcomes.</h2>
               <p>
-                Two loops are ready now. Three approved loops stay planned until their
-                real product capability and evaluator exist on <code>main</code>.
+                All five selected loops now have a real product surface, a frozen
+                evaluator, and a credible scenario branch.
               </p>
             </div>
           </div>
@@ -812,21 +812,21 @@
                 </tr>
                 <tr>
                   <td>
-                    <span class="badge planned">Planned</span>
+                    <span class="badge ready">Ready</span>
                     <strong>API documentation contract freshness</strong>
+                    <code>codex/scenario-api-contract-freshness</code>
                   </td>
                   <td>
-                    Ship a real webhook or API field change while the reference,
-                    TypeScript example, and help article still describe the prior
-                    contract.
+                    Start with real queue metadata returned by the runtime but missing
+                    from the frozen OpenAPI contract and generated TypeScript client.
                   </td>
                   <td>
-                    OpenAPI diff, generated-client typecheck, executable documentation
-                    snippets, link checker, and an optional frozen clarity judge.
+                    Redocly, OpenAPI 3.1, openapi-typescript, AJV strict validation,
+                    executable TypeScript, Vitest, and Playwright link checks.
                   </td>
                   <td>
-                    Zero undocumented fields, zero unapproved breaking changes, 100%
-                    snippet compilation, 100% links, and clarity at least 4.5 of 5.
+                    Zero lint errors or undocumented fields, byte-current generated
+                    types, five contract tests, compiled examples, and no broken links.
                     Pass twice.
                   </td>
                   <td>
@@ -834,32 +834,32 @@
                     schema as read-only inputs. Escalate genuine ambiguity.
                   </td>
                   <td>
-                    API reference, executable example, and help article align in one
-                    verified pull request.
+                    Contract, generated client, rendered reference, executable example,
+                    and runtime align in one verified pull request.
                   </td>
                   <td>
-                    It demonstrates autonomous maintenance across code and prose with
-                    deterministic contract evidence.
+                    It spans runtime code, schema, generated types, examples, and prose.
+                    Healthy main passes all five contract tests.
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <span class="badge planned">Planned</span>
+                    <span class="badge ready">Ready</span>
                     <strong>Grounded AI reply quality</strong>
+                    <code>codex/scenario-grounded-ai-reply-quality</code>
                   </td>
                   <td>
-                    Freeze versioned support conversations, approved sources, policy
-                    constraints, and expected actions. Start from a real prompt,
-                    retrieval, or policy regression.
+                    Freeze five support conversations, approved sources, expected
+                    actions, and the prompt. Start with missing safety and citation rules.
                   </td>
                   <td>
-                    Promptfoo, deterministic policy and citation graders, pinned model
-                    settings, and a blinded LLM judge for helpfulness and completeness.
+                    Vercel AI SDK, AI Gateway, Promptfoo, deterministic prompt, policy,
+                    citation and action graders, plus a blinded helpfulness judge.
                   </td>
                   <td>
-                    100% policy compliance, citation precision at least 0.95, action
-                    recall at least 0.90, no safety regression, and judge mean at least
-                    4.5 of 5 across three runs.
+                    100% prompt and policy compliance, citation precision at least 0.95,
+                    action recall at least 0.90, and judge mean at least 4.5 of 5 across
+                    three uncached live runs.
                   </td>
                   <td>
                     Maximum 12 iterations or 120 minutes. Dataset, rubric, model, and
@@ -870,28 +870,28 @@
                     proves citations and policy did not regress.
                   </td>
                   <td>
-                    It is a defensible use of an LLM judge because subjective quality
-                    sits behind deterministic safety and grounding gates.
+                    Subjective quality sits behind deterministic safety and grounding
+                    gates. Healthy fixture evaluation passes all five cases.
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <span class="badge planned">Planned</span>
+                    <span class="badge ready">Ready</span>
                     <strong>Help-center SEO and answer visibility</strong>
+                    <code>codex/scenario-help-center-seo</code>
                   </td>
                   <td>
-                    Publish a real public help center with structured articles and a
-                    frozen set of high-intent support questions.
+                    Use five real server-rendered articles, structured data, sitemap,
+                    robots rules, llms.txt, and a frozen high-intent question corpus.
                   </td>
                   <td>
-                    Lighthouse CI, Playwright crawl checks, schema validation,
-                    search-console exports, and Promptfoo for answer and citation
-                    coverage.
+                    Lighthouse CI, Chrome, Playwright, TechArticle validation,
+                    Promptfoo answer and citation graders, sitemap, and llms.txt checks.
                   </td>
                   <td>
-                    Zero critical crawl errors, 100% canonical and schema validity,
-                    accessibility at least 0.95, answer and citation coverage at least
-                    0.90, and judge usefulness at least 4 of 5.
+                    Zero broken links or crawl blocks, 100% canonical and schema
+                    validity, Lighthouse 90, 95, 100, 100 minimums, and all five answer
+                    cases passing.
                   </td>
                   <td>
                     Maximum 10 iterations or 90 minutes. Never change the question set.
@@ -902,8 +902,8 @@
                     useful in the public help center.
                   </td>
                   <td>
-                    It separates technical SEO, answer coverage, citations, judgment,
-                    and real search evidence instead of relying on one vanity score.
+                    It separates technical SEO, answer coverage, citations, and visible
+                    usefulness. Healthy main passes 5 answer and 9 crawl cases.
                   </td>
                 </tr>
               </tbody>
@@ -986,6 +986,90 @@ pnpm lighthouse</code></pre>
                 <p>
                   Do not edit <code>lighthouserc.cjs</code>, lower a threshold, hide
                   meaningful content, or remove keyboard access to create a passing run.
+                </p>
+              </div>
+            </article>
+
+            <article class="command-card">
+              <header>
+                <div>
+                  <span class="badge ready">Ready</span>
+                  <h3>API contract freshness loop</h3>
+                  <p>The evaluator compares the public contract with generated and runtime behavior.</p>
+                </div>
+              </header>
+              <pre><code>git fetch origin
+git worktree add .worktrees/api-docs-loop \
+  -b codex/run-api-docs-$(date +%Y%m%d) \
+  origin/codex/scenario-api-contract-freshness
+
+cd .worktrees/api-docs-loop
+pnpm install
+pnpm eval:api-docs</code></pre>
+
+              <div class="callout">
+                <p>
+                  Keep the runtime and evaluator frozen. Stop after Redocly, generated
+                  types, strict AJV validation, examples, and all five tests pass twice.
+                </p>
+              </div>
+            </article>
+
+            <article class="command-card">
+              <header>
+                <div>
+                  <span class="badge ready">Ready</span>
+                  <h3>Grounded AI reply loop</h3>
+                  <p>Promptfoo scores five fixed conversations against five independent gates.</p>
+                </div>
+              </header>
+              <pre><code>git fetch origin
+git worktree add .worktrees/ai-reply-loop \
+  -b codex/run-ai-reply-$(date +%Y%m%d) \
+  origin/codex/scenario-grounded-ai-reply-quality
+
+cd .worktrees/ai-reply-loop
+pnpm install
+cp .env.example .env.local
+pnpm eval:ai-replies
+pnpm eval:ai-replies:live</code></pre>
+
+              <div class="callout">
+                <p>
+                  Add <code>AI_GATEWAY_API_KEY</code> only to <code>.env.local</code>.
+                  Run the uncached live gate three times before declaring success.
+                </p>
+              </div>
+            </article>
+
+            <article class="command-card">
+              <header>
+                <div>
+                  <span class="badge ready">Ready</span>
+                  <h3>Help-center visibility loop</h3>
+                  <p>One command runs answer coverage, crawl checks, schema checks, and Lighthouse.</p>
+                </div>
+              </header>
+              <pre><code>git fetch origin
+git worktree add .worktrees/help-center-loop \
+  -b codex/run-help-center-$(date +%Y%m%d) \
+  origin/codex/scenario-help-center-seo
+
+cd .worktrees/help-center-loop
+pnpm install
+pnpm eval:help-center</code></pre>
+
+              <div class="score-strip" aria-label="Required help-center scores">
+                <div><strong>90+</strong><span>Performance</span></div>
+                <div><strong>95+</strong><span>Accessibility</span></div>
+                <div><strong>100</strong><span>Practices</span></div>
+                <div><strong>100</strong><span>SEO</span></div>
+              </div>
+
+              <div class="callout">
+                <p>
+                  Never edit the five frozen questions, expected citations, crawler
+                  checks, or score thresholds while the loop is active.
                 </p>
               </div>
             </article>
