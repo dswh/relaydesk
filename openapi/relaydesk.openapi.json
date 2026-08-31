@@ -212,14 +212,12 @@
       "TicketListMeta": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["query", "filter", "returned", "summary", "source", "durationMs"],
+        "required": ["query", "filter", "returned", "summary"],
         "properties": {
           "query": { "type": "string" },
           "filter": { "type": "string", "enum": ["all", "mine", "unassigned", "urgent"] },
           "returned": { "type": "integer", "minimum": 0, "maximum": 50 },
-          "summary": { "$ref": "#/components/schemas/QueueSummary" },
-          "source": { "type": "string", "enum": ["postgres", "synthetic-fallback"] },
-          "durationMs": { "type": "number", "minimum": 0 }
+          "summary": { "$ref": "#/components/schemas/QueueSummary" }
         }
       },
       "TicketListResponse": {

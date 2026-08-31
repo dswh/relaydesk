@@ -138,9 +138,6 @@ export interface components {
             filter: "all" | "mine" | "unassigned" | "urgent";
             returned: number;
             summary: components["schemas"]["QueueSummary"];
-            /** @enum {string} */
-            source: "postgres" | "synthetic-fallback";
-            durationMs: number;
         };
         TicketListResponse: {
             data: components["schemas"]["Ticket"][];
