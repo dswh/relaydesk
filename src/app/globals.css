@@ -2064,7 +2064,7 @@ a {
 
 .landing-primary-action {
   align-items: center;
-  background: #b9473d;
+  background: #e86756;
   color: white;
   display: inline-flex;
   font-size: 14px;
@@ -2076,7 +2076,7 @@ a {
 }
 
 .landing-primary-action:hover {
-  background: #a43c33;
+  background: #f17867;
   transform: translateY(-2px);
 }
 
@@ -2359,7 +2359,7 @@ a {
 
 .landing-section-heading > p,
 .control-plane-copy > p:first-child {
-  color: #2c665a;
+  color: #427d70;
   margin: 8px 0 0;
 }
 
@@ -2375,7 +2375,7 @@ a {
 }
 
 .landing-section-heading > span {
-  color: #4d6560;
+  color: #647975;
   font-size: 14px;
   line-height: 1.65;
   padding-top: 7px;
@@ -2399,7 +2399,7 @@ a {
 }
 
 .operating-steps article > span {
-  color: #a53d34;
+  color: #e15f50;
   font-family: var(--font-utility), monospace;
   font-size: 11px;
 }
@@ -2413,7 +2413,7 @@ a {
 }
 
 .operating-steps p {
-  color: #4d6560;
+  color: #647975;
   font-size: 13px;
   line-height: 1.65;
   margin: 0;
@@ -2435,7 +2435,7 @@ a {
 }
 
 .control-plane-copy > p:nth-child(3) {
-  color: #405b55;
+  color: #58706b;
   font-size: 14px;
   line-height: 1.7;
   margin: 24px 0 30px;
@@ -2468,7 +2468,7 @@ a {
 }
 
 .control-plane-grid span {
-  color: #285f54;
+  color: #4d7e72;
   font-family: var(--font-utility), monospace;
   font-size: 9px;
   letter-spacing: 0.8px;
@@ -2485,7 +2485,7 @@ a {
 }
 
 .control-plane-grid small {
-  color: #405d56;
+  color: #647b75;
   font-size: 10px;
   line-height: 1.5;
 }
@@ -2500,7 +2500,7 @@ a {
 }
 
 .landing-final-cta > p {
-  color: #315f56;
+  color: #4d7e72;
   max-width: 170px;
 }
 
@@ -2510,7 +2510,7 @@ a {
 
 .landing-final-cta > a {
   align-items: center;
-  background: #b9473d;
+  background: #e86756;
   color: white;
   display: inline-flex;
   font-size: 13px;
