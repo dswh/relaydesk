@@ -21,11 +21,18 @@ const utility = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: {
     default: "RelayDesk",
     template: "%s | RelayDesk",
   },
   description: "AI customer support operations for fast, reliable service teams.",
+  openGraph: {
+    description: "AI customer support operations for fast, reliable service teams.",
+    siteName: "RelayDesk",
+    title: "RelayDesk",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

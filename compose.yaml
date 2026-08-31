@@ -1,0 +1,23 @@
+name: relaydesk
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: relaydesk
+      POSTGRES_PASSWORD: relaydesk
+      POSTGRES_USER: relaydesk
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U relaydesk -d relaydesk"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "5433:5432"
+    shm_size: 256mb
+    volumes:
+      - relaydesk-postgres:/var/lib/postgresql/data
+
+volumes:
+  relaydesk-postgres:
+

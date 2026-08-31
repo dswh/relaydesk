@@ -39,11 +39,9 @@ The synthetic Northstar Labs workspace is development data, not the product prem
 
 ## Next milestones
 
-1. PostgreSQL schema and repository implementation
-2. Workspace authentication and role-based access
-3. Email and chat ingestion
-4. Persistent replies, assignments, status changes, and audit events
-5. Search indexing and measured performance budgets
-6. Model gateway, retrieval, citations, and evaluation suite
-7. OpenTelemetry traces, production error capture, and alert routing
-8. Public help center and TypeScript SDK
+1. Workspace authentication and role-based access
+2. Email and chat ingestion
+3. Persistent replies, assignments, status changes, and audit events
+4. Model gateway, retrieval, citations, and evaluation suite
+5. OpenTelemetry traces, production error capture, and alert routing
+6. Public help center and TypeScript SDK

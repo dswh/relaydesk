@@ -14,20 +14,34 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:migrate": "tsx scripts/migrate-database.ts",
+    "db:seed": "tsx scripts/seed-database.ts",
+    "db:setup": "pnpm db:up && pnpm db:migrate && pnpm db:seed",
+    "db:verify": "tsx scripts/verify-database.ts",
+    "perf:search": "docker run --rm -i --add-host=host.docker.internal:host-gateway grafana/k6:1.0.0 run - < benchmarks/ticket-search.k6.js",
+    "lighthouse": "lhci autorun",
+    "verify:showcase": "pnpm db:verify && pnpm lighthouse"
   },
   "dependencies": {
+    "dotenv": "17.4.2",
     "lucide-react": "^1.38.0",
     "next": "16.3.3",
+    "pg": "8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@lhci/cli": "0.15.1",
     "@types/node": "^26.0.0",
+    "@types/pg": "8.23.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.3",
+    "tsx": "4.23.13",
     "typescript": "^5.9.0",
     "vitest": "^4.0.0"
   },

@@ -33,3 +33,75 @@ jobs:
 
       - name: Verify product
         run: pnpm verify
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_POOL_MAX: 10
+      DATABASE_URL: postgresql://relaydesk:relaydesk@localhost:5432/relaydesk
+      DATABASE_SSL: disable
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: relaydesk
+          POSTGRES_PASSWORD: relaydesk
+          POSTGRES_USER: relaydesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U relaydesk -d relaydesk"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.10.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Migrate and seed PostgreSQL
+        run: pnpm db:migrate && pnpm db:seed
+
+      - name: Verify dataset and query plan
+        run: pnpm db:verify
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.10.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the public site
+        run: pnpm build
+
+      - name: Enforce Lighthouse budgets
+        run: pnpm lighthouse

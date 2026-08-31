@@ -15,19 +15,25 @@ This repository is the product. Workshop scenarios are derived from real product
 - Service performance and AI answer-quality analytics
 - Read-only ticket API and service health endpoint
 - Responsive desktop and mobile layouts
+- PostgreSQL-backed queue search with a 100,000-ticket development dataset
+- Public RelayDesk product site with enforced Lighthouse budgets
 
-The first foundation release uses a synthetic Northstar Labs workspace so the application runs without credentials. PostgreSQL persistence, authentication, ingestion channels, and model-provider integrations are the next implementation milestones.
+The Northstar Labs workspace is fully synthetic. PostgreSQL is used when `DATABASE_URL` is configured. A small in-memory dataset remains available for credential-free builds and product previews, but the performance verifier rejects that fallback.
 
 ## Run locally
 
-Requirements: Node.js 22 or newer and pnpm 10.
+Requirements: Node.js 22 or newer, pnpm 10, and Docker Desktop.
 
 ```bash
 pnpm install
+cp .env.example .env.local
+pnpm db:setup
 pnpm dev
 ```
 
-Open [http://localhost:3000/inbox](http://localhost:3000/inbox).
+Open [http://localhost:3000](http://localhost:3000) for the public site or [http://localhost:3000/inbox](http://localhost:3000/inbox) for the support workspace.
+
+`pnpm db:seed` replaces only the synthetic `northstar-labs` workspace and creates 100,007 tickets. The local PostgreSQL container listens on port 5433 so it does not conflict with a default PostgreSQL installation.
 
 ## Verify the product
 
@@ -37,16 +43,44 @@ pnpm verify
 
 The verification gate runs ESLint, strict TypeScript checks, domain tests, and a production Next.js build.
 
+## Run the measurable loop gates
+
+Start the production app in one terminal:
+
+```bash
+pnpm build
+pnpm start
+```
+
+Run the PostgreSQL load gate in a second terminal:
+
+```bash
+pnpm db:verify
+pnpm perf:search
+```
+
+The load gate uses Grafana k6 in Docker, runs 10 concurrent users for 30 seconds, requires p95 below 300 ms, and rejects non-PostgreSQL responses.
+
+Stop the production server, then run the public-site quality gate:
+
+```bash
+pnpm lighthouse
+```
+
+Lighthouse CI performs three production runs and requires 1.00 in accessibility, best practices, and SEO, at least 0.95 in performance, plus fixed Core Web Vitals budgets.
+
 ## Routes
 
 | Route | Purpose |
 | --- | --- |
 | `/inbox` | Triage and respond to customer conversations |
+| `/` | Public RelayDesk product site |
 | `/customers` | Review customer accounts, plan, health, and value |
 | `/knowledge` | Manage approved content and freshness |
 | `/analytics` | Track service performance and answer quality |
 | `/settings` | Configure workspace-level behavior |
-| `/api/tickets` | Read ticket queue data with query and filter parameters |
+| `/api/tickets` | Read lightweight ticket queue data with query and filter parameters |
+| `/api/tickets/:id` | Read a complete ticket conversation and grounding context |
 | `/api/health` | Report service availability |
 
 ## Repository model

@@ -15,11 +15,16 @@ Next.js server
   Route Handlers                external HTTP contract
   Domain modules                queue filtering, SLA state, summaries
 
-Development dataset
-  Synthetic tickets and customers
+PostgreSQL
+  organizations, customers, tickets, full-text search, queue indexes
+
+Development fallback
+  small synthetic ticket set for builds without DATABASE_URL
 ```
 
-The inbox receives serializable ticket data from a Server Component. Interactive selection, filtering, assignment, resolution, and composing live inside the client workspace. Public API reads use Route Handlers, while domain rules stay framework-independent and unit tested.
+The inbox Server Component reads a lightweight queue projection from PostgreSQL. It loads the first complete conversation for initial rendering, while later ticket selections use the public ticket-detail contract. Search is driven by URL parameters, so the Server Component remains the source of queue reads. PostgreSQL uses a pooled connection, a generated `tsvector`, a GIN search index, queue-oriented composite indexes, and a five-second summary cache.
+
+The repository can build without database credentials by using a seven-ticket synthetic fallback. The k6 performance gate checks the `X-RelayDesk-Data-Source` response header, so the fallback can never create a false performance pass.
 
 ## Target production boundaries
 
@@ -42,8 +47,8 @@ packages/evaluations
 packages/observability
   structured logs, traces, metrics, error reporting
 
-PostgreSQL and search index
-  tenant data, messages, knowledge, audit history
+PostgreSQL
+  tenant data, messages, generated full-text search vectors, knowledge, audit history
 ```
 
 The repository will evolve toward these boundaries as persistence and integrations are implemented. We will extract packages only when the working product creates a real ownership or dependency boundary.

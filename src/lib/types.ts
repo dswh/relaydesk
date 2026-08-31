@@ -49,6 +49,7 @@ export type Ticket = {
   messages: Message[];
   sources: KnowledgeSource[];
   suggestedReply: string;
+  detailsLoaded?: boolean;
 };
 
 export type QueueFilter = "all" | "mine" | "unassigned" | "urgent";

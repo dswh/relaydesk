@@ -21,10 +21,11 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
 
-import { filterTickets, getSlaProgress, getSlaState, summarizeQueue } from "@/lib/inbox";
-import type { QueueFilter, Ticket } from "@/lib/types";
+import { getSlaProgress, getSlaState } from "@/lib/inbox";
+import type { QueueFilter, QueueSummary, Ticket } from "@/lib/types";
 
 const filters: { id: QueueFilter; label: string }[] = [
   { id: "all", label: "All" },
@@ -33,34 +34,80 @@ const filters: { id: QueueFilter; label: string }[] = [
   { id: "urgent", label: "Urgent" },
 ];
 
+const compactCount = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 1,
+  notation: "compact",
+});
+
 function channelIcon(channel: Ticket["channel"]) {
   if (channel === "chat") return <MessageCircle size={13} aria-hidden="true" />;
   if (channel === "api") return <Zap size={13} aria-hidden="true" />;
   return <Mail size={13} aria-hidden="true" />;
 }
 
-export function InboxWorkspace({ initialTickets }: { initialTickets: Ticket[] }) {
+export function InboxWorkspace({
+  initialFilter,
+  initialQuery,
+  initialSummary,
+  initialTickets,
+}: {
+  initialFilter: QueueFilter;
+  initialQuery: string;
+  initialSummary: QueueSummary;
+  initialTickets: Ticket[];
+}) {
+  const router = useRouter();
   const [ticketState, setTicketState] = useState(initialTickets);
-  const [filter, setFilter] = useState<QueueFilter>("all");
-  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<QueueFilter>(initialFilter);
+  const [query, setQuery] = useState(initialQuery);
   const [selectedId, setSelectedId] = useState(initialTickets[0]?.id ?? "");
   const [draft, setDraft] = useState("");
   const [composerMode, setComposerMode] = useState<"reply" | "note">("reply");
   const [isGenerating, setIsGenerating] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [isSearching, startSearchTransition] = useTransition();
 
-  const summary = useMemo(() => summarizeQueue(ticketState), [ticketState]);
-  const visibleTickets = useMemo(
-    () => filterTickets(ticketState, query, filter),
-    [ticketState, query, filter],
-  );
+  const summary = initialSummary;
+  const visibleTickets = ticketState;
   const selectedTicket =
     ticketState.find((ticket) => ticket.id === selectedId) ?? visibleTickets[0];
 
-  function selectTicket(id: string) {
+  useEffect(() => {
+    if (query === initialQuery && filter === initialFilter) return;
+
+    const timeout = window.setTimeout(() => {
+      const parameters = new URLSearchParams();
+      if (query.trim()) parameters.set("q", query.trim());
+      if (filter !== "all") parameters.set("filter", filter);
+      const destination = parameters.size ? `/inbox?${parameters}` : "/inbox";
+      startSearchTransition(() => router.replace(destination, { scroll: false }));
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [filter, initialFilter, initialQuery, query, router]);
+
+  async function selectTicket(id: string) {
     setSelectedId(id);
     setDraft("");
     setNotice(null);
+
+    const ticket = ticketState.find((item) => item.id === id);
+    if (!ticket || ticket.detailsLoaded !== false) return;
+
+    setIsDetailLoading(true);
+    try {
+      const response = await fetch(`/api/tickets/${encodeURIComponent(id)}`);
+      if (!response.ok) throw new Error(`Ticket detail request failed with ${response.status}`);
+      const payload = (await response.json()) as { data: Ticket };
+      setTicketState((current) =>
+        current.map((item) => (item.id === id ? payload.data : item)),
+      );
+    } catch {
+      setNotice("Could not load the full conversation. Try again.");
+    } finally {
+      setIsDetailLoading(false);
+    }
   }
 
   function assignToMe() {
@@ -146,7 +193,7 @@ export function InboxWorkspace({ initialTickets }: { initialTickets: Ticket[] })
       </div>
 
       <div className="inbox-grid">
-        <section className="queue-panel" aria-label="Ticket queue">
+        <section className="queue-panel" aria-busy={isSearching} aria-label="Ticket queue">
           <div className="queue-toolbar">
             <label className="queue-search">
               <Search size={16} aria-hidden="true" />
@@ -173,14 +220,16 @@ export function InboxWorkspace({ initialTickets }: { initialTickets: Ticket[] })
                   type="button"
                 >
                   {item.label}
-                  <span>{summary[item.id]}</span>
+                  <span>{compactCount.format(summary[item.id])}</span>
                 </button>
               ))}
             </div>
           </div>
 
           <div className="queue-meta">
-            <span>{visibleTickets.length} conversations</span>
+            <span>
+              {isSearching ? "Refreshing queue" : `${visibleTickets.length} conversations`}
+            </span>
             <button type="button">Priority <ChevronDown size={13} aria-hidden="true" /></button>
           </div>
 
@@ -277,6 +326,11 @@ export function InboxWorkspace({ initialTickets }: { initialTickets: Ticket[] })
                 </div>
 
                 <div className="message-thread">
+                  {isDetailLoading && (
+                    <div className="conversation-loading" role="status">
+                      Loading the complete conversation
+                    </div>
+                  )}
                   {selectedTicket.messages.map((message) => (
                     <article className={`message ${message.role}`} key={message.id}>
                       <span className="message-avatar">

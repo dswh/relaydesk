@@ -30,7 +30,7 @@ export function filterTickets(
       if (filter === "mine" && ticket.assignee !== "You") return false;
       if (filter === "unassigned" && ticket.assignee !== null) return false;
       if (filter === "urgent" && ticket.priority !== "urgent") return false;
-      return ticket.status !== "resolved" || filter === "all";
+      return ticket.status !== "resolved";
     })
     .filter((ticket) => {
       if (!normalizedQuery) return true;
