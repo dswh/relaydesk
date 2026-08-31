@@ -155,35 +155,6 @@ export async function getTicketPage({
   const [ticketResult, summary] = await Promise.all([
     databaseQuery<TicketRow>(
       `
-        with matched_tickets as materialized (
-          select
-            t.id,
-            t.customer_id,
-            t.external_id,
-            t.subject,
-            t.preview,
-            t.priority,
-            t.priority_rank,
-            t.status,
-            t.channel,
-            t.assignee,
-            t.updated_label,
-            t.waiting_minutes,
-            t.sla_minutes,
-            t.tags,
-            t.intent,
-            t.sentiment,
-            t.summary
-          from tickets t
-          where t.organization_id = (
-              select id from organizations where slug = $1
-            )
-            and t.is_active = true
-            ${searchClause}
-            ${activeFilterClause}
-          order by t.priority_rank, t.waiting_minutes desc, t.id desc
-          limit ${MAX_PAGE_SIZE}
-        )
         select
           t.external_id,
           t.subject,
@@ -199,9 +170,9 @@ export async function getTicketPage({
           t.intent,
           t.sentiment,
           t.summary,
-          '[]'::jsonb as messages,
-          '[]'::jsonb as sources,
-          ''::text as suggested_reply,
+          t.messages,
+          t.sources,
+          t.suggested_reply,
           c.external_id as customer_external_id,
           c.name as customer_name,
           c.email as customer_email,
@@ -212,9 +183,19 @@ export async function getTicketPage({
           c.local_time_label as customer_timezone,
           c.health as customer_health,
           c.lifetime_value_cents::text as customer_lifetime_value_cents
-        from matched_tickets t
+        from organizations o
+        join tickets t on t.organization_id = o.id
         join customers c on c.id = t.customer_id
-        order by t.priority_rank, t.waiting_minutes desc, t.id desc
+        where o.slug = $1
+          and t.is_active = true
+          ${searchClause}
+          ${activeFilterClause}
+        order by
+          ${normalizedSearch ? "ts_rank_cd(t.search_vector, websearch_to_tsquery('english', $2)) desc," : ""}
+          t.priority_rank,
+          t.waiting_minutes desc,
+          t.id desc
+        limit ${MAX_PAGE_SIZE}
       `,
       values,
     ),
@@ -265,7 +246,7 @@ async function getQueueSummary(): Promise<QueueSummary> {
         unassigned: Number(counts.unassigned_count),
         urgent: Number(counts.urgent_count),
       };
-      summaryCache = { expiresAt: Date.now() + 5_000, value };
+      summaryCache = { expiresAt: Date.now(), value };
       return value;
     })
     .finally(() => {
