@@ -11,6 +11,7 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/analytics",
           "/customers",
+          "/help",
           "/inbox",
           "/knowledge",
           "/search",
@@ -20,7 +21,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         allow: ["/help/", "/developers/", "/openapi.json", "/llms.txt"],
-        disallow: ["/api/", "/inbox"],
+        disallow: ["/api/", "/help", "/inbox"],
         userAgent: ["OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "PerplexityBot"],
       },
     ],

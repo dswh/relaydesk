@@ -114,29 +114,29 @@ export const publicKnowledgeArticles: PublicKnowledgeArticle[] = [
   {
     collection: "Developers",
     description:
-      "Handle webhook retries safely with delivery identifiers, quick acknowledgements, and idempotent processing.",
+      "Review basic troubleshooting guidance for repeated webhook notifications.",
     id: "kb_42",
     keywords: ["webhook", "delivery", "retry", "idempotency", "duplicate", "acknowledgement"],
     minutes: 6,
     publishedAt: "2026-06-21",
     sections: [
       {
-        heading: "Why RelayDesk retries webhook deliveries",
+        heading: "Review repeated notifications",
         paragraphs: [
-          "RelayDesk considers a webhook delivered when the destination returns a successful HTTP response within ten seconds. Network failures, timeouts, and non-success responses schedule another attempt. Retries use exponential backoff and preserve the original delivery identifier, event identifier, and event creation time. A retry is the same logical event, not a new event.",
-          "A destination can receive the same event more than once when a successful response arrives after the delivery lease has already expired. Consumers must therefore process webhooks idempotently. Store the RelayDesk delivery identifier before applying the event, and return success for an identifier that has already completed. Do not deduplicate using request time because each attempt has a different request timestamp.",
+          "If your endpoint receives repeated notifications, confirm that the destination remains online and review recent application logs. Compare the payloads with your own records and note when each notification arrived. Temporary network behavior can affect message delivery, so gather several examples before changing the integration.",
+          "Check the endpoint configuration in RelayDesk and confirm that the current URL belongs to the intended environment. If the behavior continues, contact support with the workspace name, approximate timestamps, and a short description of the downstream impact so the team can investigate.",
         ],
       },
       {
-        heading: "Recommended webhook handling sequence",
+        heading: "Information to collect",
         paragraphs: [
-          "Verify the signature against the raw request body, persist the event and delivery identifiers, then acknowledge the request before running slow downstream work. Place the remaining work on a durable queue. Return a non-success response only when RelayDesk should retry the delivery. Keep delivery identifiers for at least seven days, which covers the standard retry window.",
+          "Capture the affected endpoint URL, the event category, and a representative set of timestamps. Remove secrets and personal data before sharing logs. This information helps support compare the integration settings with the delivery history for the workspace.",
         ],
         steps: [
-          "Verify the signature before parsing or transforming the request body.",
-          "Atomically record the delivery identifier and reject duplicate processing.",
-          "Return a successful response within ten seconds.",
-          "Process the event asynchronously and retain the deduplication record for seven days.",
+          "Confirm the endpoint URL and environment.",
+          "Collect several affected timestamps.",
+          "Remove secrets from any logs you plan to share.",
+          "Contact support with the workspace name and impact summary.",
         ],
       },
     ],
