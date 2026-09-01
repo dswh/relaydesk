@@ -37,7 +37,7 @@ export function getHelpChatConfig(): HelpChatConfig {
   return {
     clarifyAmbiguous: booleanValue(
       process.env.RELAYDESK_HELP_CLARIFY_AMBIGUOUS,
-      true,
+      false,
     ),
     contextBudgetCharacters: numberValue(
       process.env.RELAYDESK_HELP_CONTEXT_BUDGET,
@@ -54,32 +54,32 @@ export function getHelpChatConfig(): HelpChatConfig {
       DEFAULT_HELP_GENERATION_MODEL,
     includeConversationContext: booleanValue(
       process.env.RELAYDESK_HELP_INCLUDE_CONTEXT,
-      true,
+      false,
     ),
     lexicalWeight: numberValue(
       process.env.RELAYDESK_HELP_LEXICAL_WEIGHT,
-      0.3,
+      0,
     ),
     minimumEvidenceScore: numberValue(
       process.env.RELAYDESK_HELP_MINIMUM_EVIDENCE,
-      0.1,
+      0,
     ),
     requireCitations: booleanValue(
       process.env.RELAYDESK_HELP_REQUIRE_CITATIONS,
-      true,
+      false,
     ),
     safePromptHandling: booleanValue(
       process.env.RELAYDESK_HELP_SAFE_PROMPT_HANDLING,
-      true,
+      false,
     ),
     strictEvidence: booleanValue(
       process.env.RELAYDESK_HELP_STRICT_EVIDENCE,
-      true,
+      false,
     ),
-    topK: Math.max(1, Math.round(numberValue(process.env.RELAYDESK_HELP_TOP_K, 5))),
+    topK: Math.max(1, Math.round(numberValue(process.env.RELAYDESK_HELP_TOP_K, 2))),
     vectorWeight: numberValue(
       process.env.RELAYDESK_HELP_VECTOR_WEIGHT,
-      0.7,
+      1,
     ),
   };
 }
