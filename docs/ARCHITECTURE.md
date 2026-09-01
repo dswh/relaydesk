@@ -10,6 +10,7 @@ Browser
     InboxWorkspace               interactive queue and composer state
     Customer, knowledge, analytics views
   Public help center             static articles and structured data
+  Public field notes             eight long-form BlogPosting pages
   Developer reference            OpenAPI-backed operation catalog
 
 Next.js server
@@ -39,6 +40,8 @@ Grounded reply generation uses Vercel AI SDK with the AI Gateway global provider
 The public API contract lives in `openapi/relaydesk.openapi.json`. Redocly validates the specification, openapi-typescript generates `src/lib/relaydesk-api.d.ts`, and AJV checks real Route Handler responses with additional properties rejected. The developer reference imports the same contract, so operation names and descriptions cannot drift independently.
 
 Public help articles are server-rendered from a shared knowledge corpus. Sitemap, robots policy, TechArticle structured data, canonical URLs, and `llms.txt` are generated from that corpus. Playwright verifies crawlability and links, Promptfoo measures answer and citation coverage, and Lighthouse enforces the public quality budgets.
+
+RelayDesk field notes are server-rendered from `src/lib/blog.ts`. The shared article template publishes BlogPosting structured data, canonical metadata, stable table-of-contents anchors, and related links. Every article contains at least 1,000 words. Playwright validates all eight pages, while the primary Lighthouse loop performs two runs each on the landing page, blog index, and representative long-form article.
 
 ## Target production boundaries
 

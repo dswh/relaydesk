@@ -650,7 +650,7 @@
         <div class="summary-card">
           <span>Lighthouse categories</span>
           <strong>100 × 4</strong>
-          <small>Performance, accessibility, practices, SEO</small>
+          <small>Six runs across three public surfaces</small>
         </div>
         <div class="summary-card">
           <span>Ready scenarios</span>
@@ -778,36 +778,34 @@
                 <tr>
                   <td>
                     <span class="badge ready">Ready</span>
-                    <strong>Landing page Lighthouse quality</strong>
+                    <strong>Multi-page Lighthouse publishing quality</strong>
                     <code>codex/scenario-lighthouse-quality</code>
                   </td>
                   <td>
-                    Use the real RelayDesk landing page with credible pre-launch
-                    quality problems in contrast, crawl metadata, or browser console
-                    behavior. Preserve the product message and layout.
+                    Use the real landing page, blog directory, and eight server-rendered
+                    thousand-word field notes. Preserve the publication and shared design.
                   </td>
                   <td>
-                    Lighthouse CI with three runs, Chrome, the Next.js production
-                    build, Core Web Vitals, and visual browser inspection.
+                    Lighthouse CI with six runs across three pages, Chrome, the Next.js
+                    production build, and twelve Playwright content and crawl checks.
                   </td>
                   <td>
                     Performance at least 95. Accessibility, best practices, and SEO at
-                    100. LCP below 2.5 s, CLS below 0.1, TBT below 200 ms, and Speed
-                    Index below 3 s. Every run passes twice.
+                    100. LCP below 2.5 s, CLS below 0.1, TBT below 200 ms, Speed Index
+                    below 3 s, and all twelve browser checks passing. Pass twice.
                   </td>
                   <td>
-                    Maximum 10 iterations or 45 minutes. Keep the visual and product
-                    intent. Reject gains that remove content, accessibility, or core
-                    interaction.
+                    Maximum 10 iterations or 60 minutes. Keep all eight articles,
+                    initial server-rendered content, visual intent, and fixed evaluators.
                   </td>
                   <td>
-                    The same polished page remains intact while all four Lighthouse
-                    scores turn green and Core Web Vitals remain inside budget.
+                    One shared-template repair improves the landing page, directory,
+                    and every article while the complete scorecard turns green.
                   </td>
                   <td>
-                    A familiar scoreboard makes the loop easy to follow and prevents a
-                    narrow speed win that sacrifices accessibility or SEO. Baseline:
-                    100, 95, 96, 92. Healthy: 100 in all four.
+                    A familiar scoreboard makes the loop easy to follow while the scope
+                    proves system-level optimization. Healthy: 100 in all categories,
+                    LCP 496 to 613 ms, CLS 0, TBT 0, and 12 of 12 checks passing.
                   </td>
                 </tr>
                 <tr>
@@ -962,18 +960,17 @@ pnpm perf:search</code></pre>
                 <div>
                   <span class="badge ready">Ready</span>
                   <h3>Lighthouse quality loop</h3>
-                  <p>The evaluator starts its own production server and runs three times.</p>
+                  <p>Use Goal mode in a fresh scenario worktree. Codex runs every evaluator.</p>
                 </div>
               </header>
-              <pre><code>git fetch origin
-git worktree add .worktrees/lighthouse-loop \
-  -b codex/run-lighthouse-$(date +%Y%m%d) \
-  origin/codex/scenario-lighthouse-quality
-
-cd .worktrees/lighthouse-loop
-pnpm install
-pnpm build
-pnpm lighthouse</code></pre>
+              <pre><code>Read the scenario baseline. Evaluate the landing page, blog index,
+and representative long-form article using the existing Lighthouse
+and browser-quality gates. Diagnose shared performance, accessibility,
+and technical SEO problems, then improve them through measured iterations.
+Preserve the content and design. Do not lower budgets, disable audits,
+remove meaningful content, or exclude pages. Stop only when every
+configured page and browser check passes. Finish with a page-by-page
+before-and-after table and explain which shared changes improved the site.</code></pre>
 
               <div class="score-strip" aria-label="Required Lighthouse scores">
                 <div><strong>95+</strong><span>Performance</span></div>

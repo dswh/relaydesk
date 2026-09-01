@@ -1,14 +1,18 @@
 module.exports = {
   ci: {
     collect: {
-      numberOfRuns: 3,
+      numberOfRuns: 2,
       settings: {
         chromeFlags: "--headless --no-sandbox --disable-dev-shm-usage",
         preset: "desktop",
       },
-      startServerCommand: "pnpm start",
+      startServerCommand: "PORT=3100 pnpm start",
       startServerReadyPattern: "Ready in|Local:",
-      url: ["http://localhost:3000/"],
+      url: [
+        "http://localhost:3100/",
+        "http://localhost:3100/blog",
+        "http://localhost:3100/blog/designing-a-support-operations-system",
+      ],
     },
     assert: {
       assertions: {

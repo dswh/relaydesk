@@ -24,6 +24,7 @@
     "eval:ai-replies:live": "RELAYDESK_EVAL_MODE=live promptfoo eval -c evaluations/ai-replies/promptfooconfig.yaml --no-cache",
     "eval:help-answers": "promptfoo eval -c evaluations/help-center/promptfooconfig.yaml --no-cache",
     "test:help-crawl": "playwright test tests/browser/help-center.spec.ts",
+    "test:blog-quality": "playwright test tests/browser/blog.spec.ts",
     "lighthouse:help": "lhci autorun --config=lighthouserc.help.cjs",
     "eval:help-center": "pnpm eval:help-answers && pnpm build && pnpm test:help-crawl && pnpm lighthouse:help",
     "eval:quality": "pnpm eval:ai-replies && pnpm eval:help-answers",
@@ -36,7 +37,8 @@
     "db:verify": "tsx scripts/verify-database.ts",
     "perf:search": "docker run --rm -i --add-host=host.docker.internal:host-gateway grafana/k6:1.0.0 run - < benchmarks/ticket-search.k6.js",
     "lighthouse": "lhci autorun",
-    "verify:showcase": "pnpm db:verify && pnpm lighthouse"
+    "eval:lighthouse-showcase": "pnpm build && pnpm test:blog-quality && pnpm lighthouse",
+    "verify:showcase": "pnpm db:verify && pnpm eval:lighthouse-showcase"
   },
   "dependencies": {
     "ai": "^7.0.86",

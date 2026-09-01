@@ -30,10 +30,11 @@ Needs reliable integrations, traceable failures, stable APIs, and enough operati
 4. Resolve, defer, assign, or annotate work with a clear audit trail.
 5. Maintain knowledge as the product and recurring questions change.
 6. Measure service performance and answer quality over time.
+7. Publish substantial operational guidance that customers and practitioners can discover, read, and cite.
 
 ## Foundation scope
 
-The foundation establishes the product language and its major working surfaces. It includes interactive queue operations, customer context, knowledge health, analytics, a public help center, contract-driven API documentation, grounded reply generation, evaluation suites, responsive UI, domain tests, and CI.
+The foundation establishes the product language and its major working surfaces. It includes interactive queue operations, customer context, knowledge health, analytics, a public help center, an eight-article field-note publication, contract-driven API documentation, grounded reply generation, evaluation suites, responsive UI, domain tests, and CI.
 
 The synthetic Northstar Labs workspace is development data, not the product premise. It allows contributors to run and evaluate the product safely without copying real customer records into Git.
 

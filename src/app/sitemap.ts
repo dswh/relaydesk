@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { blogPosts } from "@/lib/blog";
 import { publicKnowledgeArticles } from "@/lib/knowledge";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -19,6 +20,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/help`,
     },
     {
+      changeFrequency: "weekly",
+      lastModified: new Date("2026-09-01"),
+      priority: 0.9,
+      url: `${baseUrl}/blog`,
+    },
+    {
       changeFrequency: "monthly",
       lastModified: new Date("2026-09-01"),
       priority: 0.7,
@@ -29,6 +36,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(article.updatedAt),
       priority: 0.8,
       url: `${baseUrl}/help/${article.slug}`,
+    })),
+    ...blogPosts.map((post) => ({
+      changeFrequency: "monthly" as const,
+      lastModified: new Date(post.updatedAt),
+      priority: post.featured ? 0.85 : 0.75,
+      url: `${baseUrl}/blog/${post.slug}`,
     })),
   ];
 }

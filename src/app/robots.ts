@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        allow: ["/", "/help/", "/developers/", "/openapi.json", "/llms.txt"],
+        allow: ["/", "/blog/", "/help/", "/developers/", "/openapi.json", "/llms.txt"],
         disallow: [
           "/api/",
           "/analytics",
@@ -19,7 +19,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
       },
       {
-        allow: ["/help/", "/developers/", "/openapi.json", "/llms.txt"],
+        allow: ["/blog/", "/help/", "/developers/", "/openapi.json", "/llms.txt"],
         disallow: ["/api/", "/inbox"],
         userAgent: ["OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "PerplexityBot"],
       },

@@ -16,7 +16,7 @@ This repository is the product. Workshop scenarios are derived from real product
 - OpenAPI 3.1 ticket API, generated TypeScript contract, executable example, and developer reference
 - Responsive desktop and mobile layouts
 - PostgreSQL-backed queue search with a 100,000-ticket development dataset
-- Public RelayDesk product site and five-article help center with enforced Lighthouse budgets
+- Public RelayDesk product site, eight long-form field notes, and five-article help center with enforced Lighthouse budgets
 - Promptfoo evaluation suites for grounded replies and public answer visibility
 
 The Northstar Labs workspace is fully synthetic. PostgreSQL is used when `DATABASE_URL` is configured. A small in-memory dataset remains available for credential-free builds and product previews, but the performance verifier rejects that fallback.
@@ -62,13 +62,13 @@ pnpm perf:search
 
 The load gate uses Grafana k6 in Docker, runs 10 concurrent users for 30 seconds, requires p95 below 300 ms, and rejects non-PostgreSQL responses.
 
-Stop the production server, then run the public-site quality gate:
+Run the complete multi-page public-site quality gate:
 
 ```bash
-pnpm lighthouse
+pnpm eval:lighthouse-showcase
 ```
 
-Lighthouse CI performs three production runs and requires 1.00 in accessibility, best practices, and SEO, at least 0.95 in performance, plus fixed Core Web Vitals budgets.
+The gate builds the production site, validates all eight field notes with Playwright, then performs two Lighthouse runs each on the landing page, blog index, and representative long-form article. It requires 1.00 in accessibility, best practices, and SEO, at least 0.95 in performance, plus fixed Core Web Vitals budgets.
 
 Run the remaining showcase evaluators independently:
 
@@ -90,6 +90,8 @@ The grounded-reply gate works without credentials against frozen approved fixtur
 | `/knowledge` | Manage approved content and freshness |
 | `/help` | Browse the public RelayDesk help center |
 | `/help/:slug` | Read a server-rendered, structured help article |
+| `/blog` | Browse eight long-form support operations field notes |
+| `/blog/:slug` | Read a server-rendered BlogPosting with a table of contents and related guidance |
 | `/developers/api` | Review the public API contract and TypeScript example |
 | `/analytics` | Track service performance and answer quality |
 | `/settings` | Configure workspace-level behavior |
