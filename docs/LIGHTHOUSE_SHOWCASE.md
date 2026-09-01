@@ -40,6 +40,12 @@ Recorded locally on 1 September 2026 using the production build:
 
 Playwright result: 12 of 12 checks passing.
 
+## Frozen scenario baseline
+
+The `codex/scenario-lighthouse-quality` branch contains a realistic client-boundary regression: a site-wide fuzzy-search warmup ships the article corpus to the browser and builds its complete suggestion index on the main thread.
+
+Across two consecutive six-run sessions, every page scored 78 for performance and 100 for accessibility, best practices, and SEO. Total blocking time measured 509 to 538 ms against the fixed 200 ms maximum. The branch still passes all twelve content, crawl, link, structured-data, and mobile checks.
+
 ## Workshop loop contract
 
 - Start from `codex/scenario-lighthouse-quality` in a fresh worktree.
