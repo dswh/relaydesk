@@ -616,7 +616,7 @@
             </div>
             <div>
               <span class="meta-label">Workshop-ready</span>
-              <strong>2 flagship loops</strong>
+              <strong>5 verified loops</strong>
             </div>
             <div>
               <span class="meta-label">Repository</span>
@@ -624,7 +624,7 @@
             </div>
             <div>
               <span class="meta-label">Updated</span>
-              <strong>1 September 2026</strong>
+              <strong>2 September 2026</strong>
             </div>
           </div>
         </div>
@@ -639,7 +639,7 @@
       <div class="summary-grid" aria-label="Runbook summary">
         <div class="summary-card">
           <span>PostgreSQL p95</span>
-          <strong>783 → 31 ms</strong>
+          <strong>626 → 22 ms</strong>
           <small>10 concurrent users, zero errors</small>
         </div>
         <div class="summary-card">
@@ -663,7 +663,8 @@
         <span class="section-label">Contents</span>
         <a href="#branch-model">Branch model</a>
         <a href="#catalog">Loop catalog</a>
-        <a href="#commands">Instructor commands</a>
+        <a href="#commands">Goal prompts</a>
+        <a href="#planned">Planned loops</a>
         <a href="#judge-rules">LLM judge rules</a>
         <a href="#removed">Removed loops</a>
         <a href="#quality-gate">Quality gate</a>
@@ -772,7 +773,8 @@
                   <td>
                     It links a visible delay to concurrency, database evidence,
                     correctness, and a fixed performance budget. Baseline p95:
-                    783.15 ms. Healthy p95: 31.53 ms.
+                    625.59 ms in the latest audit, with 783.15 ms in the committed
+                    original run. Healthy p95: 22.13 ms.
                   </td>
                 </tr>
                 <tr>
@@ -805,8 +807,8 @@
                   </td>
                   <td>
                     A familiar scoreboard makes the loop easy to follow while the scope
-                    proves system-level optimization. Baseline: performance 78 and TBT
-                    509 to 538 ms. Healthy: 100 in all categories, TBT 0, and 12 of
+                    proves system-level optimization. Baseline: performance 77 to 78
+                    and TBT 530 to 546 ms. Healthy: 100 in all categories, TBT 0, and 12 of
                     12 checks passing.
                   </td>
                 </tr>
@@ -839,7 +841,8 @@
                   </td>
                   <td>
                     It spans runtime code, schema, generated types, examples, and prose.
-                    Healthy main passes all five contract tests.
+                    Baseline: 4 of 5 tests because two fields are undocumented. Healthy
+                    main passes all five contract tests.
                   </td>
                 </tr>
                 <tr>
@@ -871,7 +874,8 @@
                   </td>
                   <td>
                     Subjective quality sits behind deterministic safety and grounding
-                    gates. Healthy fixture evaluation passes all five cases.
+                    gates. Baseline: 0 of 5 due to prompt integrity. Healthy fixture
+                    evaluation passes all five cases.
                   </td>
                 </tr>
                 <tr>
@@ -903,7 +907,8 @@
                   </td>
                   <td>
                     It separates technical SEO, answer coverage, citations, and visible
-                    usefulness. Healthy main passes 5 answer and 9 crawl cases.
+                    usefulness. Baseline: 4 of 5 answers, 8 of 9 crawl checks, and SEO
+                    66. Healthy main passes 5 answer and 9 crawl cases with SEO 100.
                   </td>
                 </tr>
               </tbody>
@@ -913,12 +918,13 @@
 
         <section id="commands">
           <div class="section-heading">
-            <div class="section-label">03 · Instructor commands</div>
+            <div class="section-label">03 · Codex Goal prompts</div>
             <div>
-              <h2>Run each live loop from a clean worktree.</h2>
+              <h2>No terminal required from the instructor.</h2>
               <p>
-                Keep the scenario branch frozen. Let participants or the coding agent
-                work only on the disposable <code>codex/run-*</code> branch.
+                In Codex Desktop, ask for a fresh worktree from the named scenario
+                branch, open Goal mode, and paste the matching prompt. Keep the frozen
+                branch and evaluator unchanged.
               </p>
             </div>
           </div>
@@ -929,30 +935,30 @@
                 <div>
                   <span class="badge ready">Ready</span>
                   <h3>PostgreSQL performance loop</h3>
-                  <p>Terminal A prepares the branch, database, and product server.</p>
+                  <p><code>codex/scenario-postgres-page-load</code></p>
                 </div>
               </header>
-              <pre><code>git fetch origin
-git worktree add .worktrees/postgres-loop \
-  -b codex/run-postgres-$(date +%Y%m%d) \
-  origin/codex/scenario-postgres-page-load
+              <p><strong>Baseline:</strong> p95 625.59 ms, 0% failures, 100% checks,
+                and 100,007 PostgreSQL tickets. Healthy reference: 22.13 ms.</p>
+              <pre><code>Read docs/scenarios/postgres-page-load.md.
 
-cd .worktrees/postgres-loop
-pnpm install
-cp .env.example .env.local
-pnpm db:setup
-pnpm build
-pnpm start</code></pre>
+Set up the repository's PostgreSQL test environment and reproduce the
+frozen k6 baseline. Diagnose inbox and search latency using k6,
+Server-Timing, and PostgreSQL execution plans. Make one measured
+change per iteration while preserving response fields, correctness,
+tenant scope, and the 100,007-ticket dataset.
 
-              <p style="margin: 22px 0 10px">Terminal B runs the frozen evaluator:</p>
-              <pre><code>cd .worktrees/postgres-loop
-pnpm db:verify
-pnpm perf:search</code></pre>
+Do not edit the benchmark, thresholds, seed size, or correctness
+checks. Stop only when database verification and the full k6 gate
+pass twice with p95 below 300 ms, failures below 1%, checks above
+99%, and PostgreSQL confirmed as the data source.
+
+Finish with a before-and-after table and the relevant plan changes.</code></pre>
 
               <div class="callout">
                 <p>
-                  Stop only after p95 is below 300 ms, failures stay below 1%, checks
-                  exceed 99%, and both index plans pass twice consecutively.
+                  <strong>Expected output:</strong> red-to-green k6 results, p95 below
+                  300 ms twice, zero correctness loss, and indexed-plan evidence.
                 </p>
               </div>
             </article>
@@ -962,17 +968,26 @@ pnpm perf:search</code></pre>
                 <div>
                   <span class="badge ready">Ready</span>
                   <h3>Lighthouse quality loop</h3>
-                  <p>Use Goal mode in a fresh scenario worktree. Codex runs every evaluator.</p>
+                  <p><code>codex/scenario-lighthouse-quality</code></p>
                 </div>
               </header>
-              <pre><code>Read the scenario baseline. Evaluate the landing page, blog index,
-and representative long-form article using the existing Lighthouse
-and browser-quality gates. Diagnose shared performance, accessibility,
-and technical SEO problems, then improve them through measured iterations.
-Preserve the content, design, and intended public search capability. Do not lower budgets, disable audits,
-remove meaningful content, or exclude pages. Stop only when every
-configured page and browser check passes. Finish with a page-by-page
-before-and-after table and explain which shared changes improved the site.</code></pre>
+              <p><strong>Baseline:</strong> performance 77 to 78, TBT 530 to 546 ms,
+                all other categories 100, and 12 of 12 browser checks passing.</p>
+              <pre><code>Read docs/scenarios/lighthouse-quality.md.
+
+Evaluate the landing page, blog directory, and representative article
+using the existing Lighthouse and browser-quality gates. Diagnose the
+shared performance regression and improve it through measured
+iterations. Preserve the content, design, server-rendered articles,
+crawlability, and intended public search capability.
+
+Do not change the evaluator, lower budgets, remove articles, exclude
+pages, or hide meaningful content. Stop only when all 12 browser
+checks and every Lighthouse assertion pass in two consecutive
+six-run sessions.
+
+Finish with a page-by-page before-and-after table and explain the
+shared change that produced the improvement.</code></pre>
 
               <div class="score-strip" aria-label="Required Lighthouse scores">
                 <div><strong>95+</strong><span>Performance</span></div>
@@ -983,8 +998,9 @@ before-and-after table and explain which shared changes improved the site.</code
 
               <div class="callout">
                 <p>
-                  Do not edit <code>lighthouserc.cjs</code>, lower a threshold, hide
-                  meaningful content, or remove keyboard access to create a passing run.
+                  <strong>Expected output:</strong> performance at least 95, the other
+                  categories at 100, TBT below 200 ms, and 12 of 12 checks. Healthy
+                  main currently scores 100 in every category with TBT 0.
                 </p>
               </div>
             </article>
@@ -994,22 +1010,29 @@ before-and-after table and explain which shared changes improved the site.</code
                 <div>
                   <span class="badge ready">Ready</span>
                   <h3>API contract freshness loop</h3>
-                  <p>The evaluator compares the public contract with generated and runtime behavior.</p>
+                  <p><code>codex/scenario-api-contract-freshness</code></p>
                 </div>
               </header>
-              <pre><code>git fetch origin
-git worktree add .worktrees/api-docs-loop \
-  -b codex/run-api-docs-$(date +%Y%m%d) \
-  origin/codex/scenario-api-contract-freshness
+              <p><strong>Baseline:</strong> 4 of 5 strict contract tests. Redocly and
+                generated types pass, but two runtime metadata fields are undocumented.</p>
+              <pre><code>Read scenarios/api-contract-freshness/BASELINE.md.
 
-cd .worktrees/api-docs-loop
-pnpm install
-pnpm eval:api-docs</code></pre>
+Run the frozen evaluator and trace the mismatch across the runtime
+payload, OpenAPI contract, generated TypeScript client, executable
+example, and developer reference. Reconcile those surfaces through
+small measured iterations while preserving useful runtime metadata.
+
+Do not relax additionalProperties, skip the failing response, delete
+useful fields, or edit the evaluator. Stop only after Redocly,
+generated-type freshness, all 5 contract tests, examples, links, and
+the production build pass twice consecutively.
+
+Finish with the original mismatch and every surface brought back into alignment.</code></pre>
 
               <div class="callout">
                 <p>
-                  Keep the runtime and evaluator frozen. Stop after Redocly, generated
-                  types, strict AJV validation, examples, and all five tests pass twice.
+                  <strong>Expected output:</strong> 5 of 5 tests, zero Redocly errors,
+                  current generated types, compiling examples, and working public links.
                 </p>
               </div>
             </article>
@@ -1019,24 +1042,31 @@ pnpm eval:api-docs</code></pre>
                 <div>
                   <span class="badge ready">Ready</span>
                   <h3>Grounded AI reply loop</h3>
-                  <p>Promptfoo scores five fixed conversations against five independent gates.</p>
+                  <p><code>codex/scenario-grounded-ai-reply-quality</code></p>
                 </div>
               </header>
-              <pre><code>git fetch origin
-git worktree add .worktrees/ai-reply-loop \
-  -b codex/run-ai-reply-$(date +%Y%m%d) \
-  origin/codex/scenario-grounded-ai-reply-quality
+              <p><strong>Baseline:</strong> all five fixed cases fail
+                <code>prompt_integrity</code>, producing a 0% pass rate.</p>
+              <pre><code>Read scenarios/grounded-ai-reply-quality/BASELINE.md.
 
-cd .worktrees/ai-reply-loop
-pnpm install
-cp .env.example .env.local
-pnpm eval:ai-replies
-pnpm eval:ai-replies:live</code></pre>
+Run the deterministic evaluator and diagnose failures across the
+prompt builder, approved evidence, citations, required actions, and
+visible reply contract. Make one bounded prompt or generation change
+per iteration.
+
+Do not edit the cases, sources, graders, thresholds, model IDs, or
+judge rubric. Do not hard-code case answers. Stop when all 5 cases
+pass every hard gate twice. If AI_GATEWAY_API_KEY is available, run
+the uncached live generation and blinded judge three times and require
+a mean of at least 4.5 out of 5.
+
+Finish with a metric table and one safer, better-grounded reply example.</code></pre>
 
               <div class="callout">
                 <p>
-                  Add <code>AI_GATEWAY_API_KEY</code> only to <code>.env.local</code>.
-                  Run the uncached live gate three times before declaring success.
+                  <strong>Expected output:</strong> deterministic Promptfoo moves from
+                  0 of 5 to 5 of 5. The optional credentialed extension adds three
+                  stable live-judge runs.
                 </p>
               </div>
             </article>
@@ -1046,17 +1076,24 @@ pnpm eval:ai-replies:live</code></pre>
                 <div>
                   <span class="badge ready">Ready</span>
                   <h3>Help-center visibility loop</h3>
-                  <p>One command runs answer coverage, crawl checks, schema checks, and Lighthouse.</p>
+                  <p><code>codex/scenario-help-center-seo</code></p>
                 </div>
               </header>
-              <pre><code>git fetch origin
-git worktree add .worktrees/help-center-loop \
-  -b codex/run-help-center-$(date +%Y%m%d) \
-  origin/codex/scenario-help-center-seo
+              <p><strong>Baseline:</strong> 4 of 5 answer cases, 8 of 9 crawl checks,
+                and SEO 66 on the help directory. Other categories remain 100.</p>
+              <pre><code>Read scenarios/help-center-seo/BASELINE.md.
 
-cd .worktrees/help-center-loop
-pnpm install
-pnpm eval:help-center</code></pre>
+Reproduce the answer-quality, crawler, schema, link, and Lighthouse
+failures. Diagnose the high-intent webhook answer and crawler policy,
+then improve the real article and technical discovery surfaces.
+
+Do not edit the questions, expected citations, graders, crawler checks,
+or Lighthouse thresholds. Do not hard-code the failing answer. Stop
+only when all 5 answers pass across three stable runs, all 9 browser
+checks pass, and both Lighthouse pages meet every assertion in two
+consecutive sessions.
+
+Finish with a before-and-after table and the corrected answer and citation.</code></pre>
 
               <div class="score-strip" aria-label="Required help-center scores">
                 <div><strong>90+</strong><span>Performance</span></div>
@@ -1067,17 +1104,61 @@ pnpm eval:help-center</code></pre>
 
               <div class="callout">
                 <p>
-                  Never edit the five frozen questions, expected citations, crawler
-                  checks, or score thresholds while the loop is active.
+                  <strong>Expected output:</strong> 5 of 5 answers, 9 of 9 checks,
+                  SEO 100 instead of 66, no crawl blocks, and all other Lighthouse
+                  categories remaining at 100.
                 </p>
               </div>
             </article>
           </div>
         </section>
 
+        <section id="planned">
+          <div class="section-heading">
+            <div class="section-label">04 · Planned loops</div>
+            <div>
+              <h2>Strong ideas, not yet safe to present as runnable.</h2>
+              <p>
+                These use cases stay outside the live showcase until a real product
+                capability, locked evaluator, reproducible baseline, and frozen branch exist.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <caption>Planned RelayDesk loops that are not yet workshop-ready</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Use case</th>
+                  <th scope="col">Current asset</th>
+                  <th scope="col">Why it is not ready</th>
+                  <th scope="col">Required next step</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge planned">Planned</span><strong>Linear roadmap execution</strong></td>
+                  <td>
+                    <a href="https://linear.app/agentiwise/project/relaydesk-durable-support-operations-89f3f25a223b/overview">Five phases and 16 dependency-linked issues</a>, AGE-224 through AGE-239.
+                  </td>
+                  <td>No locked repository evaluator, issue-aware runner, measured failing baseline, or frozen scenario branch. No issue is labeled <code>loop-ready</code>.</td>
+                  <td>Build the immutable AGE-224 vertical-slice evaluator, record the failure, publish the scenario branch, then promote only AGE-224 to <code>acceptance-locked</code> and <code>loop-ready</code>.</td>
+                </tr>
+                <tr>
+                  <td><span class="badge planned">Planned</span><strong>Customer-facing RAG quality</strong></td>
+                  <td>A detailed design exists on the separate <code>codex/help-chat-rag-quality</code> workstream.</td>
+                  <td>The help chat, pgvector corpus, graders, measured baseline, and frozen scenario branch are not implemented.</td>
+                  <td>Ship the healthy capability first, freeze the dataset and graders, record retrieval and answer-quality baselines, then create a credible regression branch.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         <section id="judge-rules">
           <div class="section-heading">
-            <div class="section-label">04 · LLM-as-judge</div>
+            <div class="section-label">05 · LLM-as-judge</div>
             <div>
               <h2>Use judgment only after deterministic gates pass.</h2>
               <p>
@@ -1112,7 +1193,7 @@ pnpm eval:help-center</code></pre>
 
         <section id="removed">
           <div class="section-heading">
-            <div class="section-label">05 · Removed loops</div>
+            <div class="section-label">06 · Removed loops</div>
             <div>
               <h2>Useful workflows are not automatically strong demonstrations.</h2>
               <p>
@@ -1163,7 +1244,7 @@ pnpm eval:help-center</code></pre>
 
         <section id="quality-gate">
           <div class="section-heading">
-            <div class="section-label">06 · Scenario gate</div>
+            <div class="section-label">07 · Scenario gate</div>
             <div>
               <h2>Publish a scenario only when all eight conditions hold.</h2>
               <p>
