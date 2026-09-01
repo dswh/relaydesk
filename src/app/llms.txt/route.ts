@@ -23,6 +23,7 @@ export function GET() {
 - [RelayDesk product](${baseUrl}/): Product overview and operating model
 - [Field notes](${baseUrl}/blog): Long-form support operations and reliability guides
 - [Help center](${baseUrl}/help): Verified customer and developer guidance
+- [Ask RelayDesk](${baseUrl}/help/ask): Grounded answers from approved public help articles
 - [API reference](${baseUrl}/developers/api): Public operations and typed examples
 - [OpenAPI contract](${baseUrl}/openapi.json): Machine-readable API contract
 

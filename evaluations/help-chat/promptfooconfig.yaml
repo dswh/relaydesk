@@ -1,0 +1,24 @@
+description: RelayDesk customer-facing RAG answer quality gate
+
+prompts:
+  - "Answer RelayDesk help case {{caseId}}"
+
+providers:
+  - file://help-chat-provider.ts
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions.ts:deterministicContract
+      metric: deterministic_contract
+    - type: javascript
+      value: file://assertions.ts:retrievalRecall
+      metric: source_recall_at_5
+    - type: javascript
+      value: file://assertions.ts:reciprocalRank
+      metric: reciprocal_rank
+    - type: javascript
+      value: file://assertions.ts:noSourceAccuracy
+      metric: no_source_accuracy
+
+tests: dataset.yaml

@@ -17,6 +17,7 @@ This repository is the product. Workshop scenarios are derived from real product
 - Responsive desktop and mobile layouts
 - PostgreSQL-backed queue search with a 100,000-ticket development dataset
 - Public RelayDesk product site, eight long-form field notes, and five-article help center with enforced Lighthouse budgets
+- Customer-facing `Ask RelayDesk` chat backed by approved public pgvector knowledge and source links
 - Promptfoo evaluation suites for grounded replies and public answer visibility
 
 The Northstar Labs workspace is fully synthetic. PostgreSQL is used when `DATABASE_URL` is configured. A small in-memory dataset remains available for credential-free builds and product previews, but the performance verifier rejects that fallback.
@@ -76,9 +77,12 @@ Run the remaining showcase evaluators independently:
 pnpm eval:api-docs
 pnpm eval:ai-replies
 pnpm eval:help-center
+pnpm verify:help-chat
 ```
 
 The grounded-reply gate works without credentials against frozen approved fixtures. Add `AI_GATEWAY_API_KEY` to `.env.local`, then run `pnpm eval:ai-replies:live` to enable live generation and the blinded LLM judge. Secrets are never committed.
+
+For the help-chat demo, run `pnpm demo:help-chat:setup`, open `/help/ask`, and run `pnpm eval:help-chat:deterministic`. Each evaluation writes `evaluation-results.csv` and `score-summary.csv` under `evaluations/help-chat/runs/<run-id>/`. Import those files as the `Cases` and `Scorecard` tabs in one Google Sheet. Add `AI_GATEWAY_API_KEY` and run `pnpm eval:help-chat:live` for live generation plus the blinded LLM judge.
 
 ## Routes
 
@@ -89,6 +93,7 @@ The grounded-reply gate works without credentials against frozen approved fixtur
 | `/customers` | Review customer accounts, plan, health, and value |
 | `/knowledge` | Manage approved content and freshness |
 | `/help` | Browse the public RelayDesk help center |
+| `/help/ask` | Ask questions against approved public help content and inspect sources |
 | `/help/:slug` | Read a server-rendered, structured help article |
 | `/blog` | Browse eight long-form support operations field notes |
 | `/blog/:slug` | Read a server-rendered BlogPosting with a table of contents and related guidance |

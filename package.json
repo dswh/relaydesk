@@ -33,8 +33,16 @@
     "db:down": "docker compose down",
     "db:migrate": "tsx scripts/migrate-database.ts",
     "db:seed": "tsx scripts/seed-database.ts",
-    "db:setup": "pnpm db:up && pnpm db:migrate && pnpm db:seed",
+    "db:setup": "pnpm db:up && pnpm db:migrate && pnpm db:seed && pnpm knowledge:index",
     "db:verify": "tsx scripts/verify-database.ts",
+    "knowledge:index": "tsx scripts/index-help-knowledge.ts",
+    "demo:help-chat:setup": "pnpm db:up && pnpm db:migrate && pnpm knowledge:index",
+    "eval:help-chat:deterministic": "RELAYDESK_HELP_EVAL_MODE=deterministic tsx evaluations/help-chat/run-evaluation.ts",
+    "eval:help-chat:live": "RELAYDESK_HELP_EVAL_MODE=live tsx evaluations/help-chat/run-evaluation.ts",
+    "eval:help-chat:report": "tsx evaluations/help-chat/run-evaluation.ts --report-only",
+    "eval:help-chat:promptfoo": "promptfoo eval -c evaluations/help-chat/promptfooconfig.yaml --no-cache",
+    "test:help-chat-browser": "playwright test tests/browser/help-chat.spec.ts",
+    "verify:help-chat": "pnpm eval:help-chat:deterministic && pnpm eval:help-chat:promptfoo && pnpm build && pnpm test:help-chat-browser",
     "perf:search": "docker run --rm -i --add-host=host.docker.internal:host-gateway grafana/k6:1.0.0 run - < benchmarks/ticket-search.k6.js",
     "lighthouse": "lhci autorun",
     "eval:lighthouse-showcase": "pnpm build && pnpm test:blog-quality && pnpm lighthouse",
@@ -64,7 +72,9 @@
     "promptfoo": "^0.122.2",
     "tsx": "4.23.13",
     "typescript": "^5.9.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.0",
+    "yaml": "^2.8.1",
+    "zod": "^4.1.12"
   },
   "packageManager": "pnpm@10.10.0"
 }

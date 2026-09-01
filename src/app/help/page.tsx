@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpenText, Search } from "lucide-react";
+import { ArrowRight, BookOpenText, MessageCircleQuestion, Search } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -31,6 +31,9 @@ export default function HelpCenterPage() {
           <span className="sr-only">Search help articles</span>
           <input placeholder="Search SSO, webhooks, exports, and more" type="search" />
         </label>
+        <Link className="help-ask-link" href="/help/ask">
+          <MessageCircleQuestion size={16} aria-hidden="true" /> Ask RelayDesk
+        </Link>
       </section>
 
       <section className="help-directory" aria-labelledby="help-directory-title">

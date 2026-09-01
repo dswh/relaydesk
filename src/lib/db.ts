@@ -35,6 +35,13 @@ export async function query<Row extends QueryResultRow>(
   return getPool().query<Row>(text, values);
 }
 
+export async function closeDatabase() {
+  if (!globalDatabase.relaydeskPool) return;
+  const pool = globalDatabase.relaydeskPool;
+  delete globalDatabase.relaydeskPool;
+  await pool.end();
+}
+
 export async function withTransaction<T>(
   callback: (client: PoolClient) => Promise<T>,
 ): Promise<T> {
@@ -51,4 +58,3 @@ export async function withTransaction<T>(
     client.release();
   }
 }
-

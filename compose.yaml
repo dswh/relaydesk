@@ -2,7 +2,7 @@ name: relaydesk
 
 services:
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:0.8.6-pg17
     environment:
       POSTGRES_DB: relaydesk
       POSTGRES_PASSWORD: relaydesk
@@ -20,4 +20,3 @@ services:
 
 volumes:
   relaydesk-postgres:
-

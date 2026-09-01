@@ -15,3 +15,5 @@ test-results/
 .lighthouseci/
 .lighthouseci-help/
 .promptfoo/
+evaluations/help-chat/runs/*
+!evaluations/help-chat/runs/.gitkeep
