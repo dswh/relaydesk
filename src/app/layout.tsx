@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { PublicSearchWarmup } from "@/components/public-search-warmup";
+
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -38,7 +40,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${utility.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <PublicSearchWarmup />
+      </body>
     </html>
   );
 }
