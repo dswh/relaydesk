@@ -1,0 +1,252 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "RelayDesk API",
+    "version": "2026-09-01",
+    "description": "Read ticket queues, inspect complete support conversations, and monitor RelayDesk service health.",
+    "license": { "name": "Proprietary", "identifier": "LicenseRef-Proprietary" }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
+    }
+  ],
+  "tags": [
+    { "name": "Service", "description": "Service availability and release health." },
+    { "name": "Tickets", "description": "Read support queue and conversation data." }
+  ],
+  "security": [],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "getServiceHealth",
+        "summary": "Check service health",
+        "tags": ["Service"],
+        "responses": {
+          "200": {
+            "description": "RelayDesk is available.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets": {
+      "get": {
+        "operationId": "listTickets",
+        "summary": "List the ticket queue",
+        "description": "Returns up to 50 tickets ordered by priority and SLA risk.",
+        "tags": ["Tickets"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "description": "Full-text search across ticket and customer fields.",
+            "schema": { "type": "string" }
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "description": "Queue segment to return.",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "mine", "unassigned", "urgent"],
+              "default": "all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching queue projection and queue summary.",
+            "headers": {
+              "Server-Timing": {
+                "description": "Repository read duration.",
+                "schema": { "type": "string" }
+              },
+              "X-RelayDesk-Data-Source": {
+                "description": "Repository that served the response.",
+                "schema": {
+                  "type": "string",
+                  "enum": ["postgres", "synthetic-fallback"]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TicketListResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/{id}": {
+      "get": {
+        "operationId": "getTicket",
+        "summary": "Get a complete ticket",
+        "description": "Returns the conversation, customer context, approved sources, and current grounded draft for one ticket.",
+        "tags": ["Tickets"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "RelayDesk ticket identifier.",
+            "schema": { "type": "string", "pattern": "^RD-[0-9]+$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The complete ticket.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TicketDetailResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "No ticket has the requested identifier.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "service", "timestamp"],
+        "properties": {
+          "status": { "type": "string", "const": "ok" },
+          "service": { "type": "string", "const": "relaydesk-web" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "email", "company", "plan", "initials", "since", "timezone", "health", "lifetimeValue"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "company": { "type": "string" },
+          "plan": { "type": "string", "enum": ["Enterprise", "Scale", "Growth", "Starter"] },
+          "initials": { "type": "string" },
+          "since": { "type": "string" },
+          "timezone": { "type": "string" },
+          "health": { "type": "string", "enum": ["healthy", "watch", "risk"] },
+          "lifetimeValue": { "type": "string" }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "author", "role", "body", "timestamp"],
+        "properties": {
+          "id": { "type": "string" },
+          "author": { "type": "string" },
+          "role": { "type": "string", "enum": ["customer", "agent", "system"] },
+          "body": { "type": "string" },
+          "timestamp": { "type": "string" }
+        }
+      },
+      "KnowledgeSource": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "section", "relevance"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "section": { "type": "string" },
+          "relevance": { "type": "integer", "minimum": 0, "maximum": 100 }
+        }
+      },
+      "Ticket": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "subject", "preview", "customer", "priority", "status", "channel", "assignee", "updatedAt", "waitingMinutes", "slaMinutes", "tags", "intent", "sentiment", "summary", "messages", "sources", "suggestedReply"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^RD-[0-9]+$" },
+          "subject": { "type": "string" },
+          "preview": { "type": "string" },
+          "customer": { "$ref": "#/components/schemas/Customer" },
+          "priority": { "type": "string", "enum": ["urgent", "high", "normal", "low"] },
+          "status": { "type": "string", "enum": ["open", "pending", "resolved"] },
+          "channel": { "type": "string", "enum": ["email", "chat", "api"] },
+          "assignee": { "type": ["string", "null"] },
+          "updatedAt": { "type": "string" },
+          "waitingMinutes": { "type": "integer", "minimum": 0 },
+          "slaMinutes": { "type": "integer", "minimum": 1 },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "intent": { "type": "string" },
+          "sentiment": { "type": "string", "enum": ["positive", "neutral", "frustrated"] },
+          "summary": { "type": "string" },
+          "messages": { "type": "array", "items": { "$ref": "#/components/schemas/Message" } },
+          "sources": { "type": "array", "items": { "$ref": "#/components/schemas/KnowledgeSource" } },
+          "suggestedReply": { "type": "string" },
+          "detailsLoaded": { "type": "boolean" }
+        }
+      },
+      "QueueSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["all", "mine", "unassigned", "urgent"],
+        "properties": {
+          "all": { "type": "integer", "minimum": 0 },
+          "mine": { "type": "integer", "minimum": 0 },
+          "unassigned": { "type": "integer", "minimum": 0 },
+          "urgent": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "TicketListMeta": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["query", "filter", "returned", "summary", "source", "durationMs"],
+        "properties": {
+          "query": { "type": "string" },
+          "filter": { "type": "string", "enum": ["all", "mine", "unassigned", "urgent"] },
+          "returned": { "type": "integer", "minimum": 0, "maximum": 50 },
+          "summary": { "$ref": "#/components/schemas/QueueSummary" },
+          "source": { "type": "string", "enum": ["postgres", "synthetic-fallback"] },
+          "durationMs": { "type": "number", "minimum": 0 }
+        }
+      },
+      "TicketListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["data", "meta"],
+        "properties": {
+          "data": { "type": "array", "items": { "$ref": "#/components/schemas/Ticket" } },
+          "meta": { "$ref": "#/components/schemas/TicketListMeta" }
+        }
+      },
+      "TicketDetailResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["data"],
+        "properties": {
+          "data": { "$ref": "#/components/schemas/Ticket" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["error"],
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  }
+}

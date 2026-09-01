@@ -103,5 +103,14 @@ jobs:
       - name: Build the public site
         run: pnpm build
 
+      - name: Validate blog templates and crawlability
+        run: pnpm test:blog-quality
+
       - name: Enforce Lighthouse budgets
         run: pnpm lighthouse
+
+      - name: Crawl the public help center
+        run: pnpm test:help-crawl
+
+      - name: Enforce help-center quality budgets
+        run: pnpm lighthouse:help

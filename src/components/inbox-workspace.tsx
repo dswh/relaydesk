@@ -62,6 +62,8 @@ export function InboxWorkspace({
   const [query, setQuery] = useState(initialQuery);
   const [selectedId, setSelectedId] = useState(initialTickets[0]?.id ?? "");
   const [draft, setDraft] = useState("");
+  const [generatedCitationIds, setGeneratedCitationIds] = useState<string[]>([]);
+  const [generationMode, setGenerationMode] = useState<"fixture" | "gateway" | null>(null);
   const [composerMode, setComposerMode] = useState<"reply" | "note">("reply");
   const [isGenerating, setIsGenerating] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -90,6 +92,8 @@ export function InboxWorkspace({
   async function selectTicket(id: string) {
     setSelectedId(id);
     setDraft("");
+    setGeneratedCitationIds([]);
+    setGenerationMode(null);
     setNotice(null);
 
     const ticket = ticketState.find((item) => item.id === id);
@@ -132,14 +136,37 @@ export function InboxWorkspace({
     setNotice(`${selectedTicket.id} resolved`);
   }
 
-  function generateReply() {
-    if (!selectedTicket || !selectedTicket.suggestedReply) return;
+  async function generateReply() {
+    if (!selectedTicket || !selectedTicket.sources.length) return;
     setIsGenerating(true);
     setDraft("");
-    window.setTimeout(() => {
-      setDraft(selectedTicket.suggestedReply);
+    setGeneratedCitationIds([]);
+    setGenerationMode(null);
+    setNotice(null);
+    try {
+      const response = await fetch(
+        `/api/tickets/${encodeURIComponent(selectedTicket.id)}/suggested-reply`,
+        { method: "POST" },
+      );
+      const payload = (await response.json()) as {
+        data?: {
+          citationIds: string[];
+          mode: "fixture" | "gateway";
+          text: string;
+        };
+        error?: string;
+      };
+      if (!response.ok || !payload.data) {
+        throw new Error(payload.error ?? `Reply generation failed with ${response.status}`);
+      }
+      setDraft(payload.data.text);
+      setGeneratedCitationIds(payload.data.citationIds);
+      setGenerationMode(payload.data.mode);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Could not generate a grounded reply.");
+    } finally {
       setIsGenerating(false);
-    }, 650);
+    }
   }
 
   function sendReply() {
@@ -165,6 +192,8 @@ export function InboxWorkspace({
       ),
     );
     setDraft("");
+    setGeneratedCitationIds([]);
+    setGenerationMode(null);
     setNotice(composerMode === "reply" ? "Reply sent" : "Note added");
   }
 
@@ -367,12 +396,21 @@ export function InboxWorkspace({
                       <span /><span /><span /> Reviewing the conversation and approved sources
                     </div>
                   ) : (
-                    <textarea
-                      aria-label={composerMode === "reply" ? "Reply to customer" : "Internal note"}
-                      onChange={(event) => setDraft(event.target.value)}
-                      placeholder={composerMode === "reply" ? "Write a reply, or generate one from approved sources..." : "Add context for your team..."}
-                      value={draft}
-                    />
+                    <>
+                      <textarea
+                        aria-label={composerMode === "reply" ? "Reply to customer" : "Internal note"}
+                        onChange={(event) => setDraft(event.target.value)}
+                        placeholder={composerMode === "reply" ? "Write a reply, or generate one from approved sources..." : "Add context for your team..."}
+                        value={draft}
+                      />
+                      {generatedCitationIds.length > 0 && generationMode && (
+                        <div className="grounding-note" role="status">
+                          <ShieldCheck size={13} aria-hidden="true" />
+                          Grounded in {generatedCitationIds.length} approved {generatedCitationIds.length === 1 ? "source" : "sources"}
+                          <span>{generationMode === "gateway" ? "AI Gateway" : "Verified fixture"}</span>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
                 <div className="composer-footer">
@@ -381,7 +419,7 @@ export function InboxWorkspace({
                     <button type="button" aria-label="Insert saved reply"><FileText size={17} aria-hidden="true" /></button>
                     <button
                       className="ai-button"
-                      disabled={isGenerating || !selectedTicket.suggestedReply}
+                      disabled={isGenerating || !selectedTicket.sources.length}
                       onClick={generateReply}
                       type="button"
                     >
@@ -441,7 +479,11 @@ export function InboxWorkspace({
                 {selectedTicket.sources.length ? (
                   <div className="source-list">
                     {selectedTicket.sources.map((source) => (
-                      <button type="button" className="source-card" key={source.id}>
+                      <button
+                        className={`source-card ${generatedCitationIds.includes(source.id) ? "cited" : ""}`}
+                        key={source.id}
+                        type="button"
+                      >
                         <span className="source-icon"><FileText size={15} aria-hidden="true" /></span>
                         <span>
                           <strong>{source.title}</strong>

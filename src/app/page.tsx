@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  BookOpen,
   CheckCircle2,
   Clock3,
   FileCheck2,
@@ -11,6 +12,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BrandMark } from "@/components/brand-mark";
+import { blogPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -48,6 +50,7 @@ export default function HomePage() {
           <div className="landing-nav-links">
             <a href="#operating-model">How it works</a>
             <a href="#control-plane">Platform</a>
+            <Link href="/blog">Field notes</Link>
             <Link className="landing-nav-cta" href="/inbox">
               Open workspace <ArrowRight size={14} aria-hidden="true" />
             </Link>
@@ -196,6 +199,24 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="landing-field-notes" aria-labelledby="field-notes-heading">
+        <div className="landing-field-notes-heading">
+          <p><BookOpen size={15} aria-hidden="true" /> RelayDesk field notes</p>
+          <h2 id="field-notes-heading">Deep guidance for teams building reliable support systems.</h2>
+          <Link href="/blog">Browse all field notes <ArrowRight size={14} aria-hidden="true" /></Link>
+        </div>
+        <div className="landing-field-notes-grid">
+          {blogPosts.filter((post) => post.featured).map((post, index) => (
+            <article key={post.id}>
+              <span>{String(index + 1).padStart(2, "0")} / {post.category}</span>
+              <h3>{post.title}</h3>
+              <p>{post.description}</p>
+              <Link href={`/blog/${post.slug}`}>Read article <ArrowRight size={13} aria-hidden="true" /></Link>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="landing-final-cta">
         <p>Fast is useful. Accountable is durable.</p>
         <h2>Give your support team both.</h2>
@@ -207,7 +228,10 @@ export default function HomePage() {
       <footer className="landing-footer">
         <BrandMark />
         <p>AI customer support operations for reliable service teams.</p>
-        <Link href="/inbox">Product workspace</Link>
+        <div>
+          <Link href="/blog">Field notes</Link>
+          <Link href="/inbox">Product workspace</Link>
+        </div>
       </footer>
     </main>
   );

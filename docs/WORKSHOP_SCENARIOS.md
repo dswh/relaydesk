@@ -16,15 +16,24 @@ Use a fresh worktree for every live run. Never run a workshop loop on `main`, an
 
 | Loop | Product setup for the starting branch | Evaluator and industry tools | Fixed pass gate and stop condition | Bounded loop contract | Ideal visible output | Why it is worth showing | Readiness |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| PostgreSQL inbox page load and search | Seed Northstar Labs with at least 100,000 tickets. The scenario contains a credible query or index regression that makes `/inbox` and `/api/tickets` slow without changing returned data. | k6 for sustained HTTP load, PostgreSQL `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` for the query plan, `Server-Timing` for repository duration, and Vitest for result correctness. | k6 p95 below 300 ms, HTTP failure rate below 1%, checks above 99%, database source header present, at least 100,000 rows, search index used, targeted query execution below 100 ms, and unchanged result assertions. Stop when all gates pass twice consecutively. | Maximum 8 iterations or 45 minutes. One hypothesis and one measured change per iteration. Escalate if the database gate improves while the HTTP gate regresses. | A visibly immediate queue, a k6 summary changing from red to green, and an execution plan changing from a large scan to an indexed plan. | It connects a customer-visible delay to database evidence, concurrency, correctness, and an objective performance budget. The improvement is both felt and measured. | Evaluator and product foundation implemented on `codex/measurable-loop-foundations`. Scenario branch follows after merge. |
-| Landing page Lighthouse quality | Use the real RelayDesk public landing page. The starting branch has a believable performance or accessibility regression, such as oversized media, render-blocking code, layout movement, or an invalid semantic structure. | Lighthouse CI with three runs, Chrome, Next.js production build, and browser inspection. | Performance at least 0.95, accessibility 1.00, best practices at least 0.95, SEO 1.00, LCP below 2.5 s, CLS below 0.1, TBT below 200 ms, and Speed Index below 3.0 s. Stop when the median run passes every assertion twice. | Maximum 10 iterations or 45 minutes. Preserve the visual and product intent. Escalate if a score gain removes content, accessibility, or core interaction. | The same polished page loads faster, the four Lighthouse category scores turn green, and Core Web Vitals remain inside budget. | Everyone understands a slow website. Lighthouse creates a familiar, multi-dimensional scoreboard and prevents a fake win that sacrifices accessibility or SEO. | Evaluator and public page implemented on `codex/measurable-loop-foundations`. Scenario branch follows after merge. |
-| API documentation contract freshness | Ship a real RelayDesk webhook or API field change while the reference, TypeScript example, and help article still describe the previous contract. | OpenAPI diff, generated client typecheck, executable documentation snippets, and a link checker. An LLM judge may score clarity only after deterministic gates pass. | Zero undocumented public fields, zero breaking changes without an approved version marker, 100% snippet compilation, 100% link success, and clarity at least 4.5 out of 5 on a frozen rubric. Stop after two fully green runs. | Maximum 8 iterations or 60 minutes. The API implementation and schema are read-only inputs. Escalate on a genuine contract ambiguity. | The API reference, executable example, and help article all update in one pull request, with contract checks proving alignment. | It shows autonomous maintenance across code and prose without relying on vague editorial judgment. | Planned. Requires the public webhook contract and documentation site. |
-| Critical-path observability coverage | Implement ticket ingestion, retry, and reply paths with one deliberately untraced boundary in the scenario state. | OpenTelemetry SDK and Collector, Jaeger for trace inspection, structured-log contract tests, and a PII scanner. | 100% of frozen critical-path scenarios produce one connected trace, 100% contain required tenant, ticket, delivery, and outcome attributes, zero raw message bodies or email addresses appear in telemetry, and trace overhead stays below 5%. Stop after the full suite passes twice. | Maximum 8 iterations or 60 minutes. Instrument one boundary per iteration. Escalate if required correlation would expose customer content. | A previously blind webhook retry becomes one searchable trace from receipt through lease, delivery, and acknowledgement. | The output is operationally useful, visually compelling in a trace viewer, and protected by privacy and overhead budgets. | Planned. Requires webhook ingestion and the telemetry stack. |
-| Production error to verified correction | Start from a sanitized captured error event tied to a reproducible attachment, import, or webhook payload. The branch reflects a credible historical product state, not a workshop-only failure flag. | Sentry for the event and stack, Playwright or contract tests for reproduction, Vitest for the nearest regression test, GitHub Actions for the final gate, and OpenTelemetry for correlated evidence. | Reproduction fails before the fix and passes after it, the regression test is green, related suites are green, the captured event fingerprint does not recur during a fixed replay, and no new high-severity event appears. Stop when the pull request is green and the replay gate passes. | Maximum 10 iterations or 90 minutes. Correct one fingerprint only. Escalate if the change needs a migration, customer communication, or destructive recovery. | A production symptom becomes a deterministic test, a narrow correction, a traceable pull request, and a cleared error replay. | It demonstrates a complete professional loop from external signal to verified engineering change, not just code generation. | Planned. Requires persistent mutations, error capture, and a replay harness. |
-| Grounded AI reply quality | Freeze a versioned set of support conversations, approved sources, policy constraints, and expected actions. The scenario has a real prompt, retrieval, or policy regression. | Promptfoo for evaluation orchestration, deterministic policy and citation graders, a pinned model configuration, and a blinded LLM judge for helpfulness and completeness. | 100% hard-policy compliance, at least 0.95 citation precision, at least 0.90 required-action recall, no safety regression, and a mean judge score of at least 4.5 out of 5 across three repeated runs. Stop only when every hard gate and the repeated judge gate pass. | Maximum 12 iterations or 120 minutes. The dataset, rubric, model version, and judge prompt are immutable. Escalate if improvements trade one customer segment against another. | Suggested replies become more accurate and actionable while a scorecard proves citations and policies did not regress. | This is the strongest use of an LLM judge because subjective quality is isolated behind deterministic safety and grounding checks. | Planned. Requires the model gateway, retrieval layer, and evaluation package. |
-| Help-center SEO and answer visibility | Publish a real public help center with structured articles and a frozen set of high-intent support questions. The scenario starts with technical crawl failures or weak answer coverage. | Lighthouse CI, Playwright crawl checks, schema validation, search-console exports when available, and Promptfoo with pinned search prompts for answer and citation coverage. | Zero critical crawl errors, 100% canonical and structured-data validity, accessibility at least 0.95, at least 0.90 answer coverage on the frozen question set, at least 0.90 citation correctness, and judge usefulness at least 4 out of 5. Stop after two green technical runs and three stable judge runs. | Maximum 10 iterations or 90 minutes. Change content or implementation, never the question set. Escalate when external ranking data is too sparse to support a claim. | A weak or missing article becomes crawlable, answerable, citable, and visibly useful in the public help center. | It avoids pretending that an SEO score equals business impact. Technical health, answer coverage, citations, and real search evidence are measured separately. | Planned. Requires the public help center and a stable content corpus. |
+| PostgreSQL inbox page load and search | Seed Northstar Labs with at least 100,000 tickets. The scenario contains a credible query or index regression that makes `/inbox` and `/api/tickets` slow without changing returned data. | k6 for sustained HTTP load, PostgreSQL `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` for the query plan, `Server-Timing` for repository duration, and Vitest for result correctness. | k6 p95 below 300 ms, HTTP failure rate below 1%, checks above 99%, database source header present, at least 100,000 rows, search index used, targeted query execution below 100 ms, and unchanged result assertions. Stop when all gates pass twice consecutively. | Maximum 8 iterations or 45 minutes. One hypothesis and one measured change per iteration. Escalate if the database gate improves while the HTTP gate regresses. | A visibly immediate queue, a k6 summary changing from red to green, and an execution plan changing from a large scan to an indexed plan. | It connects a customer-visible delay to database evidence, concurrency, correctness, and an objective performance budget. The improvement is both felt and measured. | Ready on `codex/scenario-postgres-page-load`. Recorded p95 baseline: 783.15 ms. Healthy `main` p95: 31.53 ms. |
+| Multi-page Lighthouse publishing quality | Use the real landing page, blog index, and eight server-rendered thousand-word field notes. The starting branch has shared-template performance and accessibility regressions that affect the whole publication. | Lighthouse CI with two runs across three representative pages, Chrome, Next.js production build, twelve Playwright content and crawl checks, BlogPosting schema, sitemap, and visual browser inspection. | Performance at least 0.95, accessibility 1.00, best practices 1.00, SEO 1.00, LCP below 2.5 s, CLS below 0.1, TBT below 200 ms, Speed Index below 3.0 s, all eight articles above 1,000 words, and all twelve browser checks passing. Stop when every run passes twice. | Maximum 10 iterations or 60 minutes. Preserve the visual design, article content, and crawlable initial HTML. Never change the budgets, remove posts, or hide meaningful content. | One shared-template repair improves the landing page, directory, and every article. The six-run scorecard and the eight-page crawl suite turn green together. | It demonstrates system-level optimization across a real publishing surface. Performance, accessibility, SEO, structured data, content integrity, and internal links remain measurable. | Ready on `codex/scenario-lighthouse-quality`. Healthy `main`: six Lighthouse runs at 100 in all four categories, LCP 496 to 613 ms, CLS 0, TBT 0, and 12 of 12 browser checks passing. |
+| API documentation contract freshness | The runtime returns real queue metadata that the frozen OpenAPI contract and generated TypeScript client do not yet describe. The reference at `/developers/api` is generated from that contract. | Redocly CLI, OpenAPI 3.1, openapi-typescript, AJV strict runtime validation, executable TypeScript examples, Vitest, and Playwright link checks. | Zero Redocly errors, generated types match byte for byte, zero undocumented response fields, all five contract tests pass, all examples compile, and public documentation links return below 400. Stop after two fully green runs. | Maximum 8 iterations or 60 minutes. Treat the API implementation and evaluator as read-only inputs. Escalate genuine contract ambiguity or a breaking change. | The contract, generated client, rendered reference, executable example, and live runtime all align in one verified pull request. | It shows autonomous maintenance across runtime code, schemas, generated types, examples, and prose with deterministic evidence. | Ready on `codex/scenario-api-contract-freshness`. Healthy `main`: valid OpenAPI, current generated types, and 5 of 5 contract tests passing. |
+| Grounded AI reply quality | Freeze five synthetic support conversations, their approved sources, policy constraints, required actions, and the grounded-reply prompt. The scenario removes critical safety and citation instructions from the prompt. | Vercel AI SDK, AI Gateway, Promptfoo, deterministic prompt, policy, citation, and action graders, a pinned `anthropic/claude-sonnet-5` configuration, and a blinded LLM judge. | 100% prompt integrity and hard-policy compliance, citation precision at least 0.95, required-action recall at least 0.90, and live judge mean at least 4.5 out of 5 across three uncached runs. Stop only when every hard gate and repeated live judge pass. | Maximum 12 iterations or 120 minutes. The dataset, graders, thresholds, model IDs, and judge prompt are immutable. Escalate if improvements trade one customer segment against another. | Inbox drafts become specific and source-grounded while Promptfoo changes from red to green and the cited source cards remain visible beside the reply. | This is a defensible use of an LLM judge because subjective helpfulness sits behind deterministic policy, prompt, citation, and action gates. | Ready on `codex/scenario-grounded-ai-reply-quality`. Healthy fixture gate: 5 of 5 cases passing. Live generation and judging require `AI_GATEWAY_API_KEY`. |
+| Help-center SEO and answer visibility | Use the real public help center, five server-rendered articles, structured data, sitemap, robots policy, `llms.txt`, and a frozen question corpus. The scenario blocks help crawlers and weakens a high-intent article. | Lighthouse CI, Chrome, Playwright, TechArticle schema checks, Promptfoo answer and citation graders, sitemap and `llms.txt` checks. | Zero broken links or crawl blocks, 100% canonical and structured-data validity, Lighthouse performance at least 0.90, accessibility at least 0.95, best practices and SEO at 1.00, and 100% pass rate across the five frozen answer cases. Stop after two green Lighthouse runs and three stable Promptfoo runs. | Maximum 10 iterations or 90 minutes. Change product content or implementation, never the question corpus, graders, or thresholds. Escalate when external ranking data is too sparse to support a claim. | The articles become crawlable, answerable, and citable, Promptfoo reaches 100%, and Lighthouse plus Playwright show the technical gates turning green. | It separates technical SEO, answer coverage, citations, structured data, and visible usefulness instead of claiming that one vanity score proves discovery. | Ready on `codex/scenario-help-center-seo`. Healthy `main`: 5 of 5 answer cases, 9 of 9 crawl tests, and two Lighthouse runs passing. |
 
 ## Instructor commands for the ready loops
+
+### Create a clean participant worktree
+
+```bash
+git fetch origin
+git worktree add .worktrees/postgres-loop \
+  -b codex/run-postgres-$(date +%Y%m%d) \
+  origin/codex/scenario-postgres-page-load
+```
+
+Replace the scenario name, run name, and worktree folder with the loop selected below. Each participant works on a disposable run branch while the scenario remains frozen and easy to reset.
 
 ### PostgreSQL performance loop
 
@@ -41,11 +50,50 @@ Run `pnpm perf:search` in a second terminal after the app is ready. The k6 check
 ### Lighthouse loop
 
 ```bash
-pnpm build
-pnpm lighthouse
+pnpm eval:lighthouse-showcase
 ```
 
-Lighthouse CI starts the production server, runs the landing page three times, saves local reports in `.lighthouseci`, and exits non-zero when any fixed budget fails.
+The evaluator builds the product, validates all eight posts, then runs the landing page, blog index, and representative article twice each. Lighthouse reports are saved in `.lighthouseci`, and the command exits non-zero when any fixed budget fails.
+
+### API documentation freshness loop
+
+```bash
+git worktree add .worktrees/api-docs-loop \
+  -b codex/run-api-docs-$(date +%Y%m%d) \
+  origin/codex/scenario-api-contract-freshness
+cd .worktrees/api-docs-loop
+pnpm install
+pnpm eval:api-docs
+```
+
+The frozen evaluator lints the OpenAPI contract, compares generated types, validates real route responses strictly, compiles the TypeScript example, and checks the rendered operation catalog.
+
+### Grounded AI reply quality loop
+
+```bash
+git worktree add .worktrees/ai-reply-loop \
+  -b codex/run-ai-reply-$(date +%Y%m%d) \
+  origin/codex/scenario-grounded-ai-reply-quality
+cd .worktrees/ai-reply-loop
+pnpm install
+pnpm eval:ai-replies
+pnpm eval:ai-replies:live
+```
+
+The deterministic gate runs without credentials. Add `AI_GATEWAY_API_KEY` to `.env.local` before the live command. Run the live command three times without cache before declaring the loop complete.
+
+### Help-center SEO and answer-visibility loop
+
+```bash
+git worktree add .worktrees/help-center-loop \
+  -b codex/run-help-center-$(date +%Y%m%d) \
+  origin/codex/scenario-help-center-seo
+cd .worktrees/help-center-loop
+pnpm install
+pnpm eval:help-center
+```
+
+The evaluator runs the frozen Promptfoo question corpus, a production build, nine Playwright crawl and schema checks, and two Lighthouse passes on the help directory and webhook article.
 
 ## Rules for LLM-as-judge evaluators
 
@@ -64,6 +112,8 @@ Lighthouse CI starts the production server, runs the landing page three times, s
 | Incremental migration | It is professionally useful, but too generic for the flagship showcase unless RelayDesk first acquires a specific migration with a measurable customer outcome. |
 | Open-ended architecture satisfaction | A subjective architecture score can move without proving product value. Concrete architecture constraints belong inside the relevant loop gates. |
 | Standalone test repair | It is a useful five-minute introduction to loop mechanics, but it is too small and too familiar to create the flagship effect. Regression tests remain sensors inside stronger loops. |
+| Critical-path observability coverage | It requires a complete ingestion and telemetry environment, and its outcome is more operator-focused than this showcase needs. |
+| Production error to verified correction | A credible demonstration requires live error-tracker state, replay infrastructure, and incident context that RelayDesk does not yet have. |
 
 ## Scenario quality gate
 

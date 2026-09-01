@@ -1,0 +1,46 @@
+description: RelayDesk help-center answer visibility gate
+
+prompts:
+  - "{{question}}"
+
+providers:
+  - file://help-answer-provider.ts
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions.ts:answerCoverage
+      metric: answer_coverage
+    - type: javascript
+      value: file://assertions.ts:citationCorrectness
+      metric: citation_correctness
+    - type: javascript
+      value: file://assertions.ts:answerUsefulness
+      metric: answer_usefulness
+
+tests:
+  - description: Pending SSO domain
+    vars:
+      question: Our SSO TXT record resolves publicly but RelayDesk is still pending. What should we check?
+      expectedArticleId: kb_14
+      expectedConcepts: exact TXT value|TXT value;root domain;24 hours;Verify again|run Verify again
+  - description: Missing usage export events
+    vars:
+      question: The dashboard has July usage events that are missing from our CSV export. Is the data lost?
+      expectedArticleId: kb_22
+      expectedConcepts: usage data|usage events;manifest count;replacement export;does not mean|not mean
+  - description: Restrict AI sources by team
+    vars:
+      question: How can our legal support queue use only compliance-approved sources for AI replies?
+      expectedArticleId: kb_31
+      expectedConcepts: knowledge collections|collection;assigned to the conversation's queue|assigned to the queue;approved;supporting source identifiers|source identifiers
+  - description: Duplicate webhook deliveries
+    vars:
+      question: Why can RelayDesk deliver a webhook more than once and how should we deduplicate it?
+      expectedArticleId: kb_42
+      expectedConcepts: delivery identifier;idempotently|idempotent;successful response|success;retry
+  - description: Invitation opens a sandbox
+    vars:
+      question: An invitation link opens our sandbox instead of production. Can we move that link?
+      expectedArticleId: kb_8
+      expectedConcepts: workspace identifier;cannot switch|can't switch;invalidate|revoke;new one|new invitation
