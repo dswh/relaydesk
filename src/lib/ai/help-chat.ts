@@ -1,6 +1,7 @@
 import { generateText, streamText } from "ai";
 
 import { observeRagStage } from "@/lib/ai/rag-observability";
+import { hasHelpModelKey, helpLanguageModel, requireHelpModelKey } from "@/lib/ai/help-model-provider";
 
 import {
   getHelpChatConfig,
@@ -249,7 +250,7 @@ export async function generateHelpChatAnswer(
   messages: HelpChatMessage[],
   {
     config = getHelpChatConfig(),
-    live = Boolean(process.env.AI_GATEWAY_API_KEY),
+    live = hasHelpModelKey(config),
   }: { config?: HelpChatConfig; live?: boolean } = {},
 ): Promise<HelpChatAnswer> {
   const prepared = await prepareHelpChat(messages, config);
@@ -266,15 +267,13 @@ export async function generateHelpChatAnswer(
     );
   }
 
-  if (!process.env.AI_GATEWAY_API_KEY) {
-    throw new Error("AI_GATEWAY_API_KEY is required for live help answers.");
-  }
+  requireHelpModelKey(config);
 
   const result = await observeRagStage(
     "generate_answer", "llm", { prompt: prepared.prompt, model: config.generationModel },
     async () => {
       const generated = await generateText({
-        maxOutputTokens: 500, model: config.generationModel, prompt: prepared.prompt,
+        maxOutputTokens: 500, model: helpLanguageModel(config.generationModel,config), prompt: prepared.prompt,
       });
       return { text: generated.text, usage: {
         inputTokens: generated.totalUsage.inputTokens ?? 0,
@@ -309,7 +308,7 @@ export function createHelpChatStream(
   {
     abortSignal,
     config = getHelpChatConfig(),
-    live = Boolean(process.env.AI_GATEWAY_API_KEY),
+    live = hasHelpModelKey(config),
   }: {
     abortSignal?: AbortSignal;
     config?: HelpChatConfig;
@@ -340,14 +339,12 @@ export function createHelpChatStream(
           return;
         }
 
-        if (!process.env.AI_GATEWAY_API_KEY) {
-          throw new Error("AI_GATEWAY_API_KEY is required for live help answers.");
-        }
+        requireHelpModelKey(config);
 
         const result = streamText({
           abortSignal,
           maxOutputTokens: 500,
-          model: config.generationModel,
+          model: helpLanguageModel(config.generationModel,config),
           onError({ error }) {
             console.error("RelayDesk help stream failed", error);
           },

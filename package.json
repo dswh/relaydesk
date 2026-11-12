@@ -57,6 +57,7 @@
     "rag:experiment": "tsx evaluations/rag-lab/cli.ts experiment",
     "rag:compare": "tsx evaluations/rag-lab/cli.ts compare",
     "rag:contract": "tsx evaluations/rag-lab/cli.ts contract",
+    "rag:budget": "tsx evaluations/rag-lab/cli.ts budget",
     "rag:measure": "tsx evaluations/rag-lab/measure.ts --out evaluations/rag-lab/data/manual-check.json",
     "rag:loop:status": "tsx evaluations/rag-lab/cli.ts status",
     "rag:loop": "tsx evaluations/rag-lab/cli.ts loop",
@@ -64,6 +65,7 @@
     "rag:loop:reject": "tsx evaluations/rag-lab/cli.ts reject"
   },
   "dependencies": {
+    "@openrouter/ai-sdk-provider": "3.1.0",
     "ai": "^7.0.86",
     "dotenv": "17.4.2",
     "langsmith": "0.12.0",

@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import { generateHelpChatAnswer, type HelpChatMessage } from "../../src/lib/ai/help-chat";
 import { captureRagTrace } from "../../src/lib/ai/rag-observability";
 import { getHelpChatConfig } from "../../src/lib/help-chat-config";
+import { requireHelpModelKey } from "../../src/lib/ai/help-model-provider";
 import { corpusSnapshot } from "./corpus";
 import { loadLabTasks } from "./tasks";
 import { connection } from "./langsmith";
@@ -14,7 +15,8 @@ import { atomicJson, dataRoot, hardChecks, labRoot, optionalJson, pipelineVersio
 export async function runExperiment(options: { hardOnly: boolean; repeats: number; name: string }) {
   if (!Number.isInteger(options.repeats) || options.repeats < 1 || options.repeats > 3) throw new Error("Choose between 1 and 3 repetitions.");
   const config = getHelpChatConfig();
-  if (!process.env.AI_GATEWAY_API_KEY || !config.generationModel || config.embeddingMode !== "gateway") throw new Error("A live experiment needs a configured model provider and a matching live embedding index. Run pnpm rag:preflight first.");
+  requireHelpModelKey(config);
+  if (!config.generationModel || config.embeddingMode !== "gateway") throw new Error("A live experiment needs a configured model provider and a matching live embedding index. Run pnpm rag:preflight first.");
   const identity = options.hardOnly ? undefined : await requireValidatedJudge();
   const state = await optionalJson<{ datasetId: string; datasetName: string }>(path.join(dataRoot, "langsmith.json"));
   if (!state) throw new Error("Set up the LangSmith development dataset first.");

@@ -47,12 +47,12 @@ async function tree(root: string) {
   return Object.fromEntries(await Promise.all([...new Set(names)].sort().map(async name => [name, await fileHash(path.join(root,name))])));
 }
 async function sourceHash() {
-  const names = ["src/lib/ai/help-chat.ts", "src/lib/ai/help-embeddings.ts", "src/lib/ai/rag-observability.ts", "src/lib/help-chat-config.ts", "src/lib/knowledge-repository.ts", "src/lib/knowledge.ts"];
+  const names = ["src/lib/ai/help-chat.ts", "src/lib/ai/help-embeddings.ts", "src/lib/ai/help-model-provider.ts", "src/lib/ai/help-model-budget.ts", "src/lib/ai/rag-observability.ts", "src/lib/help-chat-config.ts", "src/lib/knowledge-repository.ts", "src/lib/knowledge.ts"];
   return sha(await Promise.all(names.map(async name => [name, await fileHash(path.join(productRoot,name))])));
 }
 async function signature() {
   const identity=await judgeIdentity();
-  return sha({ source: await sourceHash(), tasks: await loadLabTasks(), skill:await fileHash(path.join(productRoot,".agents/skills/repair-rag/SKILL.md")), contract:await fileHash(path.join(labRoot,"contract.json")), feedback: await readFile(path.join(labRoot,"feedback.md"),"utf8"), judgePrompt: await readFile(path.join(labRoot,"judge-prompt.txt"),"utf8"), calibration:await fileHash(path.join(dataRoot,"calibration",identity.version,"test.json")), credentialsPresent:[Boolean(process.env.AI_GATEWAY_API_KEY),Boolean(process.env.LANGSMITH_API_KEY)], models: [process.env.RELAYDESK_HELP_GENERATION_MODEL,process.env.RELAYDESK_HELP_JUDGE_MODEL,process.env.RELAYDESK_HELP_EMBEDDING_MODEL] });
+  return sha({ source: await sourceHash(), tasks: await loadLabTasks(), skill:await fileHash(path.join(productRoot,".agents/skills/repair-rag/SKILL.md")), contract:await fileHash(path.join(labRoot,"contract.json")), feedback: await readFile(path.join(labRoot,"feedback.md"),"utf8"), judgePrompt: await readFile(path.join(labRoot,"judge-prompt.txt"),"utf8"), calibration:await fileHash(path.join(dataRoot,"calibration",identity.version,"test.json")), credentialsPresent:[Boolean(process.env.AI_GATEWAY_API_KEY),Boolean(process.env.OPENROUTER_API_KEY),Boolean(process.env.LANGSMITH_API_KEY)], modelProvider:process.env.RELAYDESK_HELP_MODEL_PROVIDER, routing:process.env.RELAYDESK_OPENROUTER_PROVIDERS, models: [process.env.RELAYDESK_HELP_GENERATION_MODEL,process.env.RELAYDESK_HELP_JUDGE_MODEL,process.env.RELAYDESK_HELP_EMBEDDING_MODEL] });
 }
 async function trustedFingerprint() {
   const names = (await readdir(labRoot)).filter(n => /\.(ts|json|txt|md)$/.test(n));

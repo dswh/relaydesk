@@ -3,6 +3,8 @@ export const DEFAULT_HELP_GENERATION_MODEL = "anthropic/claude-sonnet-5";
 export const DEFAULT_HELP_JUDGE_MODEL = "anthropic/claude-sonnet-5";
 
 export type HelpChatConfig = {
+  modelProvider: "gateway" | "openrouter";
+  openrouterProviders: string[];
   clarifyAmbiguous: boolean;
   contextBudgetCharacters: number;
   embeddingMode: "fixture" | "gateway";
@@ -29,12 +31,16 @@ function numberValue(value: string | undefined, fallback: number) {
 }
 
 export function getHelpChatConfig(): HelpChatConfig {
+  const modelProvider = process.env.RELAYDESK_HELP_MODEL_PROVIDER || (process.env.OPENROUTER_API_KEY ? "openrouter" : "gateway");
+  if(modelProvider !== "gateway" && modelProvider !== "openrouter") throw new Error("RELAYDESK_HELP_MODEL_PROVIDER must be openrouter or gateway.");
   const embeddingMode =
     process.env.RELAYDESK_HELP_EMBEDDING_MODE === "gateway"
       ? "gateway"
       : "fixture";
 
   return {
+    modelProvider,
+    openrouterProviders: (process.env.RELAYDESK_OPENROUTER_PROVIDERS || "").split(",").map(p=>p.trim()).filter(Boolean),
     clarifyAmbiguous: booleanValue(
       process.env.RELAYDESK_HELP_CLARIFY_AMBIGUOUS,
       true,

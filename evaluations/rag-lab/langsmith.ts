@@ -25,14 +25,15 @@ function stableId(value: string) {
   const s = h.join("");return `${s.slice(0,8)}-${s.slice(8,12)}-${s.slice(12,16)}-${s.slice(16,20)}-${s.slice(20)}`;
 }
 export async function setupLangSmith(capture: Capture) {
-  const { client, destination, project } = connection()!;
+  const { client, destination, project, agent } = connection()!;
+  const registryAgent=agent?await client.agents.retrieve(agent):undefined;
   if (project) await client.createProject({ projectName: project, upsert: true, description: "RelayDesk RAG trace review and evaluation." });
   const tasks = await loadLabTasks();
   if (sha(tasks) !== capture.manifest.datasetHash || new Set(capture.traces.map(t => t.caseId)).size !== tasks.length) throw new Error("Use a complete capture of the current development dataset before setting up its cloud version.");
   const datasetName = `relaydesk-rag-dev-${capture.manifest.datasetHash.slice(0,12)}`;
   let dataset;
   try { dataset = await client.readDataset({ datasetName }); }
-  catch (error) { if (!isNotFound(error)) throw error; dataset = await client.createDataset(datasetName, { description: "Synthetic public-help development tasks. These are not a final holdout.", metadata: { datasetHash: capture.manifest.datasetHash } }); }
+  catch (error) { if (!isNotFound(error)) throw error; dataset = await client.createDataset(datasetName, { description: "Synthetic public-help development tasks. These are not a final holdout.", metadata: { datasetHash: capture.manifest.datasetHash },tagValueIds:registryAgent?.tag_value_id?[registryAgent.tag_value_id]:undefined }); }
   const unique = [...new Map(capture.traces.map(t => [t.caseId, t])).values()];
   for (const t of unique) {
     const id = stableId(`${dataset.id}:${t.caseId}`);

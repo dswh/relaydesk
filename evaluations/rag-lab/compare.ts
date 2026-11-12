@@ -14,7 +14,7 @@ const hardPass = (row: Experiment["rows"][number]) => !row.error && row.metrics.
 export function compareExperiments(baseline: Experiment, candidate: Experiment, target: string, targetRate = 1) {
   const issues: string[] = [];
   for (const key of ["corpusHash", "datasetHash", "contractHash", "judgeVersion"] as const) if (!baseline.manifest[key] || baseline.manifest[key] !== candidate.manifest[key]) issues.push(`${key} changed or is missing.`);
-  for (const key of ["embeddingMode", "embeddingModel", "generationModel"]) if (baseline.manifest.config[key] !== candidate.manifest.config[key]) issues.push(`${key} changed. Establish a new evaluation epoch.`);
+  for (const key of ["modelProvider", "openrouterProviders", "embeddingMode", "embeddingModel", "generationModel"]) if (sha(baseline.manifest.config[key]??null) !== sha(candidate.manifest.config[key]??null)) issues.push(`${key} changed. Establish a new evaluation epoch.`);
   if (baseline.hardOnly || candidate.hardOnly) issues.push("Code checks alone do not establish semantic improvement.");
   if (baseline.repeats !== 3 || candidate.repeats !== 3) issues.push("This checkpoint requires three paired repeats.");
   const keyCounts = (e: Experiment) => Object.fromEntries([...new Set(e.rows.map(r => r.caseId))].sort().map(id => [id, e.rows.filter(r => r.caseId === id).length]));

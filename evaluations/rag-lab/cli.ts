@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { closeDatabase, query } from "../../src/lib/db";
 import { getHelpChatConfig } from "../../src/lib/help-chat-config";
+import { hasHelpModelKey } from "../../src/lib/ai/help-model-provider";
 import { captureAnswers } from "./capture";
 import { captures, dataRoot, feedback, labRoot, optionalJson } from "./store";
 import { selectFailure, type Scorecard } from "./scorecard";
@@ -21,7 +22,7 @@ function option(name: string, fallback: string) { const index = args.lastIndexOf
 
 async function preflight() {
   const config = getHelpChatConfig();
-  const result: Record<string, unknown> = { database: false, providerKey: Boolean(process.env.AI_GATEWAY_API_KEY), generationModel: config.generationModel || "not configured", judgeModel: process.env.RELAYDESK_HELP_JUDGE_MODEL || "not configured", embeddingMode: config.embeddingMode, langsmithKey: Boolean(process.env.LANGSMITH_API_KEY), langsmithDestination: process.env.LANGSMITH_AGENT_ID || process.env.LANGSMITH_PROJECT || "not configured", langsmithEndpoint: process.env.LANGSMITH_ENDPOINT || "https://api.smith.langchain.com" };
+  const result: Record<string, unknown> = { database: false, modelProvider:config.modelProvider, openrouterProviders:config.openrouterProviders, providerKey: hasHelpModelKey(config), generationModel: config.generationModel || "not configured", judgeModel: process.env.RELAYDESK_HELP_JUDGE_MODEL || "not configured", embeddingMode: config.embeddingMode, langsmithKey: Boolean(process.env.LANGSMITH_API_KEY), langsmithDestination: process.env.LANGSMITH_AGENT_ID || process.env.LANGSMITH_PROJECT || "not configured", langsmithEndpoint: process.env.LANGSMITH_ENDPOINT || "https://api.smith.langchain.com" };
   try { const indexed = await query("select embedding_model, count(*)::int as chunks from help_knowledge_chunks group by embedding_model"); result.database = true; result.index = indexed.rows; result.indexMatchesQueryModel = indexed.rows.length === 1 && indexed.rows[0].embedding_model === config.embeddingModel; }
   catch { result.databaseError = "Start the dedicated database and run its migrations and index command."; }
   if (flag("remote") && process.env.LANGSMITH_API_KEY) {
@@ -49,6 +50,12 @@ async function main() {
       const state=await optionalJson(path.join(dataRoot,"loop-state.json"));
       const measured=await optionalJson<{scorecard:Scorecard}>(path.join(dataRoot,"manual-check.json"));
       result={state,manualScore:measured?.scorecard,selectedFailure:measured?selectFailure(measured.scorecard):null};
+    }
+    else if(command === "budget") {
+      const limitUSD=Number(process.env.RELAYDESK_MODEL_BUDGET_USD||0);
+      const file=process.env.RELAYDESK_MODEL_BUDGET_FILE;
+      const ledger=file?await optionalJson<{reservedUSD:number;requests:number}>(path.resolve(file)):undefined;
+      result={enabled:Boolean(file),limitUSD,reservedUSD:ledger?.reservedUSD||0,remainingReservationUSD:Math.max(0,limitUSD-(ledger?.reservedUSD||0)),requests:ledger?.requests||0,note:"Conservative reservations persist across commands. They may exceed actual billed usage."};
     }
     else if (command === "cloud-setup") {
       const capture = (await captures())[0];

@@ -2,6 +2,8 @@ import { generateText, Output } from "ai";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
+import { helpLanguageModel, requireHelpModelKey } from "../../src/lib/ai/help-model-provider";
+import { getHelpChatConfig } from "../../src/lib/help-chat-config";
 
 import { atomicJson, calibrationRows, captures, dataRoot, familySplit, feedback, labRoot, optionalJson, sha, wilson, type TraceRecord, type HumanFeedback } from "./store";
 
@@ -21,10 +23,11 @@ export function judgeInput(trace: TraceRecord) {
 }
 export async function judgeAnswer(trace: TraceRecord, examples: Array<{ trace: TraceRecord; label: HumanFeedback }>): Promise<JudgeVerdict> {
   const model = process.env.RELAYDESK_HELP_JUDGE_MODEL?.trim();
-  if (!model || !process.env.AI_GATEWAY_API_KEY) throw new Error("Configure the model provider and RELAYDESK_HELP_JUDGE_MODEL before running a live judge.");
+  if (!model) throw new Error("Configure RELAYDESK_HELP_JUDGE_MODEL before running a live judge.");
+  requireHelpModelKey();
   const rubric = await readFile(path.join(labRoot, "judge-prompt.txt"), "utf8");
   const fewshot = balancedExamples(examples).map(e => ({ record: judgeInput(e.trace), verdict: e.label.verdict, critique: e.label.critique }));
-  const result = await generateText({ model, maxRetries: 0, maxOutputTokens: 700, temperature: 0,
+  const result = await generateText({ model:helpLanguageModel(model), maxRetries: 0, maxOutputTokens: 700, temperature: 0,
     output: Output.object({ schema: verdictSchema }), system: rubric,
     prompt: JSON.stringify({ expertExamples: fewshot, recordToJudge: judgeInput(trace) }),
   });
@@ -46,7 +49,8 @@ export async function judgeIdentity() {
   const examples = balancedExamples(rows.filter(r => familySplit(r.trace.family) === "fewshot"));
   const model = process.env.RELAYDESK_HELP_JUDGE_MODEL || "";
   const rubric = await readFile(path.join(labRoot, "judge-prompt.txt"), "utf8");
-  return { rows, examples, model, version: sha({ model, rubric, examples: examples.map(e => ({ input: judgeInput(e.trace), label: e.label })) }) };
+  const config=getHelpChatConfig();
+  return { rows, examples, model, version: sha({ model, provider:config.modelProvider, routing:config.openrouterProviders, rubric, examples: examples.map(e => ({ input: judgeInput(e.trace), label: e.label })) }) };
 }
 export async function calibrateJudge(finalize: boolean) {
   const identity = await judgeIdentity();

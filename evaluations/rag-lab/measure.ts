@@ -4,7 +4,8 @@ import { pathToFileURL } from "node:url";
 import path from "node:path";
 
 import type { generateHelpChatAnswer, HelpChatAnswer } from "../../src/lib/ai/help-chat";
-import type { getHelpChatConfig } from "../../src/lib/help-chat-config";
+import { getHelpChatConfig, HELP_FIXTURE_EMBEDDING_MODEL } from "../../src/lib/help-chat-config";
+import { requireHelpModelKey } from "../../src/lib/ai/help-model-provider";
 import { captureRagTrace } from "../../src/lib/ai/rag-observability";
 import { closeDatabase } from "../../src/lib/db";
 import { corpusSnapshot } from "./corpus";
@@ -24,10 +25,13 @@ async function main() {
   if (!outputFile) throw new Error("A scorecard output path is required.");
   const fixture = args.includes("--fixture");
   const identity = fixture ? undefined : await requireValidatedJudge();
-  if (!fixture && !process.env.AI_GATEWAY_API_KEY) throw new Error("Configure AI_GATEWAY_API_KEY before running the live loop.");
+  if (!fixture) requireHelpModelKey();
   const productModule = await import(pathToFileURL(path.join(product, "src/lib/ai/help-chat.ts")).href) as { generateHelpChatAnswer: typeof generateHelpChatAnswer };
   const configuration = await import(pathToFileURL(path.join(product, "src/lib/help-chat-config.ts")).href) as { getHelpChatConfig: typeof getHelpChatConfig };
   const config = configuration.getHelpChatConfig();
+  if(fixture){config.embeddingMode="fixture";config.embeddingModel=HELP_FIXTURE_EMBEDDING_MODEL;}
+  const trusted=getHelpChatConfig();
+  if(config.modelProvider!==trusted.modelProvider||sha(config.openrouterProviders)!==sha(trusted.openrouterProviders))throw new Error("The candidate changed the pinned model provider or routing policy.");
   if (!fixture && (config.embeddingMode !== "gateway" || !config.generationModel)) throw new Error("Use the configured live generation and embedding models for the improvement loop.");
   if (!fixture && config.generationModel !== process.env.RELAYDESK_HELP_GENERATION_MODEL) throw new Error("The candidate changed the pinned generation model.");
   if (!fixture && config.embeddingModel !== process.env.RELAYDESK_HELP_EMBEDDING_MODEL) throw new Error("The candidate changed the pinned embedding model.");

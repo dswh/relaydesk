@@ -4,7 +4,8 @@ import { readFile } from "node:fs/promises";
 
 import { generateHelpChatAnswer } from "../../src/lib/ai/help-chat";
 import { captureRagTrace } from "../../src/lib/ai/rag-observability";
-import { getHelpChatConfig } from "../../src/lib/help-chat-config";
+import { getHelpChatConfig, HELP_FIXTURE_EMBEDDING_MODEL } from "../../src/lib/help-chat-config";
+import { requireHelpModelKey } from "../../src/lib/ai/help-model-provider";
 import { corpusSnapshot } from "./corpus";
 import { loadLabTasks } from "./tasks";
 import { connection, enqueueCapture } from "./langsmith";
@@ -12,13 +13,14 @@ import { atomicJson, dataRoot, hardChecks, labRoot, pipelineVersion, sha, type C
 
 export async function captureAnswers(options: { fixture: boolean; repeats: number; limit: number; local: boolean; offset?:number }) {
   const config = getHelpChatConfig();
+  if(options.fixture){config.embeddingMode="fixture";config.embeddingModel=HELP_FIXTURE_EMBEDDING_MODEL;}
   const contract = JSON.parse(await readFile(path.join(labRoot, "contract.json"), "utf8"));
   if (!Number.isInteger(options.repeats) || options.repeats < 1 || options.repeats > contract.maxCaptureRepeats) throw new Error("Repeats must be between 1 and 3.");
   if (!Number.isInteger(options.limit) || options.limit < 1 || options.limit > contract.maxCaptureCases) throw new Error("Case limit must be between 1 and 50.");
   if (!options.fixture) {
-    if (!process.env.AI_GATEWAY_API_KEY) throw new Error("Live capture needs AI_GATEWAY_API_KEY. Use --fixture only for a clearly marked smoke run.");
-    if (!config.generationModel.trim()) throw new Error("Set RELAYDESK_HELP_GENERATION_MODEL to a model from the current gateway catalog.");
-    if (config.embeddingMode !== "gateway") throw new Error("Live RAG capture requires gateway embeddings. Switch mode and reindex the dedicated database first.");
+    requireHelpModelKey(config);
+    if (!config.generationModel.trim()) throw new Error("Set RELAYDESK_HELP_GENERATION_MODEL to a model from the configured provider catalog.");
+    if (config.embeddingMode !== "gateway") throw new Error("Live RAG capture requires live embeddings. Switch embedding mode to gateway and reindex the dedicated database first.");
   }
   const corpus = await corpusSnapshot(config.embeddingModel);
   const dataset = await loadLabTasks();

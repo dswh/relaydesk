@@ -6,6 +6,7 @@ import path from "node:path";
 import { captures, feedback, saveFeedback, labRoot, dataRoot, optionalJson, calibrationRows, familySplit } from "./store";
 import { syncFeedback } from "./langsmith";
 import type { LoopState } from "./loop";
+import { hasHelpModelKey } from "../../src/lib/ai/help-model-provider";
 
 async function body(request: IncomingMessage) {
   let text = "";
@@ -36,7 +37,7 @@ export function startReview(port = Number(process.env.RAG_REVIEW_PORT || 4180)) 
         const latest=state?.latest&&path.resolve(state.latest).startsWith(dataRoot+path.sep)?await optionalJson(state.latest):null;
         const baseline=state?.baseline&&path.resolve(state.baseline).startsWith(dataRoot+path.sep)?await optionalJson(state.baseline):null;
         const contract=JSON.parse(await readFile(path.join(labRoot,"contract.json"),"utf8"));
-        return reply(200,{state,latest,baseline,contract,connections:{provider:Boolean(process.env.AI_GATEWAY_API_KEY),langsmith:Boolean(process.env.LANGSMITH_API_KEY)}});
+        return reply(200,{state,latest,baseline,contract,connections:{provider:hasHelpModelKey(),langsmith:Boolean(process.env.LANGSMITH_API_KEY)}});
       }
       if (request.method === "GET" && url.pathname === "/api/review") {
         const all = await captures(), labels = await feedback();

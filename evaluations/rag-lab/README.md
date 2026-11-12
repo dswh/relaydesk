@@ -42,9 +42,11 @@ A tracing-only key cannot perform the complete workflow.
 Configure these environment variables before live capture:
 
 ```dotenv
-AI_GATEWAY_API_KEY=
-RELAYDESK_HELP_GENERATION_MODEL=
-RELAYDESK_HELP_JUDGE_MODEL=
+RELAYDESK_HELP_MODEL_PROVIDER=openrouter
+OPENROUTER_API_KEY=
+RELAYDESK_OPENROUTER_PROVIDERS=openai
+RELAYDESK_HELP_GENERATION_MODEL=openai/gpt-4.1-mini
+RELAYDESK_HELP_JUDGE_MODEL=openai/gpt-4.1
 RELAYDESK_HELP_EMBEDDING_MODE=gateway
 RELAYDESK_HELP_EMBEDDING_MODEL=openai/text-embedding-3-small
 LANGSMITH_API_KEY=
@@ -53,26 +55,39 @@ LANGSMITH_AGENT_ID=relaydesk-rag-workshop
 LANGSMITH_AGENT_ENVIRONMENT=local
 ```
 
-Select generation and judge IDs from the current provider catalog.
+The initial setup uses GPT-4.1 Mini for generation and GPT-4.1 for the judge.
+The OpenRouter catalog was checked on 12 November 2026.
+Requests pin the OpenAI upstream and disable fallback providers.
+The embedding mode name `gateway` selects live embeddings through the configured provider, which is OpenRouter here.
 Reindex after switching from fixture embeddings to gateway embeddings.
 Use the same embedding model for indexing and queries.
 Leave `LANGSMITH_PROJECT` empty when using agent addressing.
 The organization ID in a browser URL is different from the optional workspace ID.
 
 Restart the watcher after changing credentials or environment configuration.
-Set a provider-side spend limit before unattended use.
-The harness enforces candidate and time bounds. It does not enforce a monetary cap.
+The initial test budget is $0.50 across all RAG model requests.
+Set `RELAYDESK_MODEL_BUDGET_USD=0.50` and `RELAYDESK_MODEL_BUDGET_FILE` to the shared private ledger path.
+The OpenRouter transport reserves a conservative token-cost ceiling before sending each request.
+It also sends provider price ceilings and rejects unknown models or unbounded outputs.
+Failed requests retain their reservation, so the ledger overestimates actual spend.
+The ledger persists across commands and is never reset automatically.
+Run `pnpm rag:budget` to inspect the remaining reservation allowance without a model call.
+The guard covers this demo's OpenRouter model transport, not unrelated uses of the same key.
+Keep a provider-side key limit as an additional account control.
+A new model requires a reviewed price ceiling in `help-model-budget.ts`.
+Human judge calibration and a full repair experiment may need a separately agreed budget.
 
 ## Human review and judge preparation
 
 ```sh
-pnpm rag:capture --limit 15 --repeats 2
+pnpm rag:capture --limit 15 --repeats 1
 pnpm rag:langsmith:setup
 pnpm rag:langsmith:enqueue
 pnpm rag:review
 ```
 
-Start with open-ended expert review of 20 to 50 real outputs.
+Use one pass of 15 questions for the initial connection check.
+Then prepare 20 to 50 real outputs for open-ended expert review within the agreed budget.
 Record Pass or Fail and a specific critique.
 Group recurring failures and refine the rubric before freezing it.
 
@@ -196,3 +211,8 @@ Sources:
 - https://hamel.dev/blog/posts/llm-judge/
 - https://hamel.dev/blog/posts/evals-faq/should-i-build-a-custom-annotation-tool-or-use-something-off-the-shelf.html
 - https://docs.langchain.com/langsmith/evaluate-llm-application
+
+OpenRouter integration references:
+
+- https://github.com/OpenRouterTeam/ai-sdk-provider
+- https://openrouter.ai/docs/guides/routing/provider-selection#max-price

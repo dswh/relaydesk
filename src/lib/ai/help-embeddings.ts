@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { embed, embedMany } from "ai";
 
 import { observeRagStage } from "@/lib/ai/rag-observability";
+import { helpEmbeddingModel, requireHelpModelKey } from "./help-model-provider";
 
 import {
   HELP_FIXTURE_EMBEDDING_MODEL,
@@ -125,13 +126,11 @@ export async function createHelpEmbedding(value: string, config: HelpChatConfig)
     };
   }
 
-  if (!process.env.AI_GATEWAY_API_KEY) {
-    throw new Error("AI_GATEWAY_API_KEY is required for gateway embeddings.");
-  }
+  requireHelpModelKey(config);
 
   const result = await observeRagStage(
     "embed_retrieval_query", "embedding", { model: config.embeddingModel, value },
-    () => embed({ model: config.embeddingModel, value }),
+    () => embed({ model: helpEmbeddingModel(config.embeddingModel,config), value }),
     (embedded) => ({ model: config.embeddingModel, dimensions: embedded.embedding.length, usage: embedded.usage }),
   );
   return { model: config.embeddingModel, vector: result.embedding };
@@ -145,11 +144,9 @@ export async function createHelpEmbeddings(values: string[], config: HelpChatCon
     };
   }
 
-  if (!process.env.AI_GATEWAY_API_KEY) {
-    throw new Error("AI_GATEWAY_API_KEY is required for gateway embeddings.");
-  }
+  requireHelpModelKey(config);
 
-  const result = await embedMany({ model: config.embeddingModel, values });
+  const result = await embedMany({ model: helpEmbeddingModel(config.embeddingModel,config), values });
   return { model: config.embeddingModel, vectors: result.embeddings };
 }
 
