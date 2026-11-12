@@ -24,6 +24,27 @@ function stableId(value: string) {
   const h = sha(value).slice(0, 32).split(""); h[12] = "5"; h[16] = "8";
   const s = h.join("");return `${s.slice(0,8)}-${s.slice(8,12)}-${s.slice(12,16)}-${s.slice(16,20)}-${s.slice(20)}`;
 }
+export async function tracingProjectId(cloud=connection()!){
+  if(cloud.project)return (await cloud.client.readProject({projectName:cloud.project})).id;
+  const agent=await cloud.client.agents.retrieve(cloud.agent!,{}, {timeout:10000,maxRetries:0});
+  const environment=(process.env.LANGSMITH_AGENT_ENVIRONMENT||"local").toUpperCase();
+  const project=agent.environments.find(e=>e.environment===environment)?.tracer_session_id;
+  if(!project)throw new Error("This agent has no tracing project for the selected environment.");
+  return project;
+}
+export async function verifyCapture(capture:Capture,cloud=connection()!){
+  const project=await tracingProjectId(cloud);
+  await cloud.client.awaitPendingTraceBatches();
+  for(const trace of capture.traces){
+    if(trace.mode!=="live")continue;
+    try{
+      const run=await cloud.client.runs.retrieve(trace.id,{project_id:project,start_time:trace.startedAt,selects:["ID","START_TIME","END_TIME","OUTPUTS"]},{timeout:10000,maxRetries:0});
+      trace.cloudUploaded=run.id===trace.id&&Boolean(run.end_time)&&Boolean(run.outputs);
+      if(trace.cloudUploaded&&run.start_time)trace.startedAt=run.start_time;
+    }catch{trace.cloudUploaded=false;console.info(`Cloud trace ${trace.id} is not yet verified. Its local record remains available.`)}
+  }
+  return capture.traces.filter(t=>t.cloudUploaded).length;
+}
 export async function setupLangSmith(capture: Capture) {
   const { client, destination, project, agent } = connection()!;
   const registryAgent=agent?await client.agents.retrieve(agent):undefined;
@@ -91,8 +112,9 @@ export async function recordCheckFeedback(trace:TraceRecord, verdict:{verdict:"p
 export async function enqueueCapture(capture: Capture) {
   const state = await optionalJson<{ queueId: string }>(path.join(dataRoot, "langsmith.json"));
   if (!state) throw new Error("Run pnpm rag:langsmith:setup first.");
-  const { client } = connection()!;
-  const ids = capture.traces.filter(t => t.mode === "live" && t.cloudUploaded).map(t => t.id);
-  if (ids.length) await client.addRunsToAnnotationQueue(state.queueId, ids);
-  return { queued: ids.length, queueId: state.queueId };
+  const cloud=connection()!;
+  const project=await tracingProjectId(cloud);
+  const runs = capture.traces.filter(t => t.mode === "live" && t.cloudUploaded).map(t => ({runId:t.id,sessionId:project,startTime:t.startedAt}));
+  if (runs.length) await cloud.client.addRunsToAnnotationQueue(state.queueId, runs);
+  return { queued: runs.length, queueId: state.queueId };
 }

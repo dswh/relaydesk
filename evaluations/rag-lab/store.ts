@@ -29,6 +29,7 @@ export type TraceRecord = {
 };
 export type Manifest = {
   schemaVersion: 1; id: string; createdAt: string; mode: "live" | "fixture";
+  exportedFrom?: { captureId: string; capturedAt: string };
   pipeline: { commit: string; patchHash: string };
   config: Record<string, unknown>; corpusHash: string; datasetHash: string;
   judgeHash: string; contractHash: string;

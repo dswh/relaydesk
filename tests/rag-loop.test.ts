@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { Client } from "langsmith";
 import { captureRagTrace, observeRagStage } from "../src/lib/ai/rag-observability";
 import { makeScorecard, candidateDecision, selectFailure, type ScoredCase } from "../evaluations/rag-lab/scorecard";
 import { balancedExamples, confusion } from "../evaluations/rag-lab/judge";
@@ -76,6 +77,25 @@ describe("RAG feedback loop", () => {
     expect(trace.spans[0]!.parentId).toBe(trace.id);
     expect(trace.spans[1]!.parentId).toBe(trace.spans[0]!.id);
     await expect(observeRagStage("error","chain",{},async()=>{throw new Error("original failure")},()=>({}))).rejects.toThrow("original failure");
+  });
+  it("exports class, array, and string summaries through the real LangSmith adapter",async()=>{
+    const client=new Client({apiKey:"unit-test-no-network"});
+    const outputs=new Map<string,unknown>();
+    const create=vi.spyOn(client,"createRun").mockResolvedValue(undefined);
+    const update=vi.spyOn(client,"updateRun").mockImplementation(async(id,run)=>{outputs.set(id,run.outputs)});
+    class EmbeddingResult {get embedding(){return [0.1,0.2]}}
+    try{
+      const trace=await captureRagTrace({},async()=>{
+        const embedded=await observeRagStage("embedding","embedding",{},async()=>new EmbeddingResult(),r=>({dimensions:r.embedding.length}));
+        await observeRagStage("retrieval","retriever",{},async()=>["evidence"],r=>({chunks:r}));
+        await observeRagStage("context","chain",{},async()=>"approved context",r=>({prompt:r}));
+        return {dimensions:embedded.embedding.length};
+      },{client,metadata:{synthetic:true}});
+      expect(trace.output).toEqual({dimensions:2});
+      expect(trace.spans.map(s=>outputs.get(s.id))).toEqual([{dimensions:2},{chunks:["evidence"]},{prompt:"approved context"}]);
+      expect(trace.startedAt).toBe(create.mock.calls.find(([run])=>run.id===trace.id)?.[0].start_time);
+      for(const span of trace.spans)expect(span.startedAt).toBe(create.mock.calls.find(([run])=>run.id===span.id)?.[0].start_time);
+    }finally{create.mockRestore();update.mockRestore()}
   });
 
   it("checks raw citation markers even if the formatted citation list omits an invalid marker", async () => {

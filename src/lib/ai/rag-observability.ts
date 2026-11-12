@@ -44,17 +44,25 @@ export async function observeRagStage<T>(
     startedAt: new Date().toISOString(), endedAt: "", durationMs: 0,
   };
   active.spans.push(span);
+  const execute = async () => {
+    const result = await operation();
+    span.outputs = summarize(result);
+    return result;
+  };
   const run = active.client
-    ? traceable(operation, {
+    ? traceable(execute, {
         id, name, run_type: kind === "embedding" ? "embedding" : kind,
         client: active.client, tracingEnabled: true,
+        on_start: run => {
+          const time = run?.toJSON().start_time;
+          if (time !== undefined) span.startedAt = typeof time === "number" ? new Date(time).toISOString() : time;
+        },
         processInputs: () => inputs,
-        processOutputs: (result) => summarize(result as T),
+        processOutputs: () => span.outputs ?? {},
       })
-    : operation;
+    : execute;
   try {
     const result = await context.run({ ...active, parentId: id }, run);
-    span.outputs = summarize(result);
     return result;
   } catch (error) {
     span.error = error instanceof Error ? error.message : "Stage failed";
@@ -76,12 +84,16 @@ export async function captureRagTrace<T>(
 ) {
   const id = randomUUID();
   const spans: RagSpan[] = [];
-  const startedAt = new Date().toISOString();
+  let startedAt = new Date().toISOString();
   const start = performance.now();
   const run = options.client
     ? traceable(operation, {
         id, name: "relaydesk.rag.answer", run_type: "chain", client: options.client,
         tracingEnabled: true, ...options.destination, metadata: options.metadata,
+        on_start: tree => {
+          const time = tree?.toJSON().start_time;
+          if (time !== undefined) startedAt = typeof time === "number" ? new Date(time).toISOString() : time;
+        },
         processInputs: () => inputs,
       })
     : operation;

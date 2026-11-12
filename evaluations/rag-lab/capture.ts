@@ -8,7 +8,7 @@ import { getHelpChatConfig, HELP_FIXTURE_EMBEDDING_MODEL } from "../../src/lib/h
 import { requireHelpModelKey } from "../../src/lib/ai/help-model-provider";
 import { corpusSnapshot } from "./corpus";
 import { loadLabTasks } from "./tasks";
-import { connection, enqueueCapture } from "./langsmith";
+import { connection, enqueueCapture, verifyCapture } from "./langsmith";
 import { atomicJson, dataRoot, hardChecks, labRoot, pipelineVersion, sha, type Capture, type Manifest } from "./store";
 
 export async function captureAnswers(options: { fixture: boolean; repeats: number; limit: number; local: boolean; offset?:number }) {
@@ -53,11 +53,7 @@ export async function captureAnswers(options: { fixture: boolean; repeats: numbe
     }
   }
   if (cloud) {
-    await cloud.client.awaitPendingTraceBatches();
-    for (const trace of capture.traces) {
-      try { await cloud.client.readRun(trace.id); trace.cloudUploaded = true; }
-      catch { console.info(`Cloud trace ${trace.id} is not yet verified. Its local record remains available.`); }
-    }
+    await verifyCapture(capture,cloud);
     await atomicJson(file, capture);
     try { await enqueueCapture(capture); }
     catch (error) { console.info(`Traces captured. Queue setup remains: ${error instanceof Error ? error.message : "unavailable"}`); }
