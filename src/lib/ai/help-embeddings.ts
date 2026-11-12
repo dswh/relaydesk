@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 
 import { embed, embedMany } from "ai";
 
+import { observeRagStage } from "@/lib/ai/rag-observability";
+
 import {
   HELP_FIXTURE_EMBEDDING_MODEL,
   type HelpChatConfig,
@@ -127,7 +129,11 @@ export async function createHelpEmbedding(value: string, config: HelpChatConfig)
     throw new Error("AI_GATEWAY_API_KEY is required for gateway embeddings.");
   }
 
-  const result = await embed({ model: config.embeddingModel, value });
+  const result = await observeRagStage(
+    "embed_retrieval_query", "embedding", { model: config.embeddingModel, value },
+    () => embed({ model: config.embeddingModel, value }),
+    (embedded) => ({ model: config.embeddingModel, dimensions: embedded.embedding.length, usage: embedded.usage }),
+  );
   return { model: config.embeddingModel, vector: result.embedding };
 }
 

@@ -1,0 +1,16 @@
+
+- description: A webhook worker needs more time than the acknowledgement deadline.
+  vars:
+    caseId: HC-016
+    caseFamily: webhook-acknowledgement-timing
+    category: Webhook processing
+    question: Our webhook worker takes 30 seconds. Should we wait for processing to finish before acknowledging the request?
+    referenceAnswer: Verify the signature, persist the event and delivery identifiers, then acknowledge within ten seconds. Put the remaining work on a durable queue and process it asynchronously. Do not wait for the slow worker to finish before acknowledging.
+    expectedOutcome: answered
+    expectedSources: [kb_42]
+    critical: false
+    requiredFacts:
+      - [ten seconds, 10 seconds]
+      - [queue, asynchronously]
+    forbiddenClaims: [wait 30 seconds before acknowledging]
+    segment: visible

@@ -8,6 +8,7 @@ import type { HelpChatOutcome } from "../../src/lib/ai/help-chat";
 export type HelpChatEvalCase = {
   category: string;
   caseId: string;
+  family?: string;
   critical: boolean;
   description: string;
   expectedOutcome: HelpChatOutcome;
@@ -35,8 +36,9 @@ function factArray(value: unknown) {
     : [];
 }
 
-export async function loadHelpChatDataset(): Promise<HelpChatEvalCase[]> {
-  const file = path.join(process.cwd(), "evaluations", "help-chat", "dataset.yaml");
+export async function loadHelpChatDataset(
+  file = path.join(process.cwd(), "evaluations", "help-chat", "dataset.yaml"),
+): Promise<HelpChatEvalCase[]> {
   const parsed = parse(await readFile(file, "utf8")) as DatasetRow[];
   if (!Array.isArray(parsed)) throw new Error("Help-chat dataset must be an array.");
 
@@ -53,6 +55,7 @@ export async function loadHelpChatDataset(): Promise<HelpChatEvalCase[]> {
     return {
       category: String(vars.category ?? "Uncategorized"),
       caseId: String(vars.caseId),
+      family: vars.caseFamily ? String(vars.caseFamily) : undefined,
       critical: Boolean(vars.critical),
       description: String(row.description ?? vars.caseId),
       expectedOutcome,

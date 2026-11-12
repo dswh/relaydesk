@@ -1,0 +1,21 @@
+name: relaydesk-rag-evals
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.6-pg17
+    environment:
+      POSTGRES_DB: relaydesk_rag_evals
+      POSTGRES_PASSWORD: relaydesk_local
+      POSTGRES_USER: relaydesk
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U relaydesk -d relaydesk_rag_evals"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    ports:
+      - "127.0.0.1:5440:5432"
+    volumes:
+      - rag-evals-postgres:/var/lib/postgresql/data
+
+volumes:
+  rag-evals-postgres:

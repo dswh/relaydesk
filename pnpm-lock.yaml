@@ -14,6 +14,9 @@ importers:
       dotenv:
         specifier: 17.4.2
         version: 17.4.2
+      langsmith:
+        specifier: 0.12.0
+        version: 0.12.0(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(openai@7.8.0(@aws-sdk/credential-provider-node@3.972.81)(@smithy/signature-v4@5.7.3)(undici@7.29.0)(ws@8.21.3)(zod@4.5.4))(ws@8.21.3)
       lucide-react:
         specifier: ^1.38.0
         version: 1.38.0(react@19.2.8)
@@ -4494,6 +4497,26 @@ packages:
   kuler@2.0.0:
     resolution: {integrity: sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A==}
 
+  langsmith@0.12.0:
+    resolution: {integrity: sha512-fbV0Dya+HOTyCEfH0+jbBuSXBgIj6sfm3VYxD9UmJ5H2W303UEEizxjEWu880P5qS7zRnnsYO5MVLE6pLPQKKQ==}
+    peerDependencies:
+      '@opentelemetry/api': '*'
+      '@opentelemetry/exporter-trace-otlp-proto': '*'
+      '@opentelemetry/sdk-trace-base': '*'
+      openai: '*'
+      ws: '>=7'
+    peerDependenciesMeta:
+      '@opentelemetry/api':
+        optional: true
+      '@opentelemetry/exporter-trace-otlp-proto':
+        optional: true
+      '@opentelemetry/sdk-trace-base':
+        optional: true
+      openai:
+        optional: true
+      ws:
+        optional: true
+
   language-subtag-registry@0.3.23:
     resolution: {integrity: sha512-0K65Lea881pHotoGEa5gDlMxt3pctLi2RplBb7Ezh4rRdLEOtgi7n4EwK9lamnUCkKBqaeKRVebTq6BAxSkpXQ==}
 
@@ -4501,8 +4524,8 @@ packages:
     resolution: {integrity: sha512-MbjN408fEndfiQXbFQ1vnd+1NoLDsnQW41410oQBXiyXDMYH5z505juWa4KUE1LqxRC7DgOgZDbKLxHIwm27hA==}
     engines: {node: '>=0.10'}
 
-  legacy-javascript@0.0.1:
-    resolution: {integrity: sha512-lPyntS4/aS7jpuvOlitZDFifBCb4W8L/3QU0PLbUTUj+zYah8rfVjYic88yG7ZKTxhS5h9iz7duT8oUXKszLhg==}
+  legacy-javascript@0.0.4:
+    resolution: {integrity: sha512-UTmeKBVxnfJcpmpOvzzNnLsQT99BXHpPlc/ZKddIRmWmrR0fw6335I3lq4+sJoP60UTbBNaYsGYVPc65YB1x3A==}
 
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
@@ -6038,8 +6061,8 @@ packages:
   third-party-web@0.26.7:
     resolution: {integrity: sha512-buUzX4sXC4efFX6xg2bw6/eZsCUh8qQwSavC4D9HpONMFlRbcHhD8Je5qwYdCpViR6q0qla2wPP+t91a2vgolg==}
 
-  third-party-web@0.29.2:
-    resolution: {integrity: sha512-fegtha91tq2DHphyoiBXVHjVi2YG9zFaRnboT9C28tO1en9Y3wJsfspuy40F+u5wl3hHVbw7cnd1b67kEGHb8g==}
+  third-party-web@0.30.0:
+    resolution: {integrity: sha512-p+PfyL5U0ediGzvwPzMSdD9MnC8rHW6nWJJVLIQvqN7RsSqfaZ+7n4c9GILqH36EYR0eXB9CzAeCRnKFr/9uJg==}
 
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
@@ -8583,8 +8606,8 @@ snapshots:
 
   '@paulirish/trace_engine@0.0.53':
     dependencies:
-      legacy-javascript: 0.0.1
-      third-party-web: 0.29.2
+      legacy-javascript: 0.0.4
+      third-party-web: 0.30.0
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -10465,8 +10488,7 @@ snapshots:
 
   etag@1.8.1: {}
 
-  eventemitter3@4.0.7:
-    optional: true
+  eventemitter3@4.0.7: {}
 
   eventemitter3@5.0.4:
     optional: true
@@ -11589,13 +11611,22 @@ snapshots:
 
   kuler@2.0.0: {}
 
+  langsmith@0.12.0(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(openai@7.8.0(@aws-sdk/credential-provider-node@3.972.81)(@smithy/signature-v4@5.7.3)(undici@7.29.0)(ws@8.21.3)(zod@4.5.4))(ws@8.21.3):
+    dependencies:
+      p-queue: 6.6.2
+    optionalDependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/sdk-trace-base': 2.11.0(@opentelemetry/api@1.9.1)
+      openai: 7.8.0(@aws-sdk/credential-provider-node@3.972.81)(@smithy/signature-v4@5.7.3)(undici@7.29.0)(ws@8.21.3)(zod@4.5.4)
+      ws: 8.21.3
+
   language-subtag-registry@0.3.23: {}
 
   language-tags@1.0.9:
     dependencies:
       language-subtag-registry: 0.3.23
 
-  legacy-javascript@0.0.1: {}
+  legacy-javascript@0.0.4: {}
 
   levn@0.4.1:
     dependencies:
@@ -12260,8 +12291,7 @@ snapshots:
       object-keys: 1.1.1
       safe-push-apply: 1.0.0
 
-  p-finally@1.0.0:
-    optional: true
+  p-finally@1.0.0: {}
 
   p-limit@2.3.0:
     dependencies:
@@ -12283,7 +12313,6 @@ snapshots:
     dependencies:
       eventemitter3: 4.0.7
       p-timeout: 3.2.0
-    optional: true
 
   p-retry@4.6.2:
     dependencies:
@@ -12294,7 +12323,6 @@ snapshots:
   p-timeout@3.2.0:
     dependencies:
       p-finally: 1.0.0
-    optional: true
 
   p-try@2.2.0: {}
 
@@ -13589,7 +13617,7 @@ snapshots:
 
   third-party-web@0.26.7: {}
 
-  third-party-web@0.29.2: {}
+  third-party-web@0.30.0: {}
 
   through@2.3.8: {}
 

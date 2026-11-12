@@ -1,5 +1,7 @@
 import { generateText, streamText } from "ai";
 
+import { observeRagStage } from "@/lib/ai/rag-observability";
+
 import {
   getHelpChatConfig,
   type HelpChatConfig,
@@ -43,6 +45,7 @@ export type HelpChatAnswer = {
   outcome: HelpChatOutcome;
   prompt: string;
   retrieved: RetrievedHelpChunk[];
+  usage?: { inputTokens: number; outputTokens: number };
 };
 
 type PreparedHelpChat = {
@@ -198,7 +201,11 @@ async function prepareHelpChat(
 ): Promise<PreparedHelpChat> {
   const searchText = buildHelpRetrievalQuery(messages, config);
   const retrieved = searchText
-    ? await retrieveHelpKnowledge(searchText, config)
+    ? await observeRagStage(
+        "retrieve_approved_knowledge", "retriever", { query: searchText, config },
+        () => retrieveHelpKnowledge(searchText, config),
+        (chunks) => ({ chunks }),
+      )
     : [];
   const outcome = determineOutcome(latestUserMessage(messages), retrieved, config);
 
@@ -206,7 +213,11 @@ async function prepareHelpChat(
     config,
     messages,
     outcome,
-    prompt: buildHelpChatPrompt(messages, retrieved, config),
+    prompt: await observeRagStage(
+      "assemble_evidence", "chain", { messages, contextBudget: config.contextBudgetCharacters },
+      async () => buildHelpChatPrompt(messages, retrieved, config),
+      (prompt) => ({ prompt }),
+    ),
     retrieved,
   };
 }
@@ -243,9 +254,13 @@ export async function generateHelpChatAnswer(
 ): Promise<HelpChatAnswer> {
   const prepared = await prepareHelpChat(messages, config);
   if (!live || prepared.outcome !== "answered") {
+    const text = await observeRagStage(
+      "deterministic_response", "chain", { outcome: prepared.outcome, liveRequested: live },
+      async () => approvedFixtureAnswer(prepared), (answer) => ({ answer, modelCall: false }),
+    );
     return finalizedAnswer(
       prepared,
-      approvedFixtureAnswer(prepared),
+      text,
       "fixture",
       "approved-help-fixture-v1",
     );
@@ -255,17 +270,25 @@ export async function generateHelpChatAnswer(
     throw new Error("AI_GATEWAY_API_KEY is required for live help answers.");
   }
 
-  const result = await generateText({
-    maxOutputTokens: 500,
-    model: config.generationModel,
-    prompt: prepared.prompt,
-  });
-  return finalizedAnswer(
+  const result = await observeRagStage(
+    "generate_answer", "llm", { prompt: prepared.prompt, model: config.generationModel },
+    async () => {
+      const generated = await generateText({
+        maxOutputTokens: 500, model: config.generationModel, prompt: prepared.prompt,
+      });
+      return { text: generated.text, usage: {
+        inputTokens: generated.totalUsage.inputTokens ?? 0,
+        outputTokens: generated.totalUsage.outputTokens ?? 0,
+      } };
+    },
+    (generated) => ({ ...generated }),
+  );
+  return { ...finalizedAnswer(
     prepared,
     result.text,
     "gateway",
     config.generationModel,
-  );
+  ), usage: result.usage };
 }
 
 function encodeEvent(event: HelpChatStreamEvent) {

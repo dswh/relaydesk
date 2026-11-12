@@ -17,3 +17,4 @@ test-results/
 .promptfoo/
 evaluations/help-chat/runs/*
 !evaluations/help-chat/runs/.gitkeep
+evaluations/rag-lab/data/
