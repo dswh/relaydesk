@@ -1,0 +1,8 @@
+[
+  {"id":"D01","family":"follow-up-context","question":"How do restricted AI knowledge collections work in RelayDesk?","followUp":"Who is allowed to change them?","expectedSource":"kb_31"},
+  {"id":"D02","family":"follow-up-context","question":"How do I resolve pending SSO domain ownership verification?","followUp":"How long should I wait before asking for help?","expectedSource":"kb_14"},
+  {"id":"D03","family":"follow-up-context","question":"How should our consumer handle duplicate RelayDesk webhook deliveries?","followUp":"How long should we keep those identifiers?","expectedSource":"kb_42"},
+  {"id":"D04","family":"direct-question-regression","question":"How long can RelayDesk SSO domain verification take?","expectedSource":"kb_14"},
+  {"id":"D05","family":"direct-question-regression","question":"Can agents expand the knowledge collections assigned to their queue?","expectedSource":"kb_31"},
+  {"id":"D06","family":"direct-question-regression","question":"How do I replace an invitation created in the wrong RelayDesk workspace?","expectedSource":"kb_8"}
+]

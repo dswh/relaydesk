@@ -1,0 +1,5 @@
+[
+  {"id":"H01","family":"unseen-export-follow-up","question":"My RelayDesk usage export is missing rows that appear in the dashboard.","followUp":"Does that mean the underlying data has been deleted?","expectedSource":"kb_22"},
+  {"id":"H02","family":"unseen-invitation-follow-up","question":"A RelayDesk invitation was created in our sandbox instead of the production workspace.","followUp":"Can we move it, or what should we do instead?","expectedSource":"kb_8"},
+  {"id":"H03","family":"unseen-webhook-follow-up","question":"Our RelayDesk webhook consumer runs a slow background worker.","followUp":"Should we acknowledge first or wait for it to finish?","expectedSource":"kb_42"}
+]

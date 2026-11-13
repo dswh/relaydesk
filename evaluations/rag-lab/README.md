@@ -1,5 +1,8 @@
 # RelayDesk RAG improvement loop
 
+For the dedicated reproducible retrieval demonstration, use [the demo runbook](demo/README.md) on `codex/rag-loop-reproducible-demo`.
+This provides measured ranking improvements while leaving answer-quality validation separate.
+
 Open the complete hands-on guide at http://127.0.0.1:4180/workshop after starting `pnpm rag:review`.
 
 The implementation lives on `codex/rag-langsmith-evals` in the dedicated `relaydesk-rag-evals` worktree.

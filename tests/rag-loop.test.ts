@@ -90,8 +90,9 @@ describe("RAG feedback loop", () => {
         await observeRagStage("retrieval","retriever",{},async()=>["evidence"],r=>({chunks:r}));
         await observeRagStage("context","chain",{},async()=>"approved context",r=>({prompt:r}));
         return {dimensions:embedded.embedding.length};
-      },{client,metadata:{synthetic:true}});
+      },{client,name:"retrieval-probe",metadata:{synthetic:true}});
       expect(trace.output).toEqual({dimensions:2});
+      expect(create.mock.calls.find(([run])=>run.id===trace.id)?.[0].name).toBe("retrieval-probe");
       expect(trace.spans.map(s=>outputs.get(s.id))).toEqual([{dimensions:2},{chunks:["evidence"]},{prompt:"approved context"}]);
       expect(trace.startedAt).toBe(create.mock.calls.find(([run])=>run.id===trace.id)?.[0].start_time);
       for(const span of trace.spans)expect(span.startedAt).toBe(create.mock.calls.find(([run])=>run.id===span.id)?.[0].start_time);

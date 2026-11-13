@@ -80,6 +80,7 @@ export async function captureRagTrace<T>(
     client?: Client;
     destination?: Pick<RunTreeConfig, "address" | "project_name">;
     metadata: Record<string, unknown>;
+    name?: string;
   },
 ) {
   const id = randomUUID();
@@ -88,7 +89,7 @@ export async function captureRagTrace<T>(
   const start = performance.now();
   const run = options.client
     ? traceable(operation, {
-        id, name: "relaydesk.rag.answer", run_type: "chain", client: options.client,
+        id, name: options.name || "relaydesk.rag.answer", run_type: "chain", client: options.client,
         tracingEnabled: true, ...options.destination, metadata: options.metadata,
         on_start: tree => {
           const time = tree?.toJSON().start_time;

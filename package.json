@@ -62,7 +62,8 @@
     "rag:loop:status": "tsx evaluations/rag-lab/cli.ts status",
     "rag:loop": "tsx evaluations/rag-lab/cli.ts loop",
     "rag:loop:accept": "tsx evaluations/rag-lab/cli.ts accept",
-    "rag:loop:reject": "tsx evaluations/rag-lab/cli.ts reject"
+    "rag:loop:reject": "tsx evaluations/rag-lab/cli.ts reject",
+    "rag:demo": "tsx evaluations/rag-lab/demo/cli.ts"
   },
   "dependencies": {
     "@openrouter/ai-sdk-provider": "3.1.0",

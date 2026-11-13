@@ -1,0 +1,1 @@
+{"id":"D07","family":"new-webhook-question","question":"Our RelayDesk webhook worker takes thirty seconds to process a delivery.","followUp":"When should we send the acknowledgement?","expectedSource":"kb_42"}
