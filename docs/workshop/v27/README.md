@@ -4,6 +4,9 @@ This version teaches how to set up an improvement loop around a RAG pipeline.
 It keeps the 43-slide deck and the 14-slide guided hands-on segment.
 Slides 16 to 30 follow one practical problem: a short follow-up loses the earlier topic during search.
 
+The [session review](session-review.html) assesses the full storyline and use cases.
+Its recommendations have not been applied to this deck.
+
 The focus is the repeated engineering work:
 
 - Record the question, query, retrieved sources, and answer.
