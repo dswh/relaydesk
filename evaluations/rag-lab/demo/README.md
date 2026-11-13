@@ -9,6 +9,7 @@ It restores the missing conversation-context behavior and shallow two-chunk retr
 That historical version searched only the latest user message and retrieved two chunks.
 A vague follow-up can therefore lose the topic needed to find the correct document.
 The scenario patch and source commit are recorded for each run.
+The exact historical configuration source and its SHA-256 are committed in `historical-config.json`, so preparation does not require an otherwise unreachable Git object.
 No failure flag or workshop UI is added to the customer product.
 
 ## What the score proves

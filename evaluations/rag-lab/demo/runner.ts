@@ -45,8 +45,13 @@ const stateFile = (id: string) => path.join(directory(id), "state.json");
 export async function demoState(id?: string) { const active = id || ((await optionalJson<{
     id: string;
 }>(path.join(root, "active.json")))?.id); return active ? optionalJson<DemoState>(stateFile(active)) : undefined; }
-async function save(s: DemoState, message?: string) { s.updatedAt = new Date().toISOString(); if (message)
-    s.events.push({ at: s.updatedAt, message }); await atomicJson(stateFile(s.id), s); await atomicJson(path.join(root, "active.json"), { id: s.id }); return s; }
+async function save(s: DemoState, message?: string) {
+    s.updatedAt = new Date().toISOString();
+    if (message) { s.reason=message; s.events.push({at:s.updatedAt,message}); }
+    await atomicJson(stateFile(s.id),s);
+    await atomicJson(path.join(root,"active.json"),{id:s.id});
+    return s;
+}
 async function required(id: string) { const s = await demoState(id); if (!s)
     throw new Error("Prepare this demo run first."); return s; }
 async function fingerprint(dir: string) { const names = git(dir, ["ls-files", "-c", "-o", "--exclude-standard"]).split("\n").filter(Boolean); return Object.fromEntries(await Promise.all([...new Set(names)].sort().map(async (n) => [n, await fileHash(path.join(dir, n)).catch(e => { if ((e as NodeJS.ErrnoException).code === "ENOENT")
@@ -79,10 +84,9 @@ export async function prepareDemo(id: string) {
         throw new Error("Commit the workshop implementation before preparing a reproducible run.");
     await mkdir(dir, { recursive: true });
     const baseCommit = git(productRoot, ["rev-parse", "HEAD"]);
-    const historicalCommit = "53c2749887d4f3f9ba815acd105586bd25a67e05";
-    const historic = git(productRoot, ["show", `${historicalCommit}:src/lib/help-chat-config.ts`]);
-    if (!historic.includes('"RELAYDESK_HELP_INCLUDE_CONTEXT"') && !historic.includes('process.env.RELAYDESK_HELP_INCLUDE_CONTEXT,\n      false'))
-        throw new Error("Historical provenance could not be verified.");
+    const historical=JSON.parse(await readFile(path.join(labRoot,"demo/historical-config.json"),"utf8")) as {commit:string;source:string;sha256:string};
+    const historicalCommit=historical.commit;
+    if(sha(historical.source)!==historical.sha256||!historical.source.includes('process.env.RELAYDESK_HELP_INCLUDE_CONTEXT,\n      false')||!historical.source.includes('process.env.RELAYDESK_HELP_TOP_K, 2'))throw new Error("Historical configuration provenance did not match its committed snapshot.");
     const baselineRoot = await worktree(baseCommit, `rag-demo-${id}-baseline`);
     const file = path.join(baselineRoot, "src/lib/help-chat-config.ts");
     let source = await readFile(file, "utf8");
