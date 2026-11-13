@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-11-13T10:58:34.430Z",
+  "usageStartUSD": 0.00810636,
+  "usageEndUSD": 0.02616226,
+  "accountUsageDeltaUSD": 0.0180559,
+  "conservativeReservationsUSD": 0.208531,
+  "requests": 272,
+  "capUSD": 0.5,
+  "note": "Account usage delta includes all use on this key during this task. Codex plan usage is separate."
+}

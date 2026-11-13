@@ -1,7 +1,7 @@
 import { mkdir,readFile,writeFile } from "node:fs/promises";
 import path from "node:path";
 import {productRoot} from "../loop";
-import {labRoot,atomicJson} from "../store";
+import {labRoot,dataRoot,atomicJson,optionalJson} from "../store";
 import {demoView} from "./runner";
 
 export async function exportDemo(id:string,output:string){
@@ -10,7 +10,10 @@ export async function exportDemo(id:string,output:string){
  const out=path.resolve(output);
  if(!out.startsWith(productRoot+path.sep))throw new Error("Export into a directory inside this feature repository.");
  const s=view.state;
- const snapshot={...view,state:{id:s.id,phase:s.phase,reason:s.reason,createdAt:s.createdAt,updatedAt:s.updatedAt,baseCommit:s.baseCommit,historicalCommit:s.historicalCommit,datasetHash:s.datasetHash,heldoutHash:s.heldoutHash,contractHash:s.contractHash,epoch:s.epoch,attempts:s.attempts,events:s.events,pending:s.pending?{changedFiles:s.pending.changedFiles}:undefined},patch:view.patch?.replaceAll(productRoot+path.sep,"")};
+ const evidenceRoot=path.join(dataRoot,"retrieval-demo",s.id);
+ const reproductionReceipt=await optionalJson(path.join(evidenceRoot,"reproduction-receipt.json"));
+ const flowControlProof=await optionalJson(path.join(evidenceRoot,"new-question-gate.json"));
+ const snapshot={...view,reproductionReceipt,flowControlProof,state:{id:s.id,phase:s.phase,reason:s.reason,createdAt:s.createdAt,updatedAt:s.updatedAt,baseCommit:s.baseCommit,historicalCommit:s.historicalCommit,datasetHash:s.datasetHash,heldoutHash:s.heldoutHash,contractHash:s.contractHash,epoch:s.epoch,attempts:s.attempts,events:s.events,pending:s.pending?{changedFiles:s.pending.changedFiles}:undefined},patch:view.patch?.replaceAll(productRoot+path.sep,"")};
  const data=JSON.stringify(snapshot).replaceAll("</","<\\/");
  let html=await readFile(path.join(labRoot,"demo/workshop.html"),"utf8");
  const live="const res=await fetch('/api/demo');if(!res.ok)throw new Error('Unable to load the run.');const d=await res.json();";

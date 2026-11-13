@@ -3,6 +3,12 @@
 This implementation is on `codex/rag-loop-reproducible-demo`.
 It supports the seven guided workshop steps on slides 17 to 30.
 
+The recorded live proof is in [`docs/evidence/rag-retrieval-proof`](../../../docs/evidence/rag-retrieval-proof/README.md).
+It improved development retrieval from 4/6 to 6/6 and held-out retrieval from 1/3 to 3/3.
+Each question was checked three times before and after the change.
+All previously passing questions stayed passing.
+Answer quality remains unscored, and the patch is still awaiting engineer review.
+
 The product remains healthy in this branch.
 Preparation creates a separate scenario worktree.
 It restores the missing conversation-context behavior and shallow two-chunk retrieval documented in historical commit `53c2749887d4f3f9ba815acd105586bd25a67e05`.

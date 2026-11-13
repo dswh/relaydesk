@@ -24,7 +24,7 @@ async function main() {
     else if (command === "accept" || command === "reject")
         result = await reviewDemo(value("id"), command === "accept");
     else
-        result = { commands: ["prepare --id <run-id>", "run --id <run-id>", "status", "add-question --id <run-id> --file evaluations/rag-lab/demo/new-question.json", "accept --id <run-id>", "reject --id <run-id>"], scope: "Retrieval-ranking proof. Answer quality remains unscored until human review and judge calibration." };
+        result = { commands: ["prepare --id <run-id>", "run --id <run-id> [--retrieval-only]", "status [--id <run-id>]", "watch --id <run-id>", "add-question --id <run-id> --file evaluations/rag-lab/demo/new-question.json", "accept --id <run-id>", "reject --id <run-id>", "export --id <run-id> --out docs/evidence/<directory>"], scope: "Retrieval-ranking proof. Answer quality remains unscored until human review and judge calibration." };
     console.info(JSON.stringify(result, null, 2));
     if ((result as {
         phase?: string;

@@ -41,6 +41,32 @@ export function codexRepairArguments(root: string) {
   return ["exec", "--ignore-user-config", "--json", "--ephemeral", "--sandbox", "workspace-write", "-C", root, "-"];
 }
 
+export async function productCandidatePatch(beforeRoot: string, afterRoot: string, files: string[]) {
+  const patches: string[] = [];
+  for (const file of files) {
+    const previous = path.join(beforeRoot, file);
+    const exists = await lstat(previous).then(() => true, error => {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+      throw error;
+    });
+    let diff = "";
+    try {
+      diff = execFileSync("git", ["diff", "--no-index", "--", exists ? previous : "/dev/null", path.join(afterRoot, file)], {encoding: "utf8", stdio: ["ignore", "pipe", "pipe"]});
+    } catch (error) {
+      const result = error as {status?: number; stdout?: string};
+      if (result.status !== 1 || !result.stdout) throw error;
+      diff = result.stdout;
+    }
+    patches.push(diff.split("\n").map(line => {
+      if (line.startsWith("diff --git ")) return `diff --git a/${file} b/${file}`;
+      if (line.startsWith("--- ")) return `--- ${exists ? `a/${file}` : "/dev/null"}`;
+      if (line.startsWith("+++ ")) return `+++ b/${file}`;
+      return line;
+    }).join("\n"));
+  }
+  return patches.join("\n");
+}
+
 export function productTestEnvironment(source: Record<string,string|undefined>) {
   const safe = Object.fromEntries(Object.entries(source).filter(([key, value]) =>
     value !== undefined && /^(PATH|HOME|USER|LOGNAME|TMPDIR|TEMP|TMP|SYSTEMROOT|COMSPEC|PATHEXT|LANG|LC_.+|TERM|NO_COLOR)$/i.test(key),

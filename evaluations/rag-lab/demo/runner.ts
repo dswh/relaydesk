@@ -3,7 +3,7 @@ import { copyFile, mkdir, readFile, readdir, symlink, writeFile, open, unlink, a
 import path from "node:path";
 import { atomicJson, dataRoot, labRoot, optionalJson, sha } from "../store";
 import { runProcess, productRoot } from "../loop";
-import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles,codexRepairArguments} from "../worktree";
+import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles,codexRepairArguments,productCandidatePatch} from "../worktree";
 import { allowedDemoFile, demoReviewSchema, demoContract, questionSchema, questionsSchema, retrievalDecision, retrievalScore, selectedRetrievalFailure, type RetrievalReport } from "./contract";
 const root = path.join(dataRoot, "retrieval-demo");
 const git = (dir: string, args: string[]) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8" }).trim();
@@ -251,22 +251,7 @@ export async function runDemo(id: string, { answers = true } = {}) {
                     throw new Error("The candidate changed after it was frozen.");
                 const decisionFile = path.join(directory(id), `epoch-${epoch}-decision-${attempt}.json`);
                 await atomicJson(decisionFile, { development: decision, heldout: heldDecision, answerQuality: "unscored", humanApproval: false });
-                const patches = [];
-                for (const f of files) {
-                    try {
-                        patches.push(execFileSync("git", ["diff", "--no-index", "--", path.join(s.currentRoot, f), path.join(candidate, f)], { encoding: "utf8" }));
-                    }
-                    catch (e) {
-                        const x = e as {
-                            status?: number;
-                            stdout?: string;
-                        };
-                        if (x.status !== 1)
-                            throw e;
-                        patches.push(x.stdout || "");
-                    }
-                }
-                await writeFile(path.join(directory(id), `epoch-${epoch}-candidate-${attempt}.patch`), patches.join("\n"));
+                await writeFile(path.join(directory(id), `epoch-${epoch}-candidate-${attempt}.patch`), await productCandidatePatch(s.currentRoot,candidate,files));
                 s = { ...s, phase: "awaiting_review", candidate: measured.file, heldoutBaseline: heldBaseline.file, heldoutCandidate: heldCandidate.file, pending: { root: candidate, changedFiles: files, treeHash, decisionFile }, reason: "The retrieval score improved and the held-out regression check passed. The patch awaits engineer review. Answer quality remains unscored." };
                 return save(s, s.reason);
             }
@@ -291,10 +276,10 @@ export async function reviewDemo(id: string, accept: boolean) { return locked(id
     throw new Error("The candidate changed after measurement. Re-measure before review."); await atomicJson(path.join(directory(id), `epoch-${s.epoch}-human-decision.json`), { accepted: accept, at: new Date().toISOString(), scope: "Local retrieval patch. No release or semantic-quality approval." }); if (accept)
     s.currentRoot = s.pending.root; delete s.pending; s.phase = "prepared"; s.reason = accept ? "The engineer accepted the local candidate. The next run remeasures all active questions." : "The engineer rejected the candidate. Review guidance before another run."; return save(s, s.reason); }); }
 export async function demoView(id?: string) { const state = await demoState(id); if (!state)
-    return { state: null }; const read = async (f?: string) => f ? optionalJson<RetrievalReport>(f) : undefined; const patchFile = path.join(directory(state.id), `epoch-${state.epoch}-candidate-${state.attempts}.patch`); let patch = ""; try {
+    return { state: null }; const activeQuestions=questionsSchema.parse(JSON.parse(await readFile(path.join(directory(state.id),"development.json"),"utf8"))); const read = async (f?: string) => f ? optionalJson<RetrievalReport>(f) : undefined; const patchFile = path.join(directory(state.id), `epoch-${state.epoch}-candidate-${state.attempts}.patch`); let patch = ""; try {
     patch = await readFile(patchFile, "utf8");
 }
-catch { } return { state, patch, contract: demoContract, baseline: await read(state.baseline), candidate: await read(state.candidate), heldoutBaseline: await read(state.heldoutBaseline), heldoutCandidate: await read(state.heldoutCandidate) }; }
+catch { } return { state, patch, activeQuestionCount:activeQuestions.length, contract: demoContract, baseline: await read(state.baseline), candidate: await read(state.candidate), heldoutBaseline: await read(state.heldoutBaseline), heldoutCandidate: await read(state.heldoutCandidate) }; }
 export async function watchDemo(id: string) {
     let stopped = false;
     const stop = () => { stopped = true; };
