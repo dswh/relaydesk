@@ -1,0 +1,260 @@
+[
+  {
+    "number": 1,
+    "title": "Loop",
+    "text": " \nLoop\nEngineering\nLet the last result guide the next step.\nA workshop for everyday engineering work\n\n\n\nTRIGGER\nAgent\nVERIFY\nLOOP ENGINEERING\n01",
+    "notes": "Think about the last task you gave a coding agent.\nIt made a change.\nYou ran a check.\nThen you explained the next step.\n\nToday we will build a way to carry that work forward.\nWe will use the last result to choose the next allowed action.\nWe will also make room for review and new work.\n\nNext question:\nWhat does that look like in an ordinary engineering problem?"
+  },
+  {
+    "number": 2,
+    "title": "Harshit Tyagi",
+    "text": " \nHarshit Tyagi\nAI Consultant & Founder · Agentiwise\n\n\n\nI build useful agent systems.\n\nI turn agent prototypes into reliable systems that create business value.\n\nI founded glued.me, a marketing SaaS built around agents.\n\nI teach practical AI through O'Reilly, LinkedIn Learning, YouTube, and consulting.\n\nI focus on systems people can inspect and improve.\nLOOP ENGINEERING\n02",
+    "notes": "I build agent systems for real work.\nThat means the work has to stay understandable after the first answer.\nA person needs to see what changed and why.\n\nKeep this introduction short.\nMove straight to a customer question.\n\nNext question:\nWhy can an assistant answer one message, then lose the topic on the next one?"
+  },
+  {
+    "number": 3,
+    "title": "Why did the assistant lose the topic?",
+    "text": "Why did the assistant lose the topic?\n\nLOOP ENGINEERING\n3\n“How should we handle duplicate webhook deliveries?”\n“What should I do next?”\nThe approved webhook article exists. The search misses it.",
+    "notes": "A customer asks about duplicate webhook deliveries.\nThen they ask, \"What should I do next?\"\n\nThe assistant searches using that short follow-up alone.\nThe approved webhook article exists.\nIt does not appear in these search results.\n\nThis is a real saved response from our workshop run.\nWe have not assigned it a human answer-quality label.\nFor now, notice the missing source.\n\nNext question:\nWhat work does an engineer have to do to fix this?"
+  },
+  {
+    "number": 4,
+    "title": "What work does that failure create?",
+    "text": "What work does that failure create?\n\nLOOP ENGINEERING\n4\nUnderstand the failure\nRead the question, the search query, and the returned sources.\n\nRequest a change\nAsk the coding agent for a small fix. Run the checks again.\n\nDo it again later\nReview the patch. Repeat the checking when a new question arrives.\n",
+    "notes": "Someone has to read the failed question.\nThey have to inspect the search query.\nThen they ask the coding agent for a change.\nThey rerun the checks.\nThey inspect the patch.\n\nA week later, another question arrives.\nMuch of that checking and handoff work starts again.\n\nNext question:\nWhich parts can we arrange in advance?"
+  },
+  {
+    "number": 5,
+    "title": "What are we engineering around the agent?",
+    "text": "What are we engineering around the agent?\n\nLOOP ENGINEERING\n5\nA way to use the last result\nto choose the next allowed action.\nGive it evidence\nA check that shows what changed and what still needs work.\n\nDecide when it should try again, wait for review, or stop.",
+    "notes": "Loop engineering means designing what happens after the agent returns.\n\nWe give the loop a result to reach.\nWe give it evidence it can read.\nWe limit the changes it may make.\nWe decide when it should try again, wait, or stop.\n\nThe important part is the connection between a result and the next action.\n\nNext question:\nHow does a result become a useful next instruction?"
+  },
+  {
+    "number": 6,
+    "title": "How does a result guide the next attempt?",
+    "text": "\n\n\nHow does a result guide the next attempt?\n\nLOOP ENGINEERING\n06\nMake a slow test suite faster\n\nMeasure\nTime the full suite\n\nChange one cause\nShared setup or slow I/O\n\nRecheck\nSame tests, same runner\n\nStill too slow? The timing result becomes the next instruction.",
+    "notes": "Take a slow test suite.\nFirst, measure the full suite on the same runner.\nFind one cause of the delay.\nMake a small change.\nRun the same checks again.\n\nIf the tests pass but the suite is still too slow, the new timings guide the next attempt.\nThe target in the later prompt is an example for learners to replace.\nWe are not claiming a measured speed improvement in this workshop.\n\nNext question:\nWhen should this work start again?"
+  },
+  {
+    "number": 7,
+    "title": "When should the work start again?",
+    "text": "When should the work start again?\n\nLOOP ENGINEERING\n07\nManual\nYou submit a goal.\nThe full test suite is 20% faster.\n\nScheduled\nThe hourly check fires.\nDocs match verified shipped changes.\n\nAfter an alert\nA fixed log export arrives.\nEach reproducible group has a passing test.",
+    "notes": "A loop can start when you submit a goal.\nIt can start on a schedule.\nIt can also start after an outside system supplies new evidence.\n\nThe alert example needs a handoff.\nAn engineer supplies a fixed log export and starts the goal.\nThe prompt does not create an alert integration by itself.\n\nStarting again later and retrying within one run are separate decisions.\nBoth use the same action, check, and stop rules.\n\nNext question:\nWhich of those loops will we build today?"
+  },
+  {
+    "number": 8,
+    "title": "Which loop are we building?",
+    "text": "Which loop are we building?\n\nLOOP ENGINEERING\n8\nThe support assistant\nFind approved articles and answer a customer.\n\nThe engineering loop\nCheck examples. Request a code change. Check again. Wait for review.\n\nA new question starts a fresh check of that same system.",
+    "notes": "Our support assistant already has a job.\nIt finds approved help articles and answers a customer.\n\nWe will build an engineering loop around it.\nThat outer loop checks examples, requests a small code change, and checks again.\nA useful change waits for review.\nNew questions can start fresh checks later.\n\nWe are improving the system that answers customers.\nWe are not asking the customer assistant to rewrite itself while serving a conversation.\n\nNext question:\nWhat evidence would tell us that a change helped?"
+  },
+  {
+    "number": 9,
+    "title": "What would count as better?",
+    "text": "What would count as better?\n\nLOOP ENGINEERING\n09\nChecks with a clear rule\nChecks that need judgment\n\nThe same full test suite still passes.\n•\nThe expected article ranks first.\n•\nTests and assertions stay intact.\n•\nDocs match shipped product behavior.\n•\nRAG claims follow approved evidence.\n•\nA judge agrees with reviewed examples.\n•\n\nStop on success, a budget limit, a regression, or a need for human judgment.",
+    "notes": "Some checks have a clear rule.\nThe test suite passes.\nA known article ranks first for a saved question.\n\nOther checks need judgment.\nDoes an answer make the right claims?\nDoes documentation explain shipped behavior clearly?\n\nFor this hands-on loop, we automate the source-ranking check.\nWe keep answer-quality review separate.\nA broader answer-quality loop needs human labels and a judge checked against those labels.\n\nNext question:\nWhere else does repeated checking create useful work?"
+  },
+  {
+    "number": 10,
+    "title": "Where does another attempt help?",
+    "text": "Where does another attempt help?\n\nLOOP ENGINEERING\n10\nSpeed up the test suite\nTime it. Fix one slow cause. Time the same suite again.\nTiming evidence\n\nSync docs with shipped code\nFind one verified mismatch. Update it. Recheck the list.\nMismatch list\n\nWork through an error window\nReproduce one group. Fix its cause. Retest what remains.\nRemaining errors",
+    "notes": "These three jobs give the loop something concrete to do.\n\nFor a slow test suite, each new timing points to the next cause.\nFor documentation, each verified mismatch becomes one edit.\nFor a fixed error window, each remaining reproducible group becomes the next investigation.\n\nA repeat has value when the last check helps choose the next action.\nUse a simple script for a fixed sequence of identical actions.\n\nNext question:\nWhat must we specify before letting the loop run?"
+  },
+  {
+    "number": 11,
+    "title": "What must the loop know before it starts?",
+    "text": "What must the loop know before it starts?\n\nLOOP ENGINEERING\n11\n1\nTrigger\nWhat starts this run?\n\n2\nGoal\nWhat result are we trying to reach?\n\n3\nAction\nWhat is the next allowed change?\n\n4\nCheck state\nWhat happened, and what will the next run read?\n\n5\nStop\nWhen do we finish, pause, or ask a person?\n\nFive choices for the run. Next, we will connect them through feedback.",
+    "notes": "These are the five choices in the run instructions.\nWhat starts it?\nWhat result are we trying to reach?\nWhat may it change?\nWhat does it check and save?\nWhen should it stop or wait?\n\nThe next three slides turn those choices into prompts.\nThen the feedback diagram will show how the pieces connect.\nThe seven hands-on steps will show how to build that same system.\nWe are looking at one loop in increasing detail.\n\nNext question:\nWhat does this look like as a prompt I could actually run?"
+  },
+  {
+    "number": 12,
+    "title": "How would you ask for a faster test suite?",
+    "text": "How would you ask for a faster test suite?\n\nStart once with /goal. Replace the highlighted fields for your project.\nLOOP ENGINEERING\n12\nGoal\n/goal Make the full test suite at least [20%] faster.\nTrigger\nStart when I submit this goal.\nAction\nRecord the median of [3] full runs on the same runner.\nProfile the slowest work. Change one shared cause.\nCheck + save\nRerun the same suite [3] times after each change.\nKeep changes only when tests pass and timing improves.\nPreserve every test, assertion, fixture, and coverage target.\nSave timings, the diff, and the next idea in [loop-state.md].\nRepeat + stop\nRepeat until the [20%] improvement is verified.\nStop after [3 changes] or [25 minutes], or if blocked.\nLeave a local diff for review. Do not merge or deploy.",
+    "notes": "Read this prompt as a small work agreement.\nThe highlighted fields are values you replace.\n\nThe goal starts when you submit it.\nThe same full suite provides the evidence after every change.\nTests, assertions, fixtures, and coverage targets stay fixed.\nThe saved timings guide another attempt.\n\nThe loop stops on verified improvement or a limit.\nIt leaves a local change for review.\n\nNext question:\nHow do these instructions change when new work arrives every hour?"
+  },
+  {
+    "number": 13,
+    "title": "How would the docs loop find new work?",
+    "text": "How would the docs loop find new work?\n\nClaude Code /loop. Replace the highlighted fields before starting.\nLOOP ENGINEERING\n13\nGoal + interval\n/loop [1h] Check shipped changes since [docs-loop-state.json].\nTrigger\nRun hourly while this session is open.\nAction\nList documentation that disagrees with those shipped changes.\nUpdate one verified mismatch. Build docs and check links.\nCheck + save\nRepeat within this pass until the list is empty.\nIf a docs diff awaits review, skip this pass.\nLeave unclear product claims for a person to review.\nSave the checked commit, remaining items, and test results.\nStop\nStop each pass after [3 edits] or [15 minutes].\nIf there is no work, make no edits. Do not publish.\nCancel this recurring task after [3 passes].",
+    "notes": "The hourly schedule starts a fresh pass.\nWithin a pass, the agent works through verified documentation mismatches.\nThose are two different kinds of repetition.\n\nIf there is no new work, it makes no edit.\nIf a diff already waits for review, it waits too.\nAn unclear product claim goes to a person.\nThe saved commit and remaining list let the next pass continue from known state.\n\nThe recurring task runs while the session is open.\nCancel it after the stated number of passes.\n\nNext question:\nWhat if the starting evidence comes from an alert?"
+  },
+  {
+    "number": 14,
+    "title": "How would a loop work through errors?",
+    "text": "How would a loop work through errors?\n\nAn alert supplies logs. An engineer starts /goal with the fixed export.\nLOOP ENGINEERING\n14\nGoal\n/goal Resolve reproducible errors in [logs/error-window.json].\nTrigger\nStart after an alert supplies this fixed log export.\nAction\nGroup duplicates. Select one high-impact reproducible group.\nReproduce it locally. Add a failing test. Fix one shared cause.\nCheck + save\nRerun that test and the full suite after each change.\nRepeat for the remaining groups in this same log window.\nSave the reproduction, diff, and test results.\nReport external failures separately. Do not call them fixed.\nStop\nStop when all reproducible groups pass their tests.\nStop after [3 fixes] or [25 minutes], or on an unclear cause.\nLeave a local diff. Do not change production or deploy.",
+    "notes": "Here an alert supplies a fixed error window.\nAn engineer starts the goal with that export.\n\nThe agent groups duplicate reports.\nIt reproduces one useful group locally.\nIt adds a failing test, changes one cause, and checks again.\nThen it looks at the remaining groups in the same window.\n\nExternal failures and unclear causes remain visible.\nThe run does not claim to have repaired them.\n\nNext question:\nWhat connects all of these examples?"
+  },
+  {
+    "number": 15,
+    "title": "How does feedback guide the next action?",
+    "text": "\n\n\n\n\n\nHow does feedback guide the next action?\n\nLOOP ENGINEERING\n15\n\nDesired state\nGoal and limits\n\nGap\n\nController\nChoose one correction\n\nActuator\nApply the correction\n\nSystem\nCode and runtime\n\nSensor\nMeasure the changed system\nObserved\noutput\nMeasured state and failed requirements\nNew code, new documents, or changed model behavior can disturb the result.",
+    "notes": "Point to the desired state on the left.\nThat is the result we want, with limits around it.\n\nFollow the top path.\nThe controller chooses a correction.\nThe actuator applies it.\nThe system produces a new result.\n\nNow follow the lower path back.\nThe sensor measures the result.\nThe difference from the desired state guides the next decision.\n\nIn software, a result can have several checks rather than one number.\nReview can pause the loop.\nNew code, documents, or questions can change the next measurement.\nThis is a useful way to design feedback, not a promise of automatic convergence.\n\nNext question:\nWhat fills each box in our support-assistant example?"
+  },
+  {
+    "number": 16,
+    "title": "How will we run this around RelayDesk?",
+    "text": "\n\n\n\n\n\nHow will we run this around RelayDesk?\n\nLOOP ENGINEERING\n16\n\nDesired state\nRight source\nfirst\n\nGap\n\nFailure selector\nPick a failed\nquestion\n\nCodex + skill\nMake one small\ncode change\n\nRelayDesk RAG\nFind articles\nand answer\n\nRetrieval checks\nExpected article first. Product tests still pass.\nSearch\nresults\nA support follow-up should still find the right help article.\npnpm rag:demo prepare --id [workshop-01]\npnpm rag:demo run --id [workshop-01]",
+    "notes": "The desired state is that every active question finds its expected approved article first.\nThe product tests must still pass.\n\nThe failure selector chooses a failed question.\nCodex and the repair skill make one small change in an isolated worktree.\nRelayDesk is the system being changed.\nThe retrieval checks are our sensor.\n\nStart the prepared workflow here, before the seven-step walkthrough.\nUse a fresh run ID in the two commands.\nThe prepared state reproduces a credible earlier retrieval setup.\nIt does not change the healthy source branch.\n\nOpen the controller on port 4181, the terminal, and the trace view.\nUse the saved replay if a live run would distract from the session.\n\nSlides 17 to 30 are the fourteen-slide guided hands-on segment.\nEach step has an introduction, then an application on another screen.\n\nThe live runner allows three candidates or twenty minutes.\nThe shared model spending cap remains in force.\n\nNext question:\nWhat does the loop need to see first?"
+  },
+  {
+    "number": 17,
+    "title": "1. The sensor",
+    "text": "1. The sensor\n\nLOOP ENGINEERING\n17\nWhat does the loop need to see first?\nSave the evidence that makes a failure understandable.\nObserve\nSave the question, search query, sources, and answer.\n\nCheck\nCompare the retrieved sources with the expected article.\n\nReport\nKeep the failed case so the next attempt can use it.",
+    "notes": "The sensor makes a failure visible.\nA search problem can happen before answer generation.\n\nSave the input, the search query, the returned sources, and the answer.\nCheck the sources against an expected approved article.\nKeep the failed case available for the next attempt.\n\nNext question:\nWhat did the search actually receive for our follow-up?"
+  },
+  {
+    "number": 18,
+    "title": "What did the search actually receive?",
+    "text": "What did the search actually receive?\n\nLOOP ENGINEERING\n18\nThe follow-up reached search without the earlier topic.",
+    "notes": "Switch to the controller.\nSelect run 1, the before measurement, and D03.\nRead the earlier webhook question and the follow-up.\n\nThe search query contains only \"What should I do next?\"\nThe expected webhook article, kb_42, is missing.\n\nOpen the trace to connect the input to the search query and returned sources.\nRead the saved answer separately.\nThe source-ranking check gives the loop a specific failure to work on.\n\nNext question:\nHow do we improve this without breaking questions that already work?"
+  },
+  {
+    "number": 19,
+    "title": "2. Regression protection",
+    "text": "2. Regression protection\n\nLOOP ENGINEERING\n19\nWhat must keep working after a change?\nUse the same checks before and after each attempt.\nBefore\nSave which questions pass and which fail.\n\nProtect\nKeep every question that already passes.\n\nSeparate\nKeep the checker outside the agent’s edit scope.",
+    "notes": "Save the state before making a change.\nUse the same checks afterward.\nKeep every question that already passes.\n\nThe runner also runs the product tests.\nThe coding agent cannot change the questions, expected sources, or checking rule.\n\nNext question:\nWhat do we write down for each question?"
+  },
+  {
+    "number": 20,
+    "title": "What does a check need for each question?",
+    "text": "What does a check need for each question?\n\nLOOP ENGINEERING\n20\nPair each question with the approved article it should find.\nPass: the expected article ranks first in all three retrieval checks.\nUse six questions to guide changes. Keep three other questions for a final check.\nReview answer quality separately from this search check.",
+    "notes": "Open the question dataset.\nEach example has an earlier question, a follow-up, and an expected approved source.\n\nA question passes when that source ranks first in all three retrieval checks.\nThe initial run uses six questions to guide changes.\nThree other questions stay outside the repair prompt and checkout.\nThe runner checks those after freezing the proposed patch.\n\nKeep the same questions and configuration on both sides of a comparison.\nA later expanded set gets its own fresh baseline.\nRepeated retrieval checks do not establish answer quality.\n\nNext question:\nWhich failure should the controller turn into a repair task?"
+  },
+  {
+    "number": 21,
+    "title": "3. The controller",
+    "text": "3. The controller\n\nLOOP ENGINEERING\n21\nWhich problem should the agent work on next?\nTurn one failed check into a small, testable job.\nSelect\nChoose one failed question and its evidence.\n\nExplain\nAsk what shared cause could explain the failure.\n\nLimit\nName the files the agent may change.",
+    "notes": "The controller chooses a failed development question.\nIt gives Codex the failed checks and a bounded job.\n\nCodex investigates the cause.\nThe runner judges the proposed change from outside that patch.\nThis keeps choosing, changing, and checking as separate responsibilities.\n\nNext question:\nWhat shared clue appears in our failed questions?"
+  },
+  {
+    "number": 22,
+    "title": "What do the failed questions have in common?",
+    "text": "What do the failed questions have in common?\n\nLOOP ENGINEERING\n22\nD01: knowledge access\nD03: webhook deliveries\nBoth reach search as:\n“What should I do next?”\nInspect how the earlier user topic reaches the search query.\nThe runner selected D01 first. D03 shows the same missing-context clue.",
+    "notes": "The actual run selected D01 first.\nIt concerns knowledge access.\nD03 concerns webhooks.\nBoth reach search as the same vague follow-up.\n\nThat is evidence for a shared missing-context problem.\nIt is a hypothesis to investigate, not permission to hardcode a question or source ID.\n\nThe controller asks Codex to inspect how the search query is built.\nWe keep D03 visible because it makes the customer problem easy to follow.\n\nNext question:\nWhat may Codex change to test that idea?"
+  },
+  {
+    "number": 23,
+    "title": "4. The actuator",
+    "text": "4. The actuator\n\nLOOP ENGINEERING\n23\nHow does the next idea become a code change?\nGive Codex a bounded task in a separate worktree.\nSkill\nDescribe the intended behavior with a reviewed example.\n\nScope\nAllow RAG code and focused regression tests.\n\nOutput\nReturn a small patch for the runner to check.",
+    "notes": "The actuator is Codex with the repair skill.\nIt works in a separate worktree.\nThe task names the intended behavior and allowed files.\n\nThe agent may change RAG code and add focused regression tests.\nQuestions, approved sources, models, dependencies, and checking rules stay fixed.\nThe runner also limits the size of the patch.\n\nNext question:\nWhat did the proposed correction actually change?"
+  },
+  {
+    "number": 24,
+    "title": "What did the small correction change?",
+    "text": "What did the small correction change?\n\nLOOP ENGINEERING\n24\nKeep the earlier user question when building the search query.\nCan change: RAG code and focused regression tests.\nKeep fixed: questions, approved sources, models, and checks.",
+    "notes": "Open the measured patch in the controller.\nThe change restores earlier user context when building a follow-up search query.\n\nThe focused tests cover user context, standalone queries, and the explicit opt-out.\nAssistant text stays out of retrieval.\n\nThis is the actual first successful candidate in our recorded run.\nDo not invent unsuccessful repair attempts for the story.\nThe loop supports retries when a check rejects a candidate.\n\nNext question:\nWho carries this change through all the checks?"
+  },
+  {
+    "number": 25,
+    "title": "5. Workflow execution",
+    "text": "5. Workflow execution\n\nLOOP ENGINEERING\n25\nWho carries the work from one attempt to the next?\nLet the runner handle the work between decisions.\nRun\nMeasure, request a patch, and rerun the fixed checks.\n\nDecide\nReject a bad patch. Hold a useful patch for review.\n\nRemember\nSave the evidence, patch, and reason for the decision.",
+    "notes": "The runner does the work between decisions.\nIt measures the baseline, requests a patch, runs product tests, and rechecks the questions.\nIt saves the evidence and state.\n\nA rejected candidate can lead to another bounded attempt.\nA useful candidate waits for engineering review.\nThe same runner owns the limits and the pause.\n\nNext question:\nWhich of those handoffs happened without another prompt?"
+  },
+  {
+    "number": 26,
+    "title": "What did the runner do without another prompt?",
+    "text": "\n\n\nWhat did the runner do without another prompt?\n\nLOOP ENGINEERING\n26\n\nMeasure\nSame question set\n\nRepair\nOne shared cause\n\nRecheck\nTests and questions\n\nReview\nEngineer decides\nThe runner carried each check and handoff forward.",
+    "notes": "Switch to the controller event history.\nFollow the actual sequence shown here.\nThe runner measured the baseline.\nIt selected D01.\nIt checked the candidate scope and product tests.\nIt rechecked the development and held-out questions.\nThen it paused for review.\n\nWe started this workflow before the hands-on steps.\nWe did not manually prompt each handoff.\nThe recorded repair needed one candidate.\n\nNext question:\nWhat should the reviewer decide before it continues?"
+  },
+  {
+    "number": 27,
+    "title": "6. Human feedback",
+    "text": "6. Human feedback\n\nLOOP ENGINEERING\n27\nWhat can a reviewer add to the next attempt?\nKeep a clear decision and a reason the next run can use.\nReview\nRead the saved answer, patch, and check results.\n\nExplain\nWrite the reason for a requested change.\n\nReuse\nAdd approved implementation guidance to feedback.md.",
+    "notes": "A reviewer can explain what the checks missed.\nRead the saved answer before assigning an answer-quality label.\nReview the code patch as a separate decision.\n\nA useful lesson belongs in the implementation guidance for future repair prompts.\nIn this setup, approved guidance goes in feedback.md.\nSaving an answer verdict alone does not rewrite those instructions.\n\nNext question:\nWhat review record should this loop keep?"
+  },
+  {
+    "number": 28,
+    "title": "What should a reviewer decide?",
+    "text": "What should a reviewer decide?\n\nLOOP ENGINEERING\n28\nCode decision\nAccept this patch as the next local baseline, or explain a rejection.\n\nAnswer quality has its own review. This record does not approve a release.",
+    "notes": "Open the engineering review in run 1.\nThe rehearsal records Codex as the reviewer and identifies the review as automated.\nIt is not a human approval.\n\nThe reviewer checked the patch and regression tests.\nThe local decision selected the measured worktree as the next baseline.\nIt did not merge or deploy the change.\nIt did not approve answer quality.\n\nIn a learner run, the responsible person should record their own decision and reason.\nUse the answer-review form separately when judging the answer.\n\nNext question:\nWhat stops a new question from interrupting an unfinished review?"
+  },
+  {
+    "number": 29,
+    "title": "7. Flow control",
+    "text": "7. Flow control\n\nLOOP ENGINEERING\n29\nWhen should the loop run, wait, or stop?\nWatch for new work and respect an unfinished review.\nWatch\nNotice changes to the source or question set.\n\nPause\nWait while a proposed patch needs review.\n\nResume\nAfter review, measure the complete question set again.",
+    "notes": "The watcher notices changes in the source or question set.\nWhile a candidate awaits review, it makes no model calls.\nIt keeps new questions queued.\n\nAfter the review is resolved, the next permitted run measures all active questions again.\nIf a check fails, the runner can request another bounded repair.\nAt the goal, it waits for changed inputs.\nUnchanged inputs do not cause more model calls.\nCtrl+C stops the watcher.\n\nNext question:\nCan we see it continue after review with a genuinely new question?"
+  },
+  {
+    "number": 30,
+    "title": "What happens when a new question arrives?",
+    "text": "\n\nWhat happens when a new question arrives?\n\nLOOP ENGINEERING\n30\n\nResolve the review\nKeep the decision and reason\n\nAdd a new question\nA usage-export follow-up\n\nCheck all eight\nContinue from the new state\npnpm rag:demo watch --id [workshop-01]\nThe new set passed. The watcher waited. No extra patch was needed.",
+    "notes": "Switch to the full run history.\nThe first run checked six questions and proposed the shared correction.\nA seventh question arrived while review was pending.\nThe runner waited.\n\nThe engineering review was resolved.\nAfter that decision, we added D08, a new usage-export follow-up.\nIt asks which dates cover one complete calendar month.\n\nThe watcher detected the changed question set.\nThe second run measured all eight active questions using the accepted local baseline.\nEvery expected article ranked first in all three checks.\nNo further code change was needed.\nA second watch pass with unchanged inputs made zero model calls.\n\nKeep the six-question and eight-question runs separate in the history.\nDo not present their totals as one before-and-after comparison.\n\nUse watch for ongoing monitoring.\nUse --once --retrieval-only for a bounded source-check rehearsal.\nUse the after-review-question.json fixture for the new question.\n\nThe loop took over the next measurement and the decision to wait.\nIf the new question had failed, it would have evidence for another repair.\n\nNext question after the break:\nWhere would this save work in your team?"
+  },
+  {
+    "number": 31,
+    "title": "Short Break",
+    "text": "Short Break",
+    "notes": "Pause here.\nResume with a task learners recognize from their own work."
+  },
+  {
+    "number": 32,
+    "title": "Where would this save work in your team?",
+    "text": "Where would this save work in your team?\n\nLOOP ENGINEERING\n32\nThink of one task you have\nhad to check more than once.\nWe will test three familiar cases, then design your own loop.",
+    "notes": "Think of a task you have repeated recently.\nChoose something small enough to inspect today.\n\nWe will compare three familiar cases.\nThen you will write a prompt for one task of your own.\n\nNext question:\nHow do we tell whether another attempt will be useful?"
+  },
+  {
+    "number": 33,
+    "title": "How can we tell whether a loop will help?",
+    "text": "How can we tell whether a loop will help?\n\nLOOP ENGINEERING\n33\nCan we check progress?\nA fixed test, benchmark, or reviewed answer.\nDoes another attempt help?\nThe last result tells us what to try next.\nCan we contain the work?\nA small change, a stop rule, and a reviewer.",
+    "notes": "Ask these three questions about the task.\nCan we check progress?\nDoes the last result help choose the next attempt?\nCan we contain the changes and stop?\n\nUse these to discuss a concrete task.\nThey are a quick decision aid, not a scoring system.\n\nNext question:\nWould you let a loop work on a slow test suite?"
+  },
+  {
+    "number": 34,
+    "title": "Would you loop on a slow test suite?",
+    "text": "Would you loop on a slow test suite?\n\nLOOP ENGINEERING\n34\n20% faster\nSame tests. Same assertions. Same runner.\nCan we check progress?\nCompare the median of 3 full runs.\n\nDoes another attempt help?\nProfile the next slow cause after each change.\n\nCan we contain the work?\nSmall setup changes. Stop for review.\nRun a goal and follow the timing evidence.",
+    "notes": "Ask learners for a vote before revealing your explanation.\n\nThe same suite and runner give us a comparison.\nThe timing profile points toward the next cause.\nA small scope and a review boundary contain the work.\n\nProtect the tests and repeat the measurements.\nA single fast run is weak evidence.\n\nNext question:\nWould the same freedom work for documentation?"
+  },
+  {
+    "number": 35,
+    "title": "How much of docs maintenance can run alone?",
+    "text": "How much of docs maintenance can run alone?\n\nLOOP ENGINEERING\n35\nVerified facts only\nEvery wording change must match shipped behavior.\nCan we check progress?\nBuild and link checks help. Meaning needs review.\n\nDoes another attempt help?\nFix the next confirmed mismatch in the list.\n\nCan we contain the work?\nDocs-only diff. Leave unclear claims for a person.\nAutomate verified edits. Review the product meaning.",
+    "notes": "Ask learners which parts can run automatically.\n\nA build and link check can reject some mistakes.\nThey cannot fully judge whether a product claim is true.\n\nThe loop can work through confirmed mismatches.\nUnclear claims wait for a person.\nThat makes this useful with a review boundary.\n\nNext question:\nWhat happens when the request has no shared finish line?"
+  },
+  {
+    "number": 36,
+    "title": "Would you loop on “make the UX better”?",
+    "text": "Would you loop on “make the UX better”?\n\nLOOP ENGINEERING\n36\nWhat counts as done?\nThe request gives the agent no shared finish line.\nCan we check progress?\nNo agreed user task or acceptance check.\n\nDoes another attempt help?\nMore edits can simply create more disagreement.\n\nCan we contain the work?\nThe request could change any product journey.\nRewrite: fix one ticket-search keyboard trap and verify focus + Escape.",
+    "notes": "Ask what \"better UX\" means here.\nThere is no agreed task or check.\nAnother edit may only create another opinion.\nThe scope could cover the whole product.\n\nNarrow it to one ticket-search keyboard trap.\nNow we can check focus movement and Escape behavior.\nA clearer task can change whether a loop is useful.\n\nNext question:\nWhat will you keep fixed before your own run?"
+  },
+  {
+    "number": 37,
+    "title": "What will you keep fixed before the run?",
+    "text": "What will you keep fixed before the run?\n\nLOOP ENGINEERING\n37\nThe allowed change\nName the files and one unit of work the agent may change.\n\nThe check\nKeep the tests, expected evidence, and checking rule outside that change.\n\nThe boundary\nChoose a limit and the decision that needs a reviewer.\n",
+    "notes": "Bring the choices back to one task.\nName the allowed change.\nKeep the check outside that change.\nChoose the limit and the review point.\n\nThis is the same agreement we saw in the prompts and the RAG loop.\nWe are now applying it to your work.\n\nNext question:\nWhich exercise can you complete with the setup you have today?"
+  },
+  {
+    "number": 38,
+    "title": "What will your first loop do?",
+    "text": "What will your first loop do?\n\nLOOP ENGINEERING\n38\nUse your repository\nWrite one bounded goal for a task you can check today.\n\nContinue the RAG loop\nResolve review. Add a question. Watch the fresh check.\n\nUse the saved replay\nInspect both runs and explain the next decision. No model access needed.\n",
+    "notes": "This is the learner exercise handoff, not the session ending.\nSlides 39 to 41 guide the work on other screens.\n\nIf you have a prepared repository, write and run one bounded goal.\nIf you have the RAG demo configured, add a question after resolving review and watch the new check.\nIf you have no model access, inspect the saved two-run replay and explain the next decision.\n\nAll three paths ask you to connect evidence to the next action.\nUse a fresh run ID for a new live rehearsal.\nDo not reuse the proof run for experiments.\n\nNext question:\nWhat instructions does your chosen loop need?"
+  },
+  {
+    "number": 39,
+    "title": "What instructions does your loop need?",
+    "text": "What instructions does your loop need?\n\nReplace every highlighted field with a detail from your own task.\nLOOP ENGINEERING\n39\nGoal\n/goal Reach [a result you can check].\nTrigger\nStart when [the trigger happens].\nAction\nInspect [the current evidence].\nChange one [allowed unit of work].\nCheck + save\nRun [the same check] after each change.\nSave [the result and next idea].\nRepeat + stop\nRepeat until [the goal is verified].\nStop at [success, a limit, or a need for a person].",
+    "notes": "Replace the highlighted fields with details from your task.\nName an outcome you can check.\nName the trigger and one allowed change.\nSay which check runs after every attempt.\nSay what gets saved and when the loop stops or waits.\n\nFor the RAG exercise, the automatic goal covers the expected approved source.\nKeep answer-quality review separate.\n\nNext question:\nCould your instructions allow a bad change to pass?"
+  },
+  {
+    "number": 40,
+    "title": "What could make a bad change pass?",
+    "text": "What could make a bad change pass?\n\nCompare the instructions, then inspect a partner’s prompt.\nLOOP ENGINEERING\n40\nUnclear request\n“Make the tests faster\nuntil they look good.”\n\nA request we can check\n/goal Make the full suite [20%] faster.\nCompare the median of [3] full runs.\nKeep every test and assertion.\nStop after [3 changes] or [25 minutes].\nLeave the diff for review.\n\nAsk a partner: what would reject a bad change?",
+    "notes": "Swap prompts with a partner.\nAsk what would reject a bad change.\n\nCould the agent remove tests?\nCould it change the expected answer?\nCould it declare a task done without running the check?\n\nUse the stronger prompt to make those boundaries clear.\nKeep the goal and the limits appropriate for your task.\n\nNext question:\nWhat will you save from the run so someone else can review it?"
+  },
+  {
+    "number": 41,
+    "title": "What will you save from the run?",
+    "text": "What will you save from the run?\n\nLOOP ENGINEERING\n41\nRun your prepared loop, or inspect the saved replay.\nStarting state\nThe input and the check before any change.\n\nAttempt and evidence\nThe allowed change, the check result, and any rejection.\n\nSave the next decision: try again, wait for review, or wait for new work.",
+    "notes": "Move to the terminal, controller, or replay for the learner exercise.\nRun only within your prepared scope.\nSave the starting state, attempted change, check result, and next decision.\n\nFor a prepared RAG continuation, resolve any pending review first.\nAdd the new question.\nRun one bounded watch pass and inspect the fresh baseline.\n\nA saved replay is read-only and makes no model calls.\nIf live setup blocks progress, use that path to explain what the loop should do next.\nStop at the chosen limit and return for the debrief.\n\nNext question:\nWhich work did the loop take over, and which decision stayed with you?"
+  },
+  {
+    "number": 42,
+    "title": "What work did your loop take over?",
+    "text": "What work did your loop take over?\n\nLOOP ENGINEERING\n42\nWhat ran on its own?\nName one check or handoff you no longer had to prompt.\n\nWhat changed the next action?\nPoint to the result the loop used.\n\nWhat would make it run again?\nName the next question, changed input, or review decision.\n",
+    "notes": "Invite two or three learners to share one example.\n\nWhat check ran without another prompt?\nWhat evidence changed the next action?\nWhere did the loop wait for someone?\nWhat would make it run again?\n\nAsk for the next saved input or event, rather than a broad claim about productivity.\nThat makes the value of the loop concrete.\n\nNext question:\nWhich small piece of repeated work will you automate next?"
+  },
+  {
+    "number": 43,
+    "title": "What will you automate next?",
+    "text": "What will you automate next?\n\nLOOP ENGINEERING\n43\nChoose one piece of repeated work.\nGive it a check and a clear boundary.\nLet the evidence guide the next action.\nReview the change. Then let new work start the loop again.",
+    "notes": "Return to the engineering work we started with.\nA failed question used to create another round of manual checking and prompting.\nNow there is an explicit path from evidence to action, review, and the next input.\n\nChoose one useful task.\nMake its check clear.\nRun it with limits.\nReview what happened.\nThen decide whether it should keep watching for more work."
+  }
+]

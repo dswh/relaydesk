@@ -1,0 +1,41 @@
+{
+  "slides": 43,
+  "handsOn": [
+    17,
+    30
+  ],
+  "shortBreak": 31,
+  "externalLinksInDeck": 0,
+  "allMediaVerified": 24,
+  "nativeTableSlide": 20,
+  "editableDiagrams": [
+    15,
+    16,
+    26,
+    30
+  ],
+  "sourceSha256": "a580d07241bc36a9afc61712d9e5d13f47d81aa29ee2340c4ad8d1fe256a9409",
+  "finalSha256": "3a2d6b21bb052542e3bb2d96bbdce95edcb1a24b17c68d519fb45a92c31c441f",
+  "rebuildContentMatches": true,
+  "rebuildRendersMatch": 43,
+  "checks": [
+    "package integrity",
+    "layout geometry",
+    "Calibri typography",
+    "Artifact Tool import",
+    "43 visible slides",
+    "source-free speaker notes",
+    "embedded media decoding",
+    "57 unit tests",
+    "API contract",
+    "fixture quality checks",
+    "production build",
+    "live controller and read-only replay navigation"
+  ],
+  "answerQuality": "unscored",
+  "engineeringReviewer": "Codex (automated)",
+  "newQuestionAfterReview": "D08",
+  "continuationQuestionCount": 8,
+  "newRepairNeeded": false,
+  "unchangedWatcherModelCalls": 0
+}

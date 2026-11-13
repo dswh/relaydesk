@@ -1,0 +1,44 @@
+number,title
+1,Loop Engineering
+2,Harshit Tyagi
+3,Why did the assistant lose the topic?
+4,What work does that failure create?
+5,What are we engineering around the agent?
+6,How does a result guide the next attempt?
+7,When should the work start again?
+8,Which loop are we building?
+9,What would count as better?
+10,Where does another attempt help?
+11,What must the loop know before it starts?
+12,How would you ask for a faster test suite?
+13,How would the docs loop find new work?
+14,How would a loop work through errors?
+15,How does feedback guide the next action?
+16,How will we run this around RelayDesk?
+17,1. The sensor
+18,What did the search actually receive?
+19,2. Regression protection
+20,What does a check need for each question?
+21,3. The controller
+22,What do the failed questions have in common?
+23,4. The actuator
+24,What did the small correction change?
+25,5. Workflow execution
+26,What did the runner do without another prompt?
+27,6. Human feedback
+28,What should a reviewer decide?
+29,7. Flow control
+30,What happens when a new question arrives?
+31,Short Break
+32,Where would this save work in your team?
+33,How can we tell whether a loop will help?
+34,Would you loop on a slow test suite?
+35,How much of docs maintenance can run alone?
+36,Would you loop on “make the UX better”?
+37,What will you keep fixed before the run?
+38,What will your first loop do?
+39,What instructions does your loop need?
+40,What could make a bad change pass?
+41,What will you save from the run?
+42,What work did your loop take over?
+43,What will you automate next?

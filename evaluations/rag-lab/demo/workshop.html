@@ -23,7 +23,7 @@
 <p id="identity" class="small"></p><button id="refresh">Refresh evidence</button>
 </main><script id="recorded-data" type="application/json">__DEMO_DATA__</script><script>
 const $=id=>document.getElementById(id);
-let data,chosenRound='',chosenCase='',chosenView='baseline',answerTrace='',activeRunId='';
+let data,lastPayload='',chosenRound='',chosenCase='',chosenView='baseline',answerTrace='',activeRunId='';
 const reviewToken='__REVIEW_TOKEN__';
 function option(select,value,label){const o=document.createElement('option');o.value=String(value);o.textContent=label;select.append(o)}
 function ranks(c){return c?.attempts.map(a=>a.rank??'missing').join(', ')||'Pending'}
@@ -58,7 +58,7 @@ function render(d){
  $('reason').textContent=s.reason;
  const checked=d.baseline?.cases.length||0;$('dataset-note').textContent=`Active questions: ${d.activeQuestionCount}. Questions in the latest saved measurement: ${checked}.`+(d.activeQuestionCount>checked?' Added questions wait for the next permitted measurement.':'');
  $('round-history').replaceChildren();$('review-records').replaceChildren();
- for(const r of d.rounds||[]){const li=document.createElement('li');const q=r.baseline?.cases.length||0;li.textContent=`Run ${r.epoch}: checked ${q} questions. `+(r.candidate?'Proposed a shared correction and checked it.':r.phase==='goal_reached'?'No code change was needed.':'The check needs attention.');if(r.review){const meta=document.createElement('small');meta.textContent=`${r.review.accepted?'Accepted':'Rejected'} by ${r.review.reviewer}. ${r.review.reviewerType==='assistant'?'Automated engineering review':'Human engineering review'}. ${r.review.at}`;li.append(meta);const record=document.createElement('details');const summary=document.createElement('summary');summary.textContent=`Read the engineering review for run ${r.epoch}`;const p=document.createElement('p');p.className='review-record';p.textContent=r.review.rationale;record.append(summary,p);$('review-records').append(record)}else if(r.phase==='awaiting_review'){const meta=document.createElement('small');meta.textContent='The code change is still awaiting review.';li.append(meta)}$('round-history').append(li)}
+ for(const r of d.rounds||[]){const li=document.createElement('li');const q=r.baseline?.cases.length||0;li.textContent=`Run ${r.epoch}: checked ${q} questions. `+(r.candidate?'Proposed a shared correction and checked it.':r.phase==='goal_reached'?'No code change was needed.':'The check needs attention.');if(r.review){const meta=document.createElement('small');meta.textContent=`${r.review.accepted?'Accepted':'Rejected'} by ${r.review.reviewer}. ${r.review.reviewerType==='assistant'?'Automated engineering review':'Human engineering review'}. ${r.review.at}`;li.append(meta);const record=document.createElement('details');const summary=document.createElement('summary');summary.textContent=`Read the engineering review for run ${r.epoch}`;const p=document.createElement('p');p.className='review-record';p.textContent=r.review.rationale;const reviewer=document.createElement('p');reviewer.className='small';reviewer.textContent=`Reviewer: ${r.review.reviewer}. ${r.review.reviewerType==='assistant'?'Automated engineering review':'Human engineering review'}. Local decision: ${r.review.accepted?'accepted':'rejected'}.`;record.append(summary,reviewer,p);$('review-records').append(record)}else if(r.phase==='awaiting_review'){const meta=document.createElement('small');meta.textContent='The code change is still awaiting review.';li.append(meta)}$('round-history').append(li)}
  if(!(d.rounds||[]).some(r=>String(r.epoch)===chosenRound))chosenRound=String(latest?.epoch||'');
  $('round').replaceChildren();for(const r of d.rounds||[])option($('round'),r.epoch,`Run ${r.epoch}: ${r.baseline?.cases.length||0} questions${r.candidate?', proposed repair':', fresh check'}`);$('round').value=chosenRound;
  $('events').replaceChildren();for(const e of s.events){const li=document.createElement('li');li.textContent=e.message;const time=document.createElement('small');time.textContent=e.at;li.append(time);$('events').append(li)}
@@ -66,7 +66,7 @@ function render(d){
  $('identity').textContent=`Recorded run: ${s.id}. Current measurement: run ${s.epoch}. Answer quality remains separate from this retrieval goal.`;renderSelection();
 }
 async function loadDemo(){const res=await fetch('/api/demo');if(!res.ok)throw new Error('Unable to load the run.');return res.json();}
-async function refresh(){try{render(await loadDemo())}catch(e){$('reason').textContent=String(e)}}
+async function refresh(){try{const value=await loadDemo(),signature=JSON.stringify(value);if(signature!==lastPayload){lastPayload=signature;render(value)}}catch(e){lastPayload='';$('reason').textContent=String(e)}}
 $('round').onchange=()=>{chosenRound=$('round').value;chosenCase='';chosenView='baseline';renderSelection()};$('view').onchange=()=>{chosenView=$('view').value;renderSelection()};$('case').onchange=()=>{chosenCase=$('case').value;renderSelection()};
 // LIVE_ADAPTER_START
 async function post(url,value){const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','X-Review-Token':reviewToken},body:JSON.stringify(value)});const result=await response.json();if(!response.ok)throw new Error(result.error||'Unable to save');return result;}

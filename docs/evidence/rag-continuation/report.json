@@ -1,0 +1,2034 @@
+{
+  "state": {
+    "id": "workshop-proof-07",
+    "phase": "goal_reached",
+    "reason": "Every active question retrieved its expected approved source first in all three runs. Answer quality remains unscored.",
+    "createdAt": "2026-11-13T10:53:24.759Z",
+    "updatedAt": "2026-11-13T13:32:34.273Z",
+    "baseCommit": "530343e9d4a309e1a4a00c3edfb15318a9b5548d",
+    "historicalCommit": "53c2749887d4f3f9ba815acd105586bd25a67e05",
+    "datasetHash": "c727fdf7caa1b0a937c97856a332ce492e3861ff0379bb6ac3756828f5df7269",
+    "heldoutHash": "2f32e839c72942407ddf396e0230a40b2eb5ec000d6a723c23c63be286609ff5",
+    "contractHash": "07723954fe75e0d63bbf98f426982291cb8b29a4c75561ea5993469048577aec",
+    "epoch": 2,
+    "attempts": 0,
+    "events": [
+      {
+        "at": "2026-11-13T10:53:24.766Z",
+        "message": "Prepared an isolated baseline. The shared spending ledger was preserved."
+      },
+      {
+        "at": "2026-11-13T10:53:25.151Z",
+        "message": "Checking healthy-source product tests before model calls."
+      },
+      {
+        "at": "2026-11-13T10:53:25.760Z",
+        "message": "Measuring a fresh development baseline."
+      },
+      {
+        "at": "2026-11-13T10:53:57.368Z",
+        "message": "Attempt 1: investigate D01, follow-up-context."
+      },
+      {
+        "at": "2026-11-13T10:55:05.229Z",
+        "message": "Checking the candidate scope and product regression tests."
+      },
+      {
+        "at": "2026-11-13T10:56:12.934Z",
+        "message": "The retrieval score improved and the held-out regression check passed. The patch awaits engineer review. Answer quality remains unscored."
+      },
+      {
+        "at": "2026-11-13T10:57:52.537Z",
+        "message": "Added D07. Existing review state is preserved; the next permitted measurement establishes a new dataset version."
+      },
+      {
+        "at": "2026-11-13T10:57:52.538Z",
+        "message": "Skipped before measurement or model calls: a candidate still awaits engineer review."
+      },
+      {
+        "at": "2026-11-13T13:31:48.415Z",
+        "message": "Codex (assistant) accepted the local patch. The next permitted run measures all active questions again."
+      },
+      {
+        "at": "2026-11-13T13:31:48.791Z",
+        "message": "Added D08. Existing review state is preserved; the next permitted measurement establishes a new dataset version."
+      },
+      {
+        "at": "2026-11-13T13:31:49.162Z",
+        "message": "The watcher noticed a permitted run or changed inputs. Checking the active questions."
+      },
+      {
+        "at": "2026-11-13T13:31:49.164Z",
+        "message": "Checking healthy-source product tests before model calls."
+      },
+      {
+        "at": "2026-11-13T13:31:49.925Z",
+        "message": "Measuring a fresh development baseline."
+      },
+      {
+        "at": "2026-11-13T13:32:34.273Z",
+        "message": "Every active question retrieved its expected approved source first in all three runs. Answer quality remains unscored."
+      }
+    ]
+  },
+  "patch": "",
+  "rounds": [
+    {
+      "epoch": 1,
+      "phase": "awaiting_review",
+      "reason": "Skipped before measurement or model calls: a candidate still awaits engineer review.",
+      "updatedAt": "2026-11-13T10:57:52.538Z",
+      "attempts": 1,
+      "review": {
+        "reviewer": "Codex",
+        "reviewerType": "assistant",
+        "rationale": "Reviewed the measured patch and regression tests. Restoring earlier user context preserves standalone queries and the explicit opt-out, excludes assistant text from retrieval, and leaves the approved sources, models, and checks fixed. The recorded development and held-out checks improved without a lost pass. Accept only as the next local baseline. Answer quality and release remain unapproved.",
+        "accepted": true,
+        "at": "2026-11-13T13:31:48.413Z",
+        "scope": "Local retrieval patch. No release or answer-quality approval."
+      },
+      "patch": "diff --git a/src/lib/help-chat-config.ts b/src/lib/help-chat-config.ts\nindex 8cb5feb..ba56105 100644\n--- a/src/lib/help-chat-config.ts\n+++ b/src/lib/help-chat-config.ts\n@@ -60,7 +60,7 @@ export function getHelpChatConfig(): HelpChatConfig {\n       DEFAULT_HELP_GENERATION_MODEL,\n     includeConversationContext: booleanValue(\n       process.env.RELAYDESK_HELP_INCLUDE_CONTEXT,\n-      false,\n+      true,\n     ),\n     lexicalWeight: numberValue(\n       process.env.RELAYDESK_HELP_LEXICAL_WEIGHT,\n\ndiff --git a/tests/rag-repairs/conversation-context.test.ts b/tests/rag-repairs/conversation-context.test.ts\nnew file mode 100644\nindex 0000000..bec0ddc\n--- /dev/null\n+++ b/tests/rag-repairs/conversation-context.test.ts\n@@ -0,0 +1,49 @@\n+import { afterEach, describe, expect, it, vi } from \"vitest\";\n+\n+import { buildHelpRetrievalQuery } from \"@/lib/ai/help-chat\";\n+import { getHelpChatConfig } from \"@/lib/help-chat-config\";\n+\n+afterEach(() => vi.unstubAllEnvs());\n+\n+describe(\"retrieval conversation context\", () => {\n+  it(\"defaults to the recent user topic without assistant text or older topics\", () => {\n+    vi.stubEnv(\"RELAYDESK_HELP_INCLUDE_CONTEXT\", undefined);\n+\n+    const query = buildHelpRetrievalQuery(\n+      [\n+        { role: \"user\", content: \"An older unrelated topic\" },\n+        { role: \"user\", content: \"  Configure notification preferences  \" },\n+        { role: \"assistant\", content: \"Unverified assistant suggestion\" },\n+        { role: \"user\", content: \"  Where is that setting?  \" },\n+      ],\n+      getHelpChatConfig(),\n+    );\n+\n+    expect(query).toBe(\n+      \"Configure notification preferences\\nFollow-up: Where is that setting?\",\n+    );\n+  });\n+\n+  it(\"preserves a standalone retrieval query\", () => {\n+    vi.stubEnv(\"RELAYDESK_HELP_INCLUDE_CONTEXT\", undefined);\n+    expect(\n+      buildHelpRetrievalQuery(\n+        [{ role: \"user\", content: \"Configure notification preferences\" }],\n+        getHelpChatConfig(),\n+      ),\n+    ).toBe(\"Configure notification preferences\");\n+  });\n+\n+  it(\"preserves the explicit context opt-out\", () => {\n+    vi.stubEnv(\"RELAYDESK_HELP_INCLUDE_CONTEXT\", \"false\");\n+    expect(\n+      buildHelpRetrievalQuery(\n+        [\n+          { role: \"user\", content: \"Configure notification preferences\" },\n+          { role: \"user\", content: \"Where is that setting?\" },\n+        ],\n+        getHelpChatConfig(),\n+      ),\n+    ).toBe(\"Where is that setting?\");\n+  });\n+});\n",
+      "baseline": {
+        "schemaVersion": 1,
+        "measuredAt": "2026-11-13T10:53:26.071Z",
+        "manifest": {
+          "datasetHash": "64be5229a10f3bcb97cae5d0c1ecaa8184554e21aa7d12fc59599674a12afda2",
+          "corpusHash": "1b72e3a841922cf7e94a2a6ac88fcc541b6346c34d5601af01dc85c7e7468f5b",
+          "contractHash": "07723954fe75e0d63bbf98f426982291cb8b29a4c75561ea5993469048577aec",
+          "modelsHash": "16d8e99e3e661c222ed1af66b724bff3309598ca5e47d03e547aef84b7db65e3",
+          "productHash": "9d098aa7897983bd02e1ac9952f45be94f1efbc8b6781c539d7cf784c566b71a",
+          "split": "development",
+          "repeats": 3
+        },
+        "cases": [
+          {
+            "id": "D01",
+            "family": "follow-up-context",
+            "question": "How do restricted AI knowledge collections work in RelayDesk?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_31",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "What should I do next?",
+                "rank": 2,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "a47b0f07-8ee6-4a00-9a99-f6cc9560bb18",
+                "answer": {
+                  "text": "Restricted AI knowledge collections in RelayDesk work by limiting AI reply suggestions to specific approved knowledge collections assigned to a team or support queue. To set this up, you create a dedicated collection named for the team or policy boundary, add only the approved articles (marked complete after review), and then assign this collection to the relevant queue. You should remove the general collection if its content is not to be used by that queue. Testing with a representative conversation is recommended to confirm that all suggested grounding sources come from the assigned collection before enabling suggestions for the entire team [kb_31].\n\nFor your next step, you should create the restricted collection for your team or policy, add and review approved articles, assign the collection to the support queue involved, and then test the AI suggestions to verify correct source usage [kb_31].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_31"
+                  ],
+                  "traceId": "5a4a899d-5623-42ad-b3f7-4e826e1a9f66",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "What should I do next?",
+                "rank": 2,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "ef8022c7-c2b5-4a5e-a665-981062c9779c"
+              },
+              {
+                "repeat": 3,
+                "query": "What should I do next?",
+                "rank": 2,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "6edc8b58-16e2-4a16-b77c-4f4e20b5d72d"
+              }
+            ]
+          },
+          {
+            "id": "D02",
+            "family": "follow-up-context",
+            "question": "How do I resolve pending SSO domain ownership verification?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_14",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "73b2861e-ac4a-4007-96ea-522b2c7e59d9",
+                "answer": {
+                  "text": "To resolve a pending SSO domain ownership verification, first confirm that the public DNS TXT record matches exactly the expected verification value from RelayDesk SSO settings, including the verification prefix. Use a public DNS query to check this. If the TXT record is correct but the status remains pending after 24 hours, remove any stale RelayDesk verification values in your DNS and wait for the record's time-to-live (TTL) to expire. After that, select Verify again in RelayDesk. If the domain still shows as pending and the DNS record is publicly correct, contact RelayDesk support with the domain name and a copy of the DNS TXT record value for further assistance. Keep a screenshot or text copy of the public DNS answer for support. This process helps ensure the domain verification completes successfully [kb_14].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_14"
+                  ],
+                  "traceId": "aeb84cfd-9bb7-4bc5-a578-5e4a3d3235eb",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "ee56c64f-1fbc-4241-904a-d4aa6991591b"
+              },
+              {
+                "repeat": 3,
+                "query": "What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "ef91b4bc-3933-4e60-8e56-6811b0426635"
+              }
+            ]
+          },
+          {
+            "id": "D03",
+            "family": "follow-up-context",
+            "question": "How should our consumer handle duplicate RelayDesk webhook deliveries?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_42",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "What should I do next?",
+                "rank": null,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "d65c64e0-3191-4f6b-8fc1-b9e552852b7a",
+                "answer": {
+                  "text": "The approved help content does not provide information on how to handle duplicate RelayDesk webhook deliveries or what specific steps to take next. Could you please clarify what issue or behavior you are experiencing with the webhook deliveries?",
+                  "outcome": "answered",
+                  "citationIds": [],
+                  "traceId": "807a9f3d-d8da-489e-9974-7d2d7270699b",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "What should I do next?",
+                "rank": null,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "e2eed93b-128b-4152-9277-641d91eaf3f2"
+              },
+              {
+                "repeat": 3,
+                "query": "What should I do next?",
+                "rank": null,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_31"
+                ],
+                "traceId": "1c49d5fd-e24e-4564-ad71-5b8e08305a79"
+              }
+            ]
+          },
+          {
+            "id": "D04",
+            "family": "direct-question-regression",
+            "question": "How long can RelayDesk SSO domain verification take?",
+            "expectedSource": "kb_14",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "14244b80-b9a3-4f5f-8144-1fe9c559e24c",
+                "answer": {
+                  "text": "RelayDesk SSO domain verification can commonly complete within minutes but may take up to 24 hours due to DNS propagation. If the verification remains pending after 24 hours and the correct TXT record is publicly resolvable, you can run the Verify process again or contact RelayDesk support with the domain and DNS answer for assistance. Be sure to keep the exact TXT verification record in place and verify it matches exactly as required to avoid delays [kb_14].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_14"
+                  ],
+                  "traceId": "bc2815bb-39fa-4b1b-9c2e-bfe9328dd412",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "37a90d64-41e3-4cb9-a30b-cf08bc011b27"
+              },
+              {
+                "repeat": 3,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "22e74d51-63c8-41f9-aa60-911fc8fa2af6"
+              }
+            ]
+          },
+          {
+            "id": "D05",
+            "family": "direct-question-regression",
+            "question": "Can agents expand the knowledge collections assigned to their queue?",
+            "expectedSource": "kb_31",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "ab211b34-fff2-4f74-93a7-63e36f31d532",
+                "answer": {
+                  "text": "Agents cannot expand the knowledge collections assigned to their queue from the composer. Only workspace administrators can manage which knowledge collections are assigned to a queue. Agents receive grounded reply suggestions solely from the collections assigned to the queue, and drafts cannot cite articles outside of those assigned collections. If no approved sources in the assigned collections cover the customer's question, agents are prompted to research the answer themselves instead of sending an unsupported AI-generated reply [kb_31].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_31"
+                  ],
+                  "traceId": "7468930b-0b86-4e24-81e6-fb5b823d451a",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "639f5366-7f38-4b15-aab1-fa0e0b52328b"
+              },
+              {
+                "repeat": 3,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "f6a3a502-b1d8-4ba8-83da-554edc0e6853"
+              }
+            ]
+          },
+          {
+            "id": "D06",
+            "family": "direct-question-regression",
+            "question": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+            "expectedSource": "kb_8",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "a5572979-09b1-4c9a-8745-0cb0a98f0a68",
+                "answer": {
+                  "text": "To replace an invitation created in the wrong RelayDesk workspace, first switch to the correct workspace. Then open Settings and Members, create a new invitation, confirm the workspace name in the review step, and send the new link. After that, return to the original workspace and revoke any unused links so they cannot be accepted later. Do not forward existing links between workspaces, as invitations are workspace-specific and cannot transfer access across environments [kb_8].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_8"
+                  ],
+                  "traceId": "83a30537-ad10-4fb6-8a39-31d2582515b0",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "4a2da7ae-b189-4093-a4ef-17d1dd832b4b"
+              },
+              {
+                "repeat": 3,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "c567db0f-fca1-4aba-b414-c9e7d37bd3d4"
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "schemaVersion": 1,
+        "measuredAt": "2026-11-13T10:55:06.369Z",
+        "manifest": {
+          "datasetHash": "64be5229a10f3bcb97cae5d0c1ecaa8184554e21aa7d12fc59599674a12afda2",
+          "corpusHash": "1b72e3a841922cf7e94a2a6ac88fcc541b6346c34d5601af01dc85c7e7468f5b",
+          "contractHash": "07723954fe75e0d63bbf98f426982291cb8b29a4c75561ea5993469048577aec",
+          "modelsHash": "16d8e99e3e661c222ed1af66b724bff3309598ca5e47d03e547aef84b7db65e3",
+          "productHash": "56f9c510ee487e14f33e7fb1da04234a0f0dd522f5279525c697598c7c981c2f",
+          "split": "development",
+          "repeats": 3
+        },
+        "cases": [
+          {
+            "id": "D01",
+            "family": "follow-up-context",
+            "question": "How do restricted AI knowledge collections work in RelayDesk?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_31",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "0a95ac9a-6b4c-449d-8f6e-695eeb443462",
+                "answer": {
+                  "text": "Restricted AI knowledge collections in RelayDesk work by limiting AI-generated reply suggestions to only those knowledge collections that are explicitly approved and assigned to a specific team or support queue. Each collection includes approved sources such as public help articles or internal policies. The AI generates replies grounded only in these approved sources, with source identifiers attached for agent verification. Workspace administrators manage the collections and their permissions, and agents cannot add or cite sources outside the assigned collections. If no approved source in the assigned collection covers the customer's question, RelayDesk prompts the agent to research the answer manually instead of providing an unsupported AI reply [kb_31].\n\nNext, you should create or verify a knowledge collection that matches the team's policy needs, ensure all articles are approved and reviewed, assign this collection to the appropriate queue, and test with sample conversations to confirm only approved sources are used in AI suggestions before enabling for the team [kb_31].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_31"
+                  ],
+                  "traceId": "2495951a-2473-45ce-804c-724930d1222c",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "f5e5a9e1-c14c-4d89-9509-4d1def062335"
+              },
+              {
+                "repeat": 3,
+                "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "21788f78-de43-4425-8601-2a9101c33353"
+              }
+            ]
+          },
+          {
+            "id": "D02",
+            "family": "follow-up-context",
+            "question": "How do I resolve pending SSO domain ownership verification?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_14",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "a5fa028c-ca51-4992-9314-b4f326366c41",
+                "answer": {
+                  "text": "To resolve a pending SSO domain ownership verification, follow these steps:\n\n1. Confirm the exact TXT record value shown in your RelayDesk SSO settings under Settings > Security > Single sign-on.\n2. Ensure the TXT record is published on the root domain selected for SSO and not a subdomain.\n3. Verify there are no extra quotes or spaces in the TXT value.\n4. Use a public DNS query to check the TXT record for the exact expected value, including any verification prefix.\n5. Remove any stale or multiple RelayDesk verification TXT records as only one should be present.\n6. Wait up to 24 hours for DNS propagation to complete.\n7. After 24 hours, if the TXT value resolves publicly but the status remains pending, click Verify again in your RelayDesk SSO settings.\n8. Keep a copy or screenshot of your public DNS TXT record in case you need to contact support for further assistance.\n\nIf verification is still pending after these steps and 24 hours have passed, contact RelayDesk support with your domain and DNS verification record details for help [kb_14].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_14"
+                  ],
+                  "traceId": "e77bdc60-373c-4000-8c4e-9830cde0cfb8",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "50d79196-b6a4-4236-9a5c-3a656b708324"
+              },
+              {
+                "repeat": 3,
+                "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "a7aea924-936a-40cd-9f23-ae2030be6ef4"
+              }
+            ]
+          },
+          {
+            "id": "D03",
+            "family": "follow-up-context",
+            "question": "How should our consumer handle duplicate RelayDesk webhook deliveries?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_42",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "a46c3530-6854-4d0b-8dd4-675d59c4ac9c",
+                "answer": {
+                  "text": "To handle duplicate RelayDesk webhook deliveries, your consumer should:\n\n1. Verify the webhook signature against the raw request body before parsing it.\n2. Persist the delivery identifier and event identifier atomically to detect duplicates.\n3. Return a successful HTTP response within ten seconds to acknowledge delivery.\n4. Ensure idempotent processing by storing and checking delivery identifiers before applying events.\n5. For any delivery identifier already processed, return success without reprocessing.\n6. Process the event asynchronously after acknowledgment, using a durable queue for downstream work.\n7. Keep the delivery identifiers for at least seven days to cover the retry window.\n8. Return non-success responses only if you want RelayDesk to retry the delivery.\n\nDuplicates occur because RelayDesk retries based on network conditions or timeouts, using the same delivery identifier, so idempotent handling is necessary [kb_42].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_42"
+                  ],
+                  "traceId": "54cec0d3-0eca-4f4c-b8cf-e4cbb818173e",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "d8ba908c-fc9f-491a-a303-16a1423ee0b7"
+              },
+              {
+                "repeat": 3,
+                "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "145599d9-3b07-4366-ac39-68de48a5d38f"
+              }
+            ]
+          },
+          {
+            "id": "D04",
+            "family": "direct-question-regression",
+            "question": "How long can RelayDesk SSO domain verification take?",
+            "expectedSource": "kb_14",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "9fb4b6a0-b584-4516-9492-69925bb85fbb",
+                "answer": {
+                  "text": "RelayDesk SSO domain verification commonly completes within minutes but can take up to 24 hours due to DNS propagation. If the status remains pending after 24 hours despite the TXT record being publicly visible and correctly set, an administrator can run the Verify action again. If issues persist after this step, contacting RelayDesk support with the domain and DNS answer is recommended [kb_14].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_14"
+                  ],
+                  "traceId": "66b75767-7502-4452-8230-77b640330c79",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "c3f332ed-bd2d-43af-9990-195b1f484177"
+              },
+              {
+                "repeat": 3,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "03855ae8-c26f-49df-8856-1cf4793d6386"
+              }
+            ]
+          },
+          {
+            "id": "D05",
+            "family": "direct-question-regression",
+            "question": "Can agents expand the knowledge collections assigned to their queue?",
+            "expectedSource": "kb_31",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "d24a02c4-8d34-4e66-9fc4-4f199f40693e",
+                "answer": {
+                  "text": "Agents cannot expand the knowledge collections assigned to their queue themselves. Only workspace administrators manage collection access by creating and assigning approved knowledge collections to queues. Agents are limited to using the collections assigned to their queue, and drafts cannot cite articles outside those collections. If there are no approved sources for a customer's question in the queue's collections, agents are prompted to research the answer instead of generating a response from unapproved content [kb_31].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_31"
+                  ],
+                  "traceId": "d989ef79-bc64-4422-bd82-efef1d6022b0",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "a7b9c45d-3c9e-4d60-88d4-99409b59f989"
+              },
+              {
+                "repeat": 3,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "aecc319e-2fad-4cc2-ac92-6c4eaa43b9bb"
+              }
+            ]
+          },
+          {
+            "id": "D06",
+            "family": "direct-question-regression",
+            "question": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+            "expectedSource": "kb_8",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "c954f80f-766d-4ede-9a6f-43949a1fdf72",
+                "answer": {
+                  "text": "To replace an invitation created in the wrong RelayDesk workspace, first switch to the correct workspace before opening Settings and Members. Then create a new invitation, confirm the workspace name during the review step, and send the new invitation link. After that, return to the original workspace and revoke any unused invitation links to prevent them from being accepted later. Note that invitation links are workspace-specific and cannot grant access to another workspace. Therefore, do not forward an existing invitation link between different environments [kb_8].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_8"
+                  ],
+                  "traceId": "3b63e019-df60-4f4c-b730-100ff61f159b",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "c9364cbe-e1ac-443d-9d5b-dda18f9ae5ab"
+              },
+              {
+                "repeat": 3,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "42299b57-c80f-4d49-929a-da155a026fc4"
+              }
+            ]
+          }
+        ]
+      },
+      "heldoutBaseline": {
+        "schemaVersion": 1,
+        "measuredAt": "2026-11-13T10:55:39.427Z",
+        "manifest": {
+          "datasetHash": "2f32e839c72942407ddf396e0230a40b2eb5ec000d6a723c23c63be286609ff5",
+          "corpusHash": "1b72e3a841922cf7e94a2a6ac88fcc541b6346c34d5601af01dc85c7e7468f5b",
+          "contractHash": "07723954fe75e0d63bbf98f426982291cb8b29a4c75561ea5993469048577aec",
+          "modelsHash": "16d8e99e3e661c222ed1af66b724bff3309598ca5e47d03e547aef84b7db65e3",
+          "productHash": "9d098aa7897983bd02e1ac9952f45be94f1efbc8b6781c539d7cf784c566b71a",
+          "split": "heldout",
+          "repeats": 3
+        },
+        "cases": [
+          {
+            "id": "H01",
+            "family": "unseen-export-follow-up",
+            "question": "My RelayDesk usage export is missing rows that appear in the dashboard.",
+            "followUp": "What should I check first?",
+            "expectedSource": "kb_22",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "What should I check first?",
+                "rank": null,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "f5dd05b1-0c6e-49fa-b36a-16d924a0e25e",
+                "answer": {
+                  "text": "The approved help content does not verify what to check first if your RelayDesk usage export is missing rows that appear in the dashboard. Could you please clarify if your question relates to SSO domain verification, data export settings, or another area?",
+                  "outcome": "answered",
+                  "citationIds": [],
+                  "traceId": "cc170566-f52b-4110-aca5-bce60c1411c9",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "What should I check first?",
+                "rank": null,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "f58733f4-c6b4-4405-82e3-3787bd98e172"
+              },
+              {
+                "repeat": 3,
+                "query": "What should I check first?",
+                "rank": null,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "a2866ff1-040b-42ed-ba94-12ac6ca6f58d"
+              }
+            ]
+          },
+          {
+            "id": "H02",
+            "family": "unseen-invitation-follow-up",
+            "question": "A RelayDesk invitation was created in our sandbox instead of the production workspace.",
+            "followUp": "How do I fix that?",
+            "expectedSource": "kb_8",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How do I fix that?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_14"
+                ],
+                "traceId": "df668849-ff47-428a-8206-f73aa8bd630b",
+                "answer": {
+                  "text": "To fix an invitation created in the sandbox instead of the production workspace, switch to the correct (production) workspace first. Then open Settings and Members, create a new invitation, confirm the workspace name during the review step, and send the new invitation link. Afterwards, return to the sandbox workspace and revoke any unused invitation links so they cannot be accepted later [kb_8].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_8"
+                  ],
+                  "traceId": "09d3bfa0-4246-457e-a505-ac40f5c51885",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How do I fix that?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_14"
+                ],
+                "traceId": "d97d8586-9bc4-4378-8ab3-00e851b4fe44"
+              },
+              {
+                "repeat": 3,
+                "query": "How do I fix that?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_14"
+                ],
+                "traceId": "76ff4eb5-509e-409e-b949-f77bc0c10d50"
+              }
+            ]
+          },
+          {
+            "id": "H03",
+            "family": "unseen-webhook-follow-up",
+            "question": "Our RelayDesk webhook consumer runs a slow background worker.",
+            "followUp": "What should happen first?",
+            "expectedSource": "kb_42",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "What should happen first?",
+                "rank": 2,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_42"
+                ],
+                "traceId": "427b9c88-4bab-428d-8c7b-20115db2c37d",
+                "answer": {
+                  "text": "The first step for handling your RelayDesk webhook with a slow background worker is to verify the signature against the raw request body. After that, you should persist the event and delivery identifiers and acknowledge the request quickly before running any slow downstream work. This ensures safe handling of retries and idempotent processing. The slow background processing should then be placed on a durable queue for asynchronous handling [kb_42].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_42"
+                  ],
+                  "traceId": "77475d5e-af87-4fb8-9fe5-f8e060efc9fe",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "What should happen first?",
+                "rank": 2,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_42"
+                ],
+                "traceId": "7601910e-e6a5-440a-99b9-2713a981e401"
+              },
+              {
+                "repeat": 3,
+                "query": "What should happen first?",
+                "rank": 2,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_42"
+                ],
+                "traceId": "5a0dbd84-434b-40b0-9c6b-4adf4285685a"
+              }
+            ]
+          }
+        ]
+      },
+      "heldoutCandidate": {
+        "schemaVersion": 1,
+        "measuredAt": "2026-11-13T10:55:55.803Z",
+        "manifest": {
+          "datasetHash": "2f32e839c72942407ddf396e0230a40b2eb5ec000d6a723c23c63be286609ff5",
+          "corpusHash": "1b72e3a841922cf7e94a2a6ac88fcc541b6346c34d5601af01dc85c7e7468f5b",
+          "contractHash": "07723954fe75e0d63bbf98f426982291cb8b29a4c75561ea5993469048577aec",
+          "modelsHash": "16d8e99e3e661c222ed1af66b724bff3309598ca5e47d03e547aef84b7db65e3",
+          "productHash": "56f9c510ee487e14f33e7fb1da04234a0f0dd522f5279525c697598c7c981c2f",
+          "split": "heldout",
+          "repeats": 3
+        },
+        "cases": [
+          {
+            "id": "H01",
+            "family": "unseen-export-follow-up",
+            "question": "My RelayDesk usage export is missing rows that appear in the dashboard.",
+            "followUp": "What should I check first?",
+            "expectedSource": "kb_22",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "My RelayDesk usage export is missing rows that appear in the dashboard.\nFollow-up: What should I check first?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_22",
+                  "kb_22"
+                ],
+                "traceId": "42640c2f-dd18-4ad2-82e5-952ea16efc90",
+                "answer": {
+                  "text": "First, check that the export manifest matches the dashboard total using the same time zone and date boundaries. Make sure your date range is correctly set with an inclusive start date and exclusive end date (e.g., for a full month, select from the first day of that month through the first day of the next month). If the manifest count is lower than the dashboard count, generate a replacement export rather than editing the CSV manually. Usage events remain in RelayDesk even if an export job fails, so an incomplete export file does not mean data loss [kb_22].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_22"
+                  ],
+                  "traceId": "efc58c33-de72-4abf-8bf5-2163e7306274",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "My RelayDesk usage export is missing rows that appear in the dashboard.\nFollow-up: What should I check first?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_22",
+                  "kb_22"
+                ],
+                "traceId": "04fb5d19-9cc4-41b0-937b-d8948d9b7478"
+              },
+              {
+                "repeat": 3,
+                "query": "My RelayDesk usage export is missing rows that appear in the dashboard.\nFollow-up: What should I check first?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_22",
+                  "kb_22"
+                ],
+                "traceId": "93c382e5-4786-416b-8cbb-eb6fd5e25e2b"
+              }
+            ]
+          },
+          {
+            "id": "H02",
+            "family": "unseen-invitation-follow-up",
+            "question": "A RelayDesk invitation was created in our sandbox instead of the production workspace.",
+            "followUp": "How do I fix that?",
+            "expectedSource": "kb_8",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "A RelayDesk invitation was created in our sandbox instead of the production workspace.\nFollow-up: How do I fix that?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "8b6fc113-088a-4d2f-96d1-4dc2ead1d003",
+                "answer": {
+                  "text": "If a RelayDesk invitation was created in your sandbox instead of the production workspace, you need to switch to the correct (production) workspace before opening Settings and Members. Then, create a new invitation and confirm the workspace name in the review step before sending the new link. After that, return to the sandbox workspace and revoke any unused links so they cannot be accepted later. Do not forward the existing sandbox invitation link to production because invitations are workspace-specific and cannot be transferred between environments [kb_8].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_8"
+                  ],
+                  "traceId": "89a48c78-51be-4f06-ad28-d82bbf660596",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "A RelayDesk invitation was created in our sandbox instead of the production workspace.\nFollow-up: How do I fix that?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "3604a1b3-3a73-48b3-855a-0624d4ad6286"
+              },
+              {
+                "repeat": 3,
+                "query": "A RelayDesk invitation was created in our sandbox instead of the production workspace.\nFollow-up: How do I fix that?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "a152a201-5e1e-4d3a-8b68-47c5ccf565fc"
+              }
+            ]
+          },
+          {
+            "id": "H03",
+            "family": "unseen-webhook-follow-up",
+            "question": "Our RelayDesk webhook consumer runs a slow background worker.",
+            "followUp": "What should happen first?",
+            "expectedSource": "kb_42",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "Our RelayDesk webhook consumer runs a slow background worker.\nFollow-up: What should happen first?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "5d9baa25-84f7-4aa1-931c-91d105eb86d6",
+                "answer": {
+                  "text": "The first thing your RelayDesk webhook consumer should do is verify the signature against the raw request body to ensure authenticity. Then, it should persist the event and delivery identifiers atomically and reject any duplicate processing. After this, immediately acknowledge the request with a successful response within ten seconds. Only after acknowledging, run your slow downstream or background work asynchronously, ideally by placing it on a durable queue. Keep delivery identifiers for at least seven days to handle retries safely and idempotently [kb_42].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_42"
+                  ],
+                  "traceId": "b95f6070-eeaf-4668-a17a-70e2668ff429",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "Our RelayDesk webhook consumer runs a slow background worker.\nFollow-up: What should happen first?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "37bba55d-bdbb-4406-9743-205b80a026de"
+              },
+              {
+                "repeat": 3,
+                "query": "Our RelayDesk webhook consumer runs a slow background worker.\nFollow-up: What should happen first?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "cc3f19f3-f6ee-4eb4-864f-af3507b417b9"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "epoch": 2,
+      "phase": "goal_reached",
+      "reason": "Every active question retrieved its expected approved source first in all three runs. Answer quality remains unscored.",
+      "updatedAt": "2026-11-13T13:32:34.273Z",
+      "attempts": 0,
+      "patch": "",
+      "baseline": {
+        "schemaVersion": 1,
+        "measuredAt": "2026-11-13T13:31:50.278Z",
+        "manifest": {
+          "datasetHash": "c727fdf7caa1b0a937c97856a332ce492e3861ff0379bb6ac3756828f5df7269",
+          "corpusHash": "1b72e3a841922cf7e94a2a6ac88fcc541b6346c34d5601af01dc85c7e7468f5b",
+          "contractHash": "07723954fe75e0d63bbf98f426982291cb8b29a4c75561ea5993469048577aec",
+          "modelsHash": "16d8e99e3e661c222ed1af66b724bff3309598ca5e47d03e547aef84b7db65e3",
+          "productHash": "56f9c510ee487e14f33e7fb1da04234a0f0dd522f5279525c697598c7c981c2f",
+          "split": "development",
+          "repeats": 3
+        },
+        "cases": [
+          {
+            "id": "D01",
+            "family": "follow-up-context",
+            "question": "How do restricted AI knowledge collections work in RelayDesk?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_31",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "aaad4cfb-eda7-4c2a-b64f-36cd7b0dbfca",
+                "answer": {
+                  "text": "Restricted AI knowledge collections in RelayDesk work by limiting AI-generated reply suggestions to approved knowledge collections assigned to a specific team or support queue. Each collection contains only pre-approved sources, such as public help articles, internal procedures, or policies, ensuring the AI grounds its replies strictly in authorized content. Workspace administrators manage these permissions and assign the collections to queues, so agents cannot access or generate replies from sources outside the assigned collections. If a queue has no approved sources relevant to a customer's question, the AI prompts the agent to research the answer instead of generating unsupported responses [kb_31].\n\nWhat you should do next is to create a dedicated knowledge collection for your restricted team or queue: add only the approved policies and articles, complete their review, then assign this collection to your queue in the queue settings. After that, test with a representative conversation to confirm that AI suggestions only use sources from your assigned collection before enabling the feature for your team [kb_31].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_31"
+                  ],
+                  "traceId": "f4d2d0d1-04d1-4e66-a9eb-a0dce736e215",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "7e08a411-07c5-49da-b8b8-84ba6cf9f150"
+              },
+              {
+                "repeat": 3,
+                "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "42956f25-81b6-4692-99ba-5f6a7ee45779"
+              }
+            ]
+          },
+          {
+            "id": "D02",
+            "family": "follow-up-context",
+            "question": "How do I resolve pending SSO domain ownership verification?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_14",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "b7982dc3-1c43-4777-a10a-2f20e3acf74c",
+                "answer": {
+                  "text": "To resolve a pending SSO domain ownership verification, follow these steps:\n\n1. Confirm the public TXT DNS record matches exactly the value shown in RelayDesk Settings under Security > Single sign-on. The record must be on the selected root domain, and no extra quotes, spaces, or incorrect subdomain placement should exist. Avoid having multiple verification records with different values at the same time.\n\n2. Wait for DNS propagation to complete, which can take up to 24 hours.\n\n3. After 24 hours, query the public DNS to verify the exact TXT value is publicly resolving as expected.\n\n4. If the record is correct and still pending, remove any stale RelayDesk verification records and allow TTL expiration.\n\n5. Go back to RelayDesk and select Verify again.\n\nIf the status continues to be pending with a correct public TXT record after these steps, contact RelayDesk support with your domain and a screenshot or text copy of the DNS answer for further assistance [kb_14].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_14"
+                  ],
+                  "traceId": "8e466819-cef6-485c-b6ca-4ec4e24b5cc1",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "5b635800-2289-4807-8c05-9919c50cfe32"
+              },
+              {
+                "repeat": 3,
+                "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "4f48f189-c703-40a4-b02c-690126be2029"
+              }
+            ]
+          },
+          {
+            "id": "D03",
+            "family": "follow-up-context",
+            "question": "How should our consumer handle duplicate RelayDesk webhook deliveries?",
+            "followUp": "What should I do next?",
+            "expectedSource": "kb_42",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "1b5ae0c3-2dfa-4ee3-b184-d853e48f7c24",
+                "answer": {
+                  "text": "Your consumer should handle duplicate RelayDesk webhook deliveries by implementing idempotent processing. Specifically, store the RelayDesk delivery identifier before applying the event, and if an event with that identifier has already been processed, return a success response without reprocessing. Do not rely on request timestamps for deduplication, as retries have different timestamps. Verify the webhook signature, persist the event and delivery identifiers atomically to avoid duplicates, and respond successfully within ten seconds to prevent retries. Keep delivery identifiers for at least seven days to cover the retry window, and process the event asynchronously after acknowledging the request quickly [kb_42].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_42"
+                  ],
+                  "traceId": "df8c6d3f-5d5e-4744-bbd4-0b635935e796",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "19354565-7902-42c1-bd27-5abf56d9aff1"
+              },
+              {
+                "repeat": 3,
+                "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "d31f58e5-a4a2-4c5f-9f7e-8dfb31e91e0f"
+              }
+            ]
+          },
+          {
+            "id": "D04",
+            "family": "direct-question-regression",
+            "question": "How long can RelayDesk SSO domain verification take?",
+            "expectedSource": "kb_14",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "8d32e367-57c3-4ae2-b3c8-6931efba0d6e",
+                "answer": {
+                  "text": "RelayDesk SSO domain verification can commonly complete within minutes but may take up to 24 hours due to DNS propagation. If the verification status remains pending after 24 hours, you can run the Verify check again in the settings. If it is still pending after rechecking with the correct public TXT record in place, you should contact RelayDesk support for further assistance. Make sure the exact TXT record is published on the root domain and no extra quotes or spaces are included, as these can cause delays or failures in verification [kb_14].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_14"
+                  ],
+                  "traceId": "4c2ff101-094b-41a5-9913-8f313e01c5d2",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "2197518d-6b55-4414-b60d-02cefc9009b0"
+              },
+              {
+                "repeat": 3,
+                "query": "How long can RelayDesk SSO domain verification take?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_14",
+                  "kb_14"
+                ],
+                "traceId": "1b7b72ae-66f4-4893-b1ca-5ad768f8a044"
+              }
+            ]
+          },
+          {
+            "id": "D05",
+            "family": "direct-question-regression",
+            "question": "Can agents expand the knowledge collections assigned to their queue?",
+            "expectedSource": "kb_31",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "fe2696ff-7870-4c14-95cb-c3f0c97939da",
+                "answer": {
+                  "text": "Agents cannot expand the knowledge collections assigned to their queue themselves. Only workspace administrators manage collection access and assign approved knowledge collections to support queues. Agents receive AI reply suggestions solely from the collections assigned to their queue and cannot add or cite articles outside those collections. If no approved source in the assigned collections covers the customer's question, agents need to research the answer independently rather than generate unsupported replies [kb_31].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_31"
+                  ],
+                  "traceId": "d47428f8-1a26-45d5-bb27-e9ff4d270f17",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "fd478b92-cc9b-4044-85e5-c4ca8172a8ce"
+              },
+              {
+                "repeat": 3,
+                "query": "Can agents expand the knowledge collections assigned to their queue?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_31",
+                  "kb_31"
+                ],
+                "traceId": "ddaad4e4-fa7e-46a2-a9e5-05e624a6ab1f"
+              }
+            ]
+          },
+          {
+            "id": "D06",
+            "family": "direct-question-regression",
+            "question": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+            "expectedSource": "kb_8",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "5a280e41-19df-4107-b4be-71cc8bf99546",
+                "answer": {
+                  "text": "To replace an invitation created in the wrong RelayDesk workspace, first switch to the correct workspace. Then open Settings and Members, create a new invitation, confirm the workspace name during the review step, and send the new invitation link. After that, return to the original workspace and revoke any unused invitation links to prevent them from being accepted later. This ensures the invitation is valid only for the intended workspace, as every invitation is workspace-specific and cannot be used to access another workspace [kb_8].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_8"
+                  ],
+                  "traceId": "298d6433-30a8-400b-bee7-b6dd68d97385",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "521de3ec-13d4-4256-9a58-41f55ca5364a"
+              },
+              {
+                "repeat": 3,
+                "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_8",
+                  "kb_8"
+                ],
+                "traceId": "8fef3556-80c3-4064-b449-eb9a223019ee"
+              }
+            ]
+          },
+          {
+            "id": "D07",
+            "family": "new-webhook-question",
+            "question": "Our RelayDesk webhook worker takes thirty seconds to process a delivery.",
+            "followUp": "When should we send the acknowledgement?",
+            "expectedSource": "kb_42",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "Our RelayDesk webhook worker takes thirty seconds to process a delivery.\nFollow-up: When should we send the acknowledgement?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "703eb7b1-57de-40b4-a20b-0fe2f552a1e6",
+                "answer": {
+                  "text": "You should send the acknowledgement within ten seconds of receiving the webhook. The recommended sequence is to verify the signature, persist the event and delivery identifiers, then acknowledge the request quickly before performing any slow downstream processing asynchronously. This ensures RelayDesk considers the webhook delivered and avoids unnecessary retries. For slow work, place it on a durable queue after sending the acknowledgement. Also, keep the delivery identifiers for at least seven days to handle retries safely [kb_42].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_42"
+                  ],
+                  "traceId": "f41e517a-d36f-4dfc-8e7c-92ce3a292bb8",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "Our RelayDesk webhook worker takes thirty seconds to process a delivery.\nFollow-up: When should we send the acknowledgement?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "d3889289-c213-42b1-a8b0-1f0a9d58f656"
+              },
+              {
+                "repeat": 3,
+                "query": "Our RelayDesk webhook worker takes thirty seconds to process a delivery.\nFollow-up: When should we send the acknowledgement?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_42",
+                  "kb_42"
+                ],
+                "traceId": "ad49266c-71bf-41ca-904b-aa075debe619"
+              }
+            ]
+          },
+          {
+            "id": "D08",
+            "family": "new-usage-export-question",
+            "question": "I need a RelayDesk usage export that includes every day in a complete calendar month.",
+            "followUp": "Which start and end dates should I choose?",
+            "expectedSource": "kb_22",
+            "attempts": [
+              {
+                "repeat": 1,
+                "query": "I need a RelayDesk usage export that includes every day in a complete calendar month.\nFollow-up: Which start and end dates should I choose?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_22",
+                  "kb_22"
+                ],
+                "traceId": "6c352d27-d6a0-41a1-bec5-58710878dae0",
+                "answer": {
+                  "text": "To export RelayDesk usage for every day in a complete calendar month, choose the start date as the first day of that month and the end date as the first day of the following month. The date filter is inclusive of the start date and exclusive of the end date, so this range ensures all days in the calendar month are included in the export [kb_22].",
+                  "outcome": "answered",
+                  "citationIds": [
+                    "kb_22"
+                  ],
+                  "traceId": "a73905f7-f887-4a13-8230-8484167a542f",
+                  "quality": "unscored"
+                }
+              },
+              {
+                "repeat": 2,
+                "query": "I need a RelayDesk usage export that includes every day in a complete calendar month.\nFollow-up: Which start and end dates should I choose?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_22",
+                  "kb_22"
+                ],
+                "traceId": "dbe40468-23c3-49ab-a7e2-e46dd002e8e9"
+              },
+              {
+                "repeat": 3,
+                "query": "I need a RelayDesk usage export that includes every day in a complete calendar month.\nFollow-up: Which start and end dates should I choose?",
+                "rank": 1,
+                "approved": true,
+                "sourceIds": [
+                  "kb_22",
+                  "kb_22"
+                ],
+                "traceId": "cb44f950-0b58-49a5-9078-ae2db3123295"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "activeQuestionCount": 8,
+  "contract": {
+    "version": 1,
+    "repeats": 3,
+    "metric": "expected_approved_source_rank_1",
+    "target": 1,
+    "maxCandidates": 3,
+    "maxMinutes": 20,
+    "maxChangedLines": 100,
+    "answerQuality": "unscored",
+    "note": "This measures retrieval ranking on synthetic product questions. It does not establish answer correctness or validate an LLM judge."
+  },
+  "baseline": {
+    "schemaVersion": 1,
+    "measuredAt": "2026-11-13T13:31:50.278Z",
+    "manifest": {
+      "datasetHash": "c727fdf7caa1b0a937c97856a332ce492e3861ff0379bb6ac3756828f5df7269",
+      "corpusHash": "1b72e3a841922cf7e94a2a6ac88fcc541b6346c34d5601af01dc85c7e7468f5b",
+      "contractHash": "07723954fe75e0d63bbf98f426982291cb8b29a4c75561ea5993469048577aec",
+      "modelsHash": "16d8e99e3e661c222ed1af66b724bff3309598ca5e47d03e547aef84b7db65e3",
+      "productHash": "56f9c510ee487e14f33e7fb1da04234a0f0dd522f5279525c697598c7c981c2f",
+      "split": "development",
+      "repeats": 3
+    },
+    "cases": [
+      {
+        "id": "D01",
+        "family": "follow-up-context",
+        "question": "How do restricted AI knowledge collections work in RelayDesk?",
+        "followUp": "What should I do next?",
+        "expectedSource": "kb_31",
+        "attempts": [
+          {
+            "repeat": 1,
+            "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_31",
+              "kb_31"
+            ],
+            "traceId": "aaad4cfb-eda7-4c2a-b64f-36cd7b0dbfca",
+            "answer": {
+              "text": "Restricted AI knowledge collections in RelayDesk work by limiting AI-generated reply suggestions to approved knowledge collections assigned to a specific team or support queue. Each collection contains only pre-approved sources, such as public help articles, internal procedures, or policies, ensuring the AI grounds its replies strictly in authorized content. Workspace administrators manage these permissions and assign the collections to queues, so agents cannot access or generate replies from sources outside the assigned collections. If a queue has no approved sources relevant to a customer's question, the AI prompts the agent to research the answer instead of generating unsupported responses [kb_31].\n\nWhat you should do next is to create a dedicated knowledge collection for your restricted team or queue: add only the approved policies and articles, complete their review, then assign this collection to your queue in the queue settings. After that, test with a representative conversation to confirm that AI suggestions only use sources from your assigned collection before enabling the feature for your team [kb_31].",
+              "outcome": "answered",
+              "citationIds": [
+                "kb_31"
+              ],
+              "traceId": "f4d2d0d1-04d1-4e66-a9eb-a0dce736e215",
+              "quality": "unscored"
+            }
+          },
+          {
+            "repeat": 2,
+            "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_31",
+              "kb_31"
+            ],
+            "traceId": "7e08a411-07c5-49da-b8b8-84ba6cf9f150"
+          },
+          {
+            "repeat": 3,
+            "query": "How do restricted AI knowledge collections work in RelayDesk?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_31",
+              "kb_31"
+            ],
+            "traceId": "42956f25-81b6-4692-99ba-5f6a7ee45779"
+          }
+        ]
+      },
+      {
+        "id": "D02",
+        "family": "follow-up-context",
+        "question": "How do I resolve pending SSO domain ownership verification?",
+        "followUp": "What should I do next?",
+        "expectedSource": "kb_14",
+        "attempts": [
+          {
+            "repeat": 1,
+            "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_14",
+              "kb_14"
+            ],
+            "traceId": "b7982dc3-1c43-4777-a10a-2f20e3acf74c",
+            "answer": {
+              "text": "To resolve a pending SSO domain ownership verification, follow these steps:\n\n1. Confirm the public TXT DNS record matches exactly the value shown in RelayDesk Settings under Security > Single sign-on. The record must be on the selected root domain, and no extra quotes, spaces, or incorrect subdomain placement should exist. Avoid having multiple verification records with different values at the same time.\n\n2. Wait for DNS propagation to complete, which can take up to 24 hours.\n\n3. After 24 hours, query the public DNS to verify the exact TXT value is publicly resolving as expected.\n\n4. If the record is correct and still pending, remove any stale RelayDesk verification records and allow TTL expiration.\n\n5. Go back to RelayDesk and select Verify again.\n\nIf the status continues to be pending with a correct public TXT record after these steps, contact RelayDesk support with your domain and a screenshot or text copy of the DNS answer for further assistance [kb_14].",
+              "outcome": "answered",
+              "citationIds": [
+                "kb_14"
+              ],
+              "traceId": "8e466819-cef6-485c-b6ca-4ec4e24b5cc1",
+              "quality": "unscored"
+            }
+          },
+          {
+            "repeat": 2,
+            "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_14",
+              "kb_14"
+            ],
+            "traceId": "5b635800-2289-4807-8c05-9919c50cfe32"
+          },
+          {
+            "repeat": 3,
+            "query": "How do I resolve pending SSO domain ownership verification?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_14",
+              "kb_14"
+            ],
+            "traceId": "4f48f189-c703-40a4-b02c-690126be2029"
+          }
+        ]
+      },
+      {
+        "id": "D03",
+        "family": "follow-up-context",
+        "question": "How should our consumer handle duplicate RelayDesk webhook deliveries?",
+        "followUp": "What should I do next?",
+        "expectedSource": "kb_42",
+        "attempts": [
+          {
+            "repeat": 1,
+            "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_42",
+              "kb_42"
+            ],
+            "traceId": "1b5ae0c3-2dfa-4ee3-b184-d853e48f7c24",
+            "answer": {
+              "text": "Your consumer should handle duplicate RelayDesk webhook deliveries by implementing idempotent processing. Specifically, store the RelayDesk delivery identifier before applying the event, and if an event with that identifier has already been processed, return a success response without reprocessing. Do not rely on request timestamps for deduplication, as retries have different timestamps. Verify the webhook signature, persist the event and delivery identifiers atomically to avoid duplicates, and respond successfully within ten seconds to prevent retries. Keep delivery identifiers for at least seven days to cover the retry window, and process the event asynchronously after acknowledging the request quickly [kb_42].",
+              "outcome": "answered",
+              "citationIds": [
+                "kb_42"
+              ],
+              "traceId": "df8c6d3f-5d5e-4744-bbd4-0b635935e796",
+              "quality": "unscored"
+            }
+          },
+          {
+            "repeat": 2,
+            "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_42",
+              "kb_42"
+            ],
+            "traceId": "19354565-7902-42c1-bd27-5abf56d9aff1"
+          },
+          {
+            "repeat": 3,
+            "query": "How should our consumer handle duplicate RelayDesk webhook deliveries?\nFollow-up: What should I do next?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_42",
+              "kb_42"
+            ],
+            "traceId": "d31f58e5-a4a2-4c5f-9f7e-8dfb31e91e0f"
+          }
+        ]
+      },
+      {
+        "id": "D04",
+        "family": "direct-question-regression",
+        "question": "How long can RelayDesk SSO domain verification take?",
+        "expectedSource": "kb_14",
+        "attempts": [
+          {
+            "repeat": 1,
+            "query": "How long can RelayDesk SSO domain verification take?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_14",
+              "kb_14"
+            ],
+            "traceId": "8d32e367-57c3-4ae2-b3c8-6931efba0d6e",
+            "answer": {
+              "text": "RelayDesk SSO domain verification can commonly complete within minutes but may take up to 24 hours due to DNS propagation. If the verification status remains pending after 24 hours, you can run the Verify check again in the settings. If it is still pending after rechecking with the correct public TXT record in place, you should contact RelayDesk support for further assistance. Make sure the exact TXT record is published on the root domain and no extra quotes or spaces are included, as these can cause delays or failures in verification [kb_14].",
+              "outcome": "answered",
+              "citationIds": [
+                "kb_14"
+              ],
+              "traceId": "4c2ff101-094b-41a5-9913-8f313e01c5d2",
+              "quality": "unscored"
+            }
+          },
+          {
+            "repeat": 2,
+            "query": "How long can RelayDesk SSO domain verification take?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_14",
+              "kb_14"
+            ],
+            "traceId": "2197518d-6b55-4414-b60d-02cefc9009b0"
+          },
+          {
+            "repeat": 3,
+            "query": "How long can RelayDesk SSO domain verification take?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_14",
+              "kb_14"
+            ],
+            "traceId": "1b7b72ae-66f4-4893-b1ca-5ad768f8a044"
+          }
+        ]
+      },
+      {
+        "id": "D05",
+        "family": "direct-question-regression",
+        "question": "Can agents expand the knowledge collections assigned to their queue?",
+        "expectedSource": "kb_31",
+        "attempts": [
+          {
+            "repeat": 1,
+            "query": "Can agents expand the knowledge collections assigned to their queue?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_31",
+              "kb_31"
+            ],
+            "traceId": "fe2696ff-7870-4c14-95cb-c3f0c97939da",
+            "answer": {
+              "text": "Agents cannot expand the knowledge collections assigned to their queue themselves. Only workspace administrators manage collection access and assign approved knowledge collections to support queues. Agents receive AI reply suggestions solely from the collections assigned to their queue and cannot add or cite articles outside those collections. If no approved source in the assigned collections covers the customer's question, agents need to research the answer independently rather than generate unsupported replies [kb_31].",
+              "outcome": "answered",
+              "citationIds": [
+                "kb_31"
+              ],
+              "traceId": "d47428f8-1a26-45d5-bb27-e9ff4d270f17",
+              "quality": "unscored"
+            }
+          },
+          {
+            "repeat": 2,
+            "query": "Can agents expand the knowledge collections assigned to their queue?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_31",
+              "kb_31"
+            ],
+            "traceId": "fd478b92-cc9b-4044-85e5-c4ca8172a8ce"
+          },
+          {
+            "repeat": 3,
+            "query": "Can agents expand the knowledge collections assigned to their queue?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_31",
+              "kb_31"
+            ],
+            "traceId": "ddaad4e4-fa7e-46a2-a9e5-05e624a6ab1f"
+          }
+        ]
+      },
+      {
+        "id": "D06",
+        "family": "direct-question-regression",
+        "question": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+        "expectedSource": "kb_8",
+        "attempts": [
+          {
+            "repeat": 1,
+            "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_8",
+              "kb_8"
+            ],
+            "traceId": "5a280e41-19df-4107-b4be-71cc8bf99546",
+            "answer": {
+              "text": "To replace an invitation created in the wrong RelayDesk workspace, first switch to the correct workspace. Then open Settings and Members, create a new invitation, confirm the workspace name during the review step, and send the new invitation link. After that, return to the original workspace and revoke any unused invitation links to prevent them from being accepted later. This ensures the invitation is valid only for the intended workspace, as every invitation is workspace-specific and cannot be used to access another workspace [kb_8].",
+              "outcome": "answered",
+              "citationIds": [
+                "kb_8"
+              ],
+              "traceId": "298d6433-30a8-400b-bee7-b6dd68d97385",
+              "quality": "unscored"
+            }
+          },
+          {
+            "repeat": 2,
+            "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_8",
+              "kb_8"
+            ],
+            "traceId": "521de3ec-13d4-4256-9a58-41f55ca5364a"
+          },
+          {
+            "repeat": 3,
+            "query": "How do I replace an invitation created in the wrong RelayDesk workspace?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_8",
+              "kb_8"
+            ],
+            "traceId": "8fef3556-80c3-4064-b449-eb9a223019ee"
+          }
+        ]
+      },
+      {
+        "id": "D07",
+        "family": "new-webhook-question",
+        "question": "Our RelayDesk webhook worker takes thirty seconds to process a delivery.",
+        "followUp": "When should we send the acknowledgement?",
+        "expectedSource": "kb_42",
+        "attempts": [
+          {
+            "repeat": 1,
+            "query": "Our RelayDesk webhook worker takes thirty seconds to process a delivery.\nFollow-up: When should we send the acknowledgement?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_42",
+              "kb_42"
+            ],
+            "traceId": "703eb7b1-57de-40b4-a20b-0fe2f552a1e6",
+            "answer": {
+              "text": "You should send the acknowledgement within ten seconds of receiving the webhook. The recommended sequence is to verify the signature, persist the event and delivery identifiers, then acknowledge the request quickly before performing any slow downstream processing asynchronously. This ensures RelayDesk considers the webhook delivered and avoids unnecessary retries. For slow work, place it on a durable queue after sending the acknowledgement. Also, keep the delivery identifiers for at least seven days to handle retries safely [kb_42].",
+              "outcome": "answered",
+              "citationIds": [
+                "kb_42"
+              ],
+              "traceId": "f41e517a-d36f-4dfc-8e7c-92ce3a292bb8",
+              "quality": "unscored"
+            }
+          },
+          {
+            "repeat": 2,
+            "query": "Our RelayDesk webhook worker takes thirty seconds to process a delivery.\nFollow-up: When should we send the acknowledgement?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_42",
+              "kb_42"
+            ],
+            "traceId": "d3889289-c213-42b1-a8b0-1f0a9d58f656"
+          },
+          {
+            "repeat": 3,
+            "query": "Our RelayDesk webhook worker takes thirty seconds to process a delivery.\nFollow-up: When should we send the acknowledgement?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_42",
+              "kb_42"
+            ],
+            "traceId": "ad49266c-71bf-41ca-904b-aa075debe619"
+          }
+        ]
+      },
+      {
+        "id": "D08",
+        "family": "new-usage-export-question",
+        "question": "I need a RelayDesk usage export that includes every day in a complete calendar month.",
+        "followUp": "Which start and end dates should I choose?",
+        "expectedSource": "kb_22",
+        "attempts": [
+          {
+            "repeat": 1,
+            "query": "I need a RelayDesk usage export that includes every day in a complete calendar month.\nFollow-up: Which start and end dates should I choose?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_22",
+              "kb_22"
+            ],
+            "traceId": "6c352d27-d6a0-41a1-bec5-58710878dae0",
+            "answer": {
+              "text": "To export RelayDesk usage for every day in a complete calendar month, choose the start date as the first day of that month and the end date as the first day of the following month. The date filter is inclusive of the start date and exclusive of the end date, so this range ensures all days in the calendar month are included in the export [kb_22].",
+              "outcome": "answered",
+              "citationIds": [
+                "kb_22"
+              ],
+              "traceId": "a73905f7-f887-4a13-8230-8484167a542f",
+              "quality": "unscored"
+            }
+          },
+          {
+            "repeat": 2,
+            "query": "I need a RelayDesk usage export that includes every day in a complete calendar month.\nFollow-up: Which start and end dates should I choose?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_22",
+              "kb_22"
+            ],
+            "traceId": "dbe40468-23c3-49ab-a7e2-e46dd002e8e9"
+          },
+          {
+            "repeat": 3,
+            "query": "I need a RelayDesk usage export that includes every day in a complete calendar month.\nFollow-up: Which start and end dates should I choose?",
+            "rank": 1,
+            "approved": true,
+            "sourceIds": [
+              "kb_22",
+              "kb_22"
+            ],
+            "traceId": "cb44f950-0b58-49a5-9078-ae2db3123295"
+          }
+        ]
+      }
+    ]
+  },
+  "reproductionReceipt": {
+    "recordedAt": "2026-11-13T10:57:52.193Z",
+    "runId": "workshop-proof-07",
+    "sourceCommit": "530343e9d4a309e1a4a00c3edfb15318a9b5548d",
+    "historicalCommit": "53c2749887d4f3f9ba815acd105586bd25a67e05",
+    "models": {
+      "embedding": "openai/text-embedding-3-small",
+      "generation": "openai/gpt-4.1-mini",
+      "provider": "openrouter",
+      "routing": [
+        "openai"
+      ]
+    },
+    "modelsHash": "16d8e99e3e661c222ed1af66b724bff3309598ca5e47d03e547aef84b7db65e3",
+    "lockfileHash": "4fee03a554423b44b2f1a87e70e7e18e769aeefcc1e636cdded32cc2f57d7dd9",
+    "runtime": {
+      "node": "v26.5.0",
+      "pnpm": "10.10.0",
+      "codex": "codex-cli 0.153.4"
+    },
+    "development": {
+      "before": 4,
+      "after": 6,
+      "total": 6
+    },
+    "heldout": {
+      "before": 1,
+      "after": 3,
+      "total": 3
+    },
+    "repeatsPerQuestion": 3,
+    "regressions": 0,
+    "unitTests": {
+      "passing": 54,
+      "files": 10
+    },
+    "candidatePatchHash": "63a59a2b30dae1b5da08e8e79c9dde73aef7b1172ac6d3072e0106fc78eaecfa",
+    "candidateChangedFiles": [
+      "src/lib/help-chat-config.ts",
+      "tests/rag-repairs/conversation-context.test.ts"
+    ],
+    "traceVerification": [
+      {
+        "traceId": "a47b0f07-8ee6-4a00-9a99-f6cc9560bb18",
+        "name": "relaydesk.rag.retrieval-check",
+        "startTime": "2026-11-13T10:53:26.073001Z",
+        "ended": true,
+        "hasOutputs": true
+      },
+      {
+        "traceId": "0a95ac9a-6b4c-449d-8f6e-695eeb443462",
+        "name": "relaydesk.rag.retrieval-check",
+        "startTime": "2026-11-13T10:55:06.371001Z",
+        "ended": true,
+        "hasOutputs": true
+      }
+    ],
+    "humanApproval": false,
+    "answerQuality": "unscored",
+    "patchReconstructedFromUnchangedMeasuredTree": true
+  },
+  "flowControlProof": {
+    "checkedAt": "2026-11-13T10:57:52.539Z",
+    "addedQuestion": "D07",
+    "activeQuestions": 7,
+    "comparedQuestions": 6,
+    "phase": "awaiting_review",
+    "reason": "Skipped before measurement or model calls: a candidate still awaits engineer review.",
+    "requestsBefore": 272,
+    "requestsAfter": 272,
+    "reservedUSDBefore": 0.208531,
+    "reservedUSDAfter": 0.208531,
+    "modelRequestsAdded": 0
+  },
+  "continuationReceipt": {
+    "recordedAt": "2026-11-13T13:33:15.190Z",
+    "runId": "workshop-proof-07",
+    "harnessCommit": "195f5795934bae319b8a09599b5d1558ee83a149",
+    "initialRepairCommit": "530343e9d4a309e1a4a00c3edfb15318a9b5548d",
+    "review": {
+      "reviewer": "Codex",
+      "reviewerType": "assistant",
+      "accepted": true,
+      "at": "2026-11-13T13:31:48.413Z"
+    },
+    "addedQuestion": {
+      "id": "D08",
+      "at": "2026-11-13T13:31:48.791Z"
+    },
+    "watcherTriggeredAt": "2026-11-13T13:31:49.162Z",
+    "measuredAt": "2026-11-13T13:31:50.278Z",
+    "previousQuestions": 6,
+    "activeQuestions": 8,
+    "passingQuestions": 8,
+    "phase": "goal_reached",
+    "newRepairAttempts": 0,
+    "newCodeChange": false,
+    "datasetHash": "c727fdf7caa1b0a937c97856a332ce492e3861ff0379bb6ac3756828f5df7269",
+    "previousDatasetHash": "64be5229a10f3bcb97cae5d0c1ecaa8184554e21aa7d12fc59599674a12afda2",
+    "corpusHash": "1b72e3a841922cf7e94a2a6ac88fcc541b6346c34d5601af01dc85c7e7468f5b",
+    "modelsHash": "16d8e99e3e661c222ed1af66b724bff3309598ca5e47d03e547aef84b7db65e3",
+    "contractHash": "07723954fe75e0d63bbf98f426982291cb8b29a4c75561ea5993469048577aec",
+    "unchangedWatcherModelCalls": 0,
+    "newQuestionTrace": {
+      "id": "6c352d27-d6a0-41a1-bec5-58710878dae0",
+      "complete": true
+    },
+    "answerQuality": "unscored",
+    "humanAnswerLabelsInvented": false,
+    "modelUsageDeltaUSD": 0.0003402,
+    "conservativeReservationsUSD": 0.234147,
+    "capUSD": 0.5
+  }
+}

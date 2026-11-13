@@ -1,0 +1,244 @@
+{
+  "sourceDeck": "Version 27, preserved as source.pptx",
+  "previousNotes": [
+    {
+      "slide": 1,
+      "notes": "Today we will design a loop around a real engineering task.\nWe will use one RAG pipeline as the hands-on example.\nThe work is incremental.\nEach attempt produces evidence that tells us what should happen next.\n\nNext question:\nWhy should an engineer spend time designing this loop?"
+    },
+    {
+      "slide": 2,
+      "notes": "Keep this brief.\n\nSay:\n\n\u201cI build agent systems that must produce useful, reviewable results. Today is not about creating an agent that can do anything. It is about designing a small system that can complete one repeated task safely.\u201d"
+    },
+    {
+      "slide": 3,
+      "notes": "Read the Peter Steinberger post aloud.\n\nThe post asks us to shift from choosing every prompt to designing the system that chooses the next step.\nIf we make that shift, the system needs a goal, evidence, and limits.\n\nNext question:\nWhat will you be able to design by the end of this workshop?\n\nSource:\nUser-provided screenshot of a Peter Steinberger post, dated June 7, 2026."
+    },
+    {
+      "slide": 4,
+      "notes": "You will leave with a concrete loop design.\nYou will know what starts it, how it measures progress, and when it stops.\nWe will build the design around one RAG pipeline.\nEach step adds something that the previous step needs.\n\nNext question:\nWhat changes when the system chooses the next instruction?"
+    },
+    {
+      "slide": 5,
+      "notes": "Who chooses the next instruction when you use a coding agent?\nUsually, you do.\nLoop engineering means designing how the system chooses that next step.\nYou still own the outcome.\n\nNext question:\nWhat is different about a single prompt and a designed loop?"
+    },
+    {
+      "slide": 6,
+      "notes": "Use test-suite speed as the first running example.\nA single prescribed edit can be a normal task.\nHere the next correction depends on profiling and timing evidence.\nThe suite and its assertions stay fixed.\nThe goal may need several attempts, and the run can stop without reaching it.\n\nNext question:\nWhen should this work start?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=test-suite-speed-loop"
+    },
+    {
+      "slide": 7,
+      "notes": "A trigger starts a run. A goal describes what should become true.\nThese are three workshop adaptations of the use-case library.\nAfter an alert, an engineer or integration starts the agent with the fixed log export.\nThe slash goal command alone does not subscribe to alerts.\n\nNext question:\nWhich mode fits the work?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases\nhttps://developers.openai.com/cookbook/examples/codex/using_goals_in_codex\nhttps://code.claude.com/docs/en/scheduled-tasks"
+    },
+    {
+      "slide": 8,
+      "notes": "Show the real Agentiwise use-case page.\nA goal-based run keeps working against a finish line.\nA scheduled loop checks for new work at an interval.\nA one-off edit can remain a normal prompt.\nFocus on whether the next action depends on the previous measurement.\n\nNext question:\nWhat would count as convincing evidence that the work is done?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases\nhttps://developers.openai.com/cookbook/examples/codex/using_goals_in_codex\nhttps://code.claude.com/docs/en/scheduled-tasks"
+    },
+    {
+      "slide": 9,
+      "notes": "Use the test-speed prompt for exact checks. Preserve the suite and use repeated timing under the same conditions.\nA docs build or a citation marker does not establish meaning. Human-reviewed examples define what an answer judge must accept or reject.\nStop on success, a limit, or a need for human judgment.\n\nNext question:\nWhat are three practical jobs where repeated checking helps?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases\nhttps://hamel.dev/blog/posts/llm-judge/"
+    },
+    {
+      "slide": 10,
+      "notes": "These examples come from Speed Up the Test Suite, Sync Docs With Code, and Sweep Production Errors.\nThe measured result or remaining work list determines the next action.\nDo not promise that every run reaches its target.\nThe source use cases are patterns; these workshop prompts add explicit checks and stops.\n\nNext question:\nWhat does the prompt need to say before we start?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=test-suite-speed-loop\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=overnight-docs-sweep\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=production-error-sweep"
+    },
+    {
+      "slide": 11,
+      "notes": "Name the trigger, goal, action, check and saved state, and stop.\nThe next three slides turn these decisions into prompts that can be run.\nPoint out the repeated check after each action.\n\nNext question:\nWhat would we actually type to start the test-speed loop?"
+    },
+    {
+      "slide": 12,
+      "notes": "This is a copyable workshop prompt adapted from the named use case.\nRead the goal, trigger, action, check, saved state, repetition rule, and stops in the prompt.\nThe percentages, time limits, and number of attempts are workshop choices, not measured results.\nGoal mode continues work toward a condition. A scheduled loop starts another pass later.\nPrompt limits are instructions. Use runner or platform controls for enforced time and spending ceilings.\nFor the scheduled example, keep the session open and confirm that the recurring task was cancelled after the third pass.\nFor the alert example, the alert supplies evidence; an engineer submits the goal. Automatic event delivery needs a CI integration or channel.\nDo not present a slash command as a production event listener.\nThe complete prompt is included below.\n\n/goal Make the full test suite at least 20% faster.\nTrigger: start when I submit this goal.\nRecord the median of 3 full runs on the same runner.\nProfile the slowest work. Change one shared cause.\nRerun the same suite 3 times after each change.\nKeep changes only when tests pass and timing improves.\nPreserve every test, assertion, fixture, and coverage target.\nSave timings, the diff, and the next idea in loop-state.md.\nRepeat until the 20% improvement is verified.\nStop after 3 changes or 25 minutes, or if blocked.\nLeave a local diff for review. Do not merge or deploy.\n\nNext question:\nWhat if the work arrives again later?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=test-suite-speed-loop\nhttps://developers.openai.com/cookbook/examples/codex/using_goals_in_codex\nhttps://code.claude.com/docs/en/goal\nhttps://code.claude.com/docs/en/scheduled-tasks\n\nThe prompt is grouped by purpose. Replace the highlighted bracketed fields with project-specific values before running it. The original evidence requirements and stop rules still apply."
+    },
+    {
+      "slide": 13,
+      "notes": "This is a copyable workshop prompt adapted from the named use case.\nRead the goal, trigger, action, check, saved state, repetition rule, and stops in the prompt.\nThe percentages, time limits, and number of attempts are workshop choices, not measured results.\nGoal mode continues work toward a condition. A scheduled loop starts another pass later.\nPrompt limits are instructions. Use runner or platform controls for enforced time and spending ceilings.\nFor the scheduled example, keep the session open and confirm that the recurring task was cancelled after the third pass.\nFor the alert example, the alert supplies evidence; an engineer submits the goal. Automatic event delivery needs a CI integration or channel.\nDo not present a slash command as a production event listener.\nThe complete prompt is included below.\n\n/loop 1h Check shipped changes since docs-loop-state.json.\nTrigger: an hourly check while this session is open.\nIf a docs diff awaits review, skip this pass.\nList documentation that disagrees with those changes.\nUpdate one verified mismatch. Build docs and check links.\nRepeat within this pass until the list is empty.\nLeave unclear product claims for a person to review.\nSave the checked commit, remaining items, and test results.\nStop each pass after 3 edits or 15 minutes.\nIf there is no work, make no edits. Do not publish.\nCancel this recurring task after 3 passes.\n\nNext question:\nWhat changes when an alert gives us the starting problem?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=overnight-docs-sweep\nhttps://developers.openai.com/cookbook/examples/codex/using_goals_in_codex\nhttps://code.claude.com/docs/en/goal\nhttps://code.claude.com/docs/en/scheduled-tasks\n\nThe prompt is grouped by purpose. Replace the highlighted bracketed fields with project-specific values before running it. The original evidence requirements and stop rules still apply."
+    },
+    {
+      "slide": 14,
+      "notes": "This is a copyable workshop prompt adapted from the named use case.\nRead the goal, trigger, action, check, saved state, repetition rule, and stops in the prompt.\nThe percentages, time limits, and number of attempts are workshop choices, not measured results.\nGoal mode continues work toward a condition. A scheduled loop starts another pass later.\nPrompt limits are instructions. Use runner or platform controls for enforced time and spending ceilings.\nFor the scheduled example, keep the session open and confirm that the recurring task was cancelled after the third pass.\nFor the alert example, the alert supplies evidence; an engineer submits the goal. Automatic event delivery needs a CI integration or channel.\nDo not present a slash command as a production event listener.\nThe complete prompt is included below.\n\n/goal Resolve reproducible errors in logs/error-window.json.\nTrigger: start after an alert supplies this fixed log export.\nGroup duplicates. Select one high-impact reproducible group.\nReproduce it locally. Add a failing test. Fix one shared cause.\nRerun that test and the full suite after each change.\nRepeat for the remaining groups in this same log window.\nSave the reproduction, diff, and test results.\nStop when all reproducible groups pass their tests.\nStop after 3 fixes or 25 minutes, or on an unclear cause.\nReport external failures separately. Do not call them fixed.\nLeave a local diff. Do not change production or deploy.\n\nNext question:\nWho measures the result and chooses that next correction?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=production-error-sweep\nhttps://developers.openai.com/cookbook/examples/codex/using_goals_in_codex\nhttps://code.claude.com/docs/en/goal\nhttps://code.claude.com/docs/en/scheduled-tasks\n\nThe prompt is grouped by purpose. Replace the highlighted bracketed fields with project-specific values before running it. The original evidence requirements and stop rules still apply."
+    },
+    {
+      "slide": 15,
+      "notes": "Use the air-conditioner analogy.\nTrace the arrows in order.\nThe controller selects the correction and the actuator applies it.\nThe measured output returns through the sensor to the comparison point.\nThese are native attached connectors with arrowheads at the target end.\n\nNext question:\nWhat does each part become for our help assistant?\n\nSources:\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY&t=269s"
+    },
+    {
+      "slide": 16,
+      "notes": "The inner pipeline finds approved help content and answers a customer.\nThe outer loop changes how that pipeline works.\nThe desired state is that every active question retrieves its expected approved article first.\nThe sensor records search results and product checks.\nThe controller chooses a failed question.\nCodex applies a bounded correction in a worktree.\nThe runner checks the proposed change and holds it for review.\nNew source code or new questions can trigger another measurement.\nSlides 17 to 30 are the guided hands-on segment.\nMove between the deck, the controller at http://127.0.0.1:4181/demo, LangSmith, and the terminal.\n\nNext question:\nWhat evidence does the loop need before it can choose a change?\n\nSources:\nevaluations/rag-lab/demo/contract.ts\nevaluations/rag-lab/demo/runner.ts\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY"
+    },
+    {
+      "slide": 17,
+      "notes": "The sensor makes the pipeline visible.\nA search failure can happen before answer generation.\nRun the real question and inspect the query sent to retrieval.\nIn this exercise, the automatic check asks whether the expected approved article ranks first.\nUse the saved answer for a separate quality review.\n\nNext question:\nWhat happens when the next question depends on an earlier message?\n\nSources:\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY&t=573s\nevaluations/rag-lab/demo/README.md"
+    },
+    {
+      "slide": 18,
+      "notes": "Open the controller and expand the saved answer samples.\nFind Before D03.\nThe expected webhook article exists in the approved corpus.\nThe pipeline fails to retrieve it for this follow-up.\nRead the saved answer and inspect the associated trace in LangSmith.\nThe trace connects the customer\u2019s input to the search query and returned sources.\nNo answer-quality label has been assigned automatically.\n\nNext question:\nHow do we improve this question while protecting the ones that already work?\n\nSources:\ndocs/evidence/rag-retrieval-proof/report.json"
+    },
+    {
+      "slide": 19,
+      "notes": "A useful fix should preserve the questions that already work.\nThe runner compares the same question set, corpus, models, and checks.\nIt rejects a lost pass or more failed repetitions.\nIt also runs the full product unit suite.\nThe coding agent cannot change the expected sources or the grading rule.\n\nNext question:\nWhat do we need to write down for each question?\n\nSources:\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY&t=644s\nevaluations/rag-lab/demo/README.md"
+    },
+    {
+      "slide": 20,
+      "notes": "Open development.json and identify a question, its follow-up, and expectedSource.\nThese are examples from the six development questions.\nEach question gets one vote after three complete retrieval checks.\nThe goal is the expected approved source first for every active question.\nRepeated retrieval checks do not establish general answer quality.\nThe loop keeps the question set, approved corpus, models, and check fixed during a comparison.\nThree held-out questions remain outside the repair prompt and candidate checkout.\nThe runner measures them after freezing the patch.\nUse fresh held-out questions for future tuning decisions.\n\nNext question:\nWhich failed question should the loop work on first?\n\nSources:\nevaluations/rag-lab/demo/development.json\nevaluations/rag-lab/demo/heldout.json\nevaluations/rag-lab/demo/contract.ts"
+    },
+    {
+      "slide": 21,
+      "notes": "The controller selects the first failed development question.\nIt passes the recorded failures and a bounded task to Codex.\nCodex investigates the cause.\nThe runner checks the proposal from outside the patch.\nSelection, implementation, and acceptance have separate roles.\n\nNext question:\nWhat clue does our follow-up question give the controller?\n\nSources:\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY&t=698s\nevaluations/rag-lab/demo/README.md"
+    },
+    {
+      "slide": 22,
+      "notes": "Look at the Before query for D03.\nThe query contains only the latest message.\nD01 and D02 used the same short follow-up about different topics.\nThis gives the coding agent a shared cause to investigate.\nThe controller supplies the failed cases, repair skill, and allowed files.\nThe agent should change how conversation context reaches retrieval.\nIt should not hardcode a question or source ID.\nThe screenshot also includes the later recorded query. Use it to explain the changed input.\n\nNext question:\nWhat may Codex change to test that idea?\n\nSources:\ndocs/evidence/rag-retrieval-proof/report.json\nevaluations/rag-lab/demo/runner.ts"
+    },
+    {
+      "slide": 23,
+      "notes": "The actuator is Codex plus the repair skill.\nIt changes the implementation in a separate worktree.\nThe controller provides the failed cases and reviewed guidance.\nThe agent may change three RAG files and add focused tests.\nQuestions, approved sources, models, dependencies, and checks stay fixed.\nThe runner allows at most 100 changed lines.\n\nNext question:\nWhat does that task look like in the code?\n\nSources:\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY&t=751s\nevaluations/rag-lab/demo/README.md"
+    },
+    {
+      "slide": 24,
+      "notes": "Open the measured candidate patch.\nThe change enables conversation context by default.\nThe same query-building code now receives the earlier user topic.\nCodex also added focused regression tests for context, standalone queries, and the explicit opt-out.\nInspect the full patch in the controller.\nThe agent works in a separate worktree.\nIt does not change the healthy source branch, dataset, or grader.\n\nNext question:\nHow do we connect that patch to another full check?\n\nSources:\ndocs/evidence/rag-retrieval-proof/report.json\nevaluations/rag-lab/demo/runner.ts\n.agents/skills/repair-rag/SKILL.md"
+    },
+    {
+      "slide": 25,
+      "notes": "The runner connects the steps.\nA failed candidate can lead to another attempt within the fixed limits.\nThe selected failure must be repaired.\nPreviously passing questions must keep passing.\nAfter the patch is frozen, the runner checks the held-out questions.\nThe patch waits for an engineer before becoming the next local baseline.\nThe run stops after three candidates or 20 minutes.\nThe OpenRouter transport enforces the shared spending cap.\n\nNext question:\nHow do we start this workflow from a clean state?\n\nSources:\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY&t=800s\nevaluations/rag-lab/demo/README.md"
+    },
+    {
+      "slide": 26,
+      "notes": "Use the dedicated branch codex/rag-loop-reproducible-demo.\nReplace the highlighted run ID with a fresh ID.\nPreparation restores a credible historical retrieval setup in an isolated worktree.\nThe healthy source branch stays unchanged.\nRun pnpm rag:demo prepare --id workshop-01, then pnpm rag:demo run --id workshop-01.\nThe runner measures the same questions, selects a failure, requests a small patch, and runs product tests.\nIt rechecks all development questions three times.\nIt rejects an ineffective patch or a regression.\nIt then checks the frozen patch on the held-out questions.\nA useful candidate waits for engineer review.\nThree attempts, 20 minutes, and the shared spend guard bound the run.\nThe watcher introduced next can start fresh checks when inputs change.\nThe recorded replay is available when a live model run is unsuitable.\n\nNext question:\nWhat should a reviewer add before the loop continues?\n\nSources:\nevaluations/rag-lab/demo/README.md\ndocs/evidence/rag-retrieval-proof/report.json"
+    },
+    {
+      "slide": 27,
+      "notes": "Read the actual answer before assigning a quality label.\nA retrieval pass means the expected source was found.\nReview the answer\u2019s claims and missing details separately.\nReview the code patch as a separate engineering decision.\nA saved answer verdict does not automatically update the repair instructions.\nWrite the reusable lesson in feedback.md.\nThe next repair prompt reads that file.\n\nNext question:\nWhat would useful feedback look like for this follow-up?\n\nSources:\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY&t=846s\nevaluations/rag-lab/demo/README.md"
+    },
+    {
+      "slide": 28,
+      "notes": "Open the saved After D03 answer.\nRead it against the approved webhook article.\nThe form is blank because the reviewer must provide their own verdict and reason.\nDo not submit a prepared label as if it were a real review.\nThe lesson on this slide is an example of reusable implementation guidance.\nWrite approved guidance in feedback.md for the next repair prompt.\nAccept or reject the local code patch with the separate rag:demo review command.\nAcceptance selects the measured worktree as the next baseline.\nIt does not merge or deploy.\nFor broader automated answer-quality scoring, first collect human labels and validate the judge.\n\nNext question:\nWhat should the loop do while this review is still open?\n\nSources:\nevaluations/rag-lab/demo/README.md\nevaluations/rag-lab/feedback.md\nhttps://hamel.dev/blog/posts/llm-judge/"
+    },
+    {
+      "slide": 29,
+      "notes": "The watcher checks for changes to the source and active questions.\nIt makes no model calls while a candidate awaits review.\nAfter acceptance or rejection, the next permitted run measures a fresh baseline.\nA new question changes the dataset version.\nCompare the same dataset before and after any new candidate.\nAt the retrieval goal, wait for changed inputs.\nA blocked or bounded run needs attention before repair resumes.\nCtrl+C stops the watcher.\n\nNext question:\nWhat happens if a new question arrives during a review?\n\nSources:\nhttps://www.youtube.com/watch?v=xIt_mTQp6mY&t=910s\nevaluations/rag-lab/demo/README.md"
+    },
+    {
+      "slide": 30,
+      "notes": "Start pnpm rag:demo watch --id workshop-01.\nAdd the prepared question with pnpm rag:demo add-question --id workshop-01 --file evaluations/rag-lab/demo/new-question.json.\nIt asks when to acknowledge a webhook if a worker takes 30 seconds.\nIf a patch is pending, another run returns before a model call.\nThe recorded example has seven active questions, while its earlier comparison still covers six.\nKeep those dataset versions separate.\nAfter a responsible engineer accepts or rejects the patch, the watcher establishes a fresh baseline for all active questions.\nIt can attempt another bounded repair if the new set fails.\nAt the goal, it waits for changed inputs.\nThe loop saves the repeated checking and handoffs.\nYou still decide whether the code change is acceptable.\nStop the watcher with Ctrl+C.\n\nNext question:\nWhich task in your team would benefit from this repeated checking?\n\nSources:\nevaluations/rag-lab/demo/runner.ts\ndocs/evidence/rag-retrieval-proof/report.json"
+    },
+    {
+      "slide": 31,
+      "notes": "Pause for the short break."
+    },
+    {
+      "slide": 32,
+      "notes": "Return from the break and connect to the three prompts learners already saw.\nWe will classify full tasks, not list categories such as latency or maintenance without context.\n\nNext question:\nWhat three questions help us make that choice?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases"
+    },
+    {
+      "slide": 33,
+      "notes": "These are practical questions for this workshop, not an external named framework.\nA one-off known edit can stay a normal prompt.\nA loop is useful when the next attempt depends on new evidence or new inputs.\nContainment includes scope, spending/time limits, and human review.\n\nNext question:\nHow does the test-speed example answer all three?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases\nhttps://developers.openai.com/cookbook/examples/codex/using_goals_in_codex"
+    },
+    {
+      "slide": 34,
+      "notes": "This is a worked fit decision, not a measured product result.\nUse the same three questions on all three cases.\nThe 20% target is a workshop choice. Preserve tests, assertions, fixtures, coverage, and runner conditions.\n\nNext question:\nWhere does a person need to check the meaning?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=test-suite-speed-loop"
+    },
+    {
+      "slide": 35,
+      "notes": "This is a worked fit decision, not a measured product result.\nUse the same three questions on all three cases.\nA clean docs build cannot prove that the guidance is accurate. The agent may fix verified mismatches, while a person reviews uncertain meaning.\n\nNext question:\nWhat does a request look like when we cannot define done?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=overnight-docs-sweep"
+    },
+    {
+      "slide": 36,
+      "notes": "This is a worked fit decision, not a measured product result.\nUse the same three questions on all three cases.\nThe broad UX request is deliberately underspecified. The ticket-search rewrite is an illustrative bounded task, not an observed bug claim. The related source pattern is Run a Full Product Quality Pass.\n\nNext question:\nHow do we set a clear boundary around a better task?\n\nSources:\nhttps://www.agentiwise.com/loop-engineering-use-cases?loop=full-product-evaluation-loop"
+    },
+    {
+      "slide": 37,
+      "notes": "Apply the boundaries to one concrete task.\nFor docs, allow docs-only changes and a local reviewable diff.\nFor test-suite speed, preserve tests and assertions.\nFor RAG, protect the questions and grader.\nUse separate work and leave release with the responsible engineer.\n\nNext question:\nWhich small job will you try yourself?"
+    },
+    {
+      "slide": 38,
+      "notes": "The loop can do the repeated work.\nYou still own the result.\nNow each learner will build a small pilot and judge its evidence.\n\n[Sources]\nhttps://addyo.substack.com/p/loop-engineering\nhttps://oreillyradar.substack.com/p/software-factories-light-and-dark"
+    },
+    {
+      "slide": 39,
+      "notes": "Give learners five minutes to write one prompt.\nUse a prepared repository and a task with a check that can reject bad work.\nThe brackets are deliberate learner fill-in fields, not unresolved slide content.\nFor the RAG exercise, require the expected approved source first in all three retrieval checks.\nKeep answer-quality review separate.\nUse a calibrated judge only when extending the loop to judge answer quality.\nFor a fresh case, ask learners how they would reduce a slow test suite without deleting tests.\n\nNext question:\nWhat could make that prompt report a false success?\n\nThe prompt is grouped by purpose. Replace the highlighted bracketed fields with project-specific values before running it. The original evidence requirements and stop rules still apply."
+    },
+    {
+      "slide": 40,
+      "notes": "Give learners five minutes to inspect each other's prompts.\nLook for a measurable result, unchanged checks, saved evidence, and limits.\nThe participant lab uses 25 minutes or three repeated failures.\nThe instructor's prepared RAG runner has its separate three-candidate, 20-minute limit.\nPrompt limits are instructions; enforce hard ceilings with the platform or runner.\n\nNext question:\nCan you point to a starting failure before you run it?\n\nHighlighted bracketed fields are editable template values. Replace them before starting the run. The numerical targets are workshop choices."
+    },
+    {
+      "slide": 41,
+      "notes": "This is the hands-on lab.\nUse a prepared worktree.\nRun one attempt against the frozen check.\nKeep the first failure visible.\nSave the score, hypothesis, diff, and next step.\n\nStop at success, three repeated failures, or 25 minutes.\nDo not merge, deploy, publish, or send messages.\n\nAt the end, each learner gives one verdict:\nApprove, reject, or ask for another check.\nThey must point to evidence for that decision.\n\nDebrief:\nDid this save engineering work?\nAsk what was accepted, what evidence justified it, and how much review it needed.\nDo not equate more attempts or a green lab score with value.\nFor the RAG exercise, the automatic goal covers retrieval.\nReview saved answers separately.\nA broader answer-quality loop needs human labels and a calibrated judge."
+    },
+    {
+      "slide": 42,
+      "notes": "These links support the workshop.\nRead Addy for the core model and stopping rules.\nWatch Patrick Ellis for context, tools, workflow, and verification.\nUse the Anthropic guide for loop types and eval design.\nUse the RelayDesk runbook for the exact scenario branches and commands.\n\n[Sources]\nhttps://addyo.substack.com/p/loop-engineering\nhttps://addyo.substack.com/p/practical-loop-engineering\nhttps://oreillyradar.substack.com/p/software-factories-light-and-dark\nhttps://www.youtube.com/watch?v=6lfC9W5J-0Y\nhttps://claude.com/resources/articles/getting-started-with-loops\nhttps://www.anthropic.com/engineering/demystifying-evals-for-ai-agents\nhttps://developers.openai.com/cookbook/examples/codex/using_goals_in_codex\nhttps://github.com/dswh/relaydesk/blob/main/docs/WORKSHOP_SCENARIOS.md\nhttps://www.agentiwise.com/loop-engineering-use-cases\n\nNew prompt sources:\nhttps://www.agentiwise.com/loop-engineering-use-cases\nhttps://developers.openai.com/cookbook/examples/codex/using_goals_in_codex\nhttps://code.claude.com/docs/en/scheduled-tasks\nhttps://code.claude.com/docs/en/goal"
+    },
+    {
+      "slide": 43,
+      "notes": "Close with one simple rule.\nStart the loop by hand.\nWatch a check reject bad work.\nSave enough state to continue.\nKeep the run bounded.\nSchedule it only after the pilot proves useful.\n\nThe loop runs the work.\nYou still own the result."
+    }
+  ],
+  "externalLinks": [
+    {
+      "part": "ppt/slides/_rels/slide2.xml.rels",
+      "target": "https://x.com/dswharshit",
+      "id": "Rfba0c28bef544f4a"
+    },
+    {
+      "part": "ppt/slides/_rels/slide2.xml.rels",
+      "target": "https://github.com/dswh",
+      "id": "R0613b1ee0f514a8a"
+    },
+    {
+      "part": "ppt/slides/_rels/slide2.xml.rels",
+      "target": "https://www.linkedin.com/in/tyagiharshit/",
+      "id": "Rbc302bd4c12a410f"
+    },
+    {
+      "part": "ppt/slides/_rels/slide2.xml.rels",
+      "target": "https://www.youtube.com/c/DataSciencewithHarshit",
+      "id": "R8186ab577d5f4378"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://addyo.substack.com/p/loop-engineering",
+      "id": "Rf59cb05fb9e045ba"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://addyo.substack.com/p/practical-loop-engineering",
+      "id": "Ra3c05dc8c6ba4074"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://oreillyradar.substack.com/p/software-factories-light-and-dark",
+      "id": "Rd966795b598348c8"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://www.youtube.com/watch?v=6lfC9W5J-0Y",
+      "id": "Radd00aee439a4090"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://claude.com/resources/articles/getting-started-with-loops",
+      "id": "R0a23651104994eb8"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "id": "R5269a328220f4f6a"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex",
+      "id": "R949afce8bdb144a8"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://github.com/dswh/relaydesk/blob/main/docs/WORKSHOP_SCENARIOS.md",
+      "id": "R1f35d4885e8847a6"
+    },
+    {
+      "part": "ppt/slides/_rels/slide42.xml.rels",
+      "target": "https://www.agentiwise.com/loop-engineering-use-cases",
+      "id": "R09dc3bd47ab74e14"
+    }
+  ]
+}

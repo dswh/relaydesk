@@ -7,7 +7,9 @@ The recorded live proof is in [`docs/evidence/rag-retrieval-proof`](../../../doc
 It improved development retrieval from 4/6 to 6/6 and held-out retrieval from 1/3 to 3/3.
 Each question was checked three times before and after the change.
 All previously passing questions stayed passing.
-Answer quality remains unscored, and the patch is still awaiting engineer review.
+The original repair snapshot waits for review.
+The newer [continuation replay](../../../docs/evidence/rag-continuation/report.html) preserves the subsequent automated engineering review and the fresh eight-question check.
+Answer quality remains unscored.
 
 The product remains healthy in this branch.
 Preparation creates a separate scenario worktree.
@@ -173,12 +175,14 @@ Do not repeatedly optimize against the published held-out questions.
 | 21 and 22 | The selected follow-up-context failure family and the original query that lost its topic. |
 | 23 and 24 | Codex instructions, allowed files, and the actual small candidate patch. |
 | 25 and 26 | The real baseline, candidate, product test log, and frozen held-out comparison. |
-| 27 and 28 | Read the saved answer and evidence. Use the existing human review workflow for quality labels. |
-| 29 and 30 | Add the new question while review is pending. Show that another run makes no model call. |
+| 27 and 28 | Inspect the recorded code decision and explicit reviewer type. Keep answer-quality labels separate. |
+| 29 and 30 | Show the pending-review pause, resolve review, add D08, and inspect the fresh eight-question run. |
 
-The existing slide screenshots describe an earlier recorded quality run.
-Use this live demo as new evidence and explicitly name its narrower retrieval goal.
-Do not relabel its ranking score as the slides' full answer-quality score.
+Start the prepared workflow on slide 16, before the seven-step walkthrough.
+The current slide screenshots use the real retrieval repair and continuation evidence.
+The automatic goal covers source ranking. Answer quality remains a separate review.
+
+The current deck and learner guide are in `docs/workshop/current/`.
 
 ## Replay without more model calls
 
