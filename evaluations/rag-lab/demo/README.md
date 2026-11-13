@@ -104,11 +104,14 @@ Reusable implementation guidance comes from the existing `feedback.md` file.
 Then a responsible engineer can run one review command:
 
 ```sh
-pnpm rag:demo accept --id workshop-01
+pnpm rag:demo accept --id workshop-01 --reviewer "Your name" --reviewer-type human --reason "Record your actual code and evidence review here."
 # Or:
-pnpm rag:demo reject --id workshop-01
+pnpm rag:demo reject --id workshop-01 --reviewer "Your name" --reviewer-type human --reason "Record why this proposal needs another attempt."
 ```
 
+Each engineering decision records the reviewer, review type, rationale, and time.
+Use `--reviewer-type assistant` when an automated reviewer performs the code review.
+Do not present that record as a human answer-quality label.
 Acceptance selects the exact measured local worktree as the next baseline.
 It does not change the healthy source branch or claim answer-quality approval.
 
@@ -122,7 +125,17 @@ pnpm rag:demo run --id workshop-01
 ```
 
 The second command returns at the review gate before a model call.
-After the review is resolved, run again to establish a fresh baseline containing the added question.
+After the review is resolved, add the next prepared question and let the watcher establish a fresh baseline:
+
+```sh
+pnpm rag:demo add-question --id workshop-01 --file evaluations/rag-lab/demo/after-review-question.json
+pnpm rag:demo watch --id workshop-01 --once
+```
+
+`--once` stops after one permitted watcher pass.
+Omit it to keep watching.
+The earlier comparison is archived separately from the new dataset.
+If the current pipeline already handles the new questions, the loop records the check and makes no code change.
 Old and new dataset totals are never treated as a paired before-and-after comparison.
 
 For continuous source and question monitoring:
@@ -138,6 +151,8 @@ The original calibrated quality runner additionally supports periodic quality sw
 
 ## Evidence and reset
 
+Each measurement round has its own saved reports and engineering decision.
+The controller page can switch between the initial repair and the later check.
 Each run is under the ignored `evaluations/rag-lab/data/retrieval-demo/<id>/` directory.
 It contains the baseline patch, versioned question sets, repeated rank measurements, real answer samples, Codex log, product test log, candidate patch, decisions, and state transitions.
 No expert labels are invented.

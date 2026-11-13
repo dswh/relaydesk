@@ -1,0 +1,7 @@
+{
+  "id": "D08",
+  "family": "new-usage-export-question",
+  "question": "I need a RelayDesk usage export that includes every day in a complete calendar month.",
+  "followUp": "Which start and end dates should I choose?",
+  "expectedSource": "kb_22"
+}

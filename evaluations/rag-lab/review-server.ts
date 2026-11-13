@@ -6,7 +6,7 @@ import path from "node:path";
 import { captures, feedback, saveFeedback, labRoot, dataRoot, optionalJson, calibrationRows, familySplit } from "./store";
 import { syncFeedback } from "./langsmith";
 import type { LoopState } from "./loop";
-import { demoView, saveDemoReview } from "./demo/runner";
+import { demoView, saveDemoReview, saveDemoDecision } from "./demo/runner";
 import { hasHelpModelKey } from "../../src/lib/ai/help-model-provider";
 
 async function body(request: IncomingMessage) {
@@ -37,6 +37,10 @@ export function startReview(port = Number(process.env.RAG_REVIEW_PORT || 4180)) 
       if(request.method === "POST" && url.pathname === "/api/demo/review") {
         if(request.headers["x-review-token"]!==token||![origin,`http://localhost:${port}`].includes(request.headers.origin||"")||!request.headers["content-type"]?.startsWith("application/json"))return reply(403,{error:"Reload this local page before saving."});
         return reply(200,await saveDemoReview(await body(request)));
+      }
+      if(request.method === "POST" && url.pathname === "/api/demo/decision") {
+        if(request.headers["x-review-token"]!==token||![origin,`http://localhost:${port}`].includes(request.headers.origin||"")||!request.headers["content-type"]?.startsWith("application/json"))return reply(403,{error:"Reload this local page before saving."});
+        return reply(200,await saveDemoDecision(await body(request)));
       }
       if(request.method === "GET" && url.pathname === "/api/loop") {
         const state=await optionalJson<LoopState>(path.join(dataRoot,"loop-state.json"));

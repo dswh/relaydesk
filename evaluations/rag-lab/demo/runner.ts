@@ -4,7 +4,7 @@ import path from "node:path";
 import { atomicJson, dataRoot, labRoot, optionalJson, sha } from "../store";
 import { runProcess, productRoot } from "../loop";
 import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles,codexRepairArguments,productCandidatePatch} from "../worktree";
-import { allowedDemoFile, demoReviewSchema, demoContract, questionSchema, questionsSchema, retrievalDecision, retrievalScore, selectedRetrievalFailure, type RetrievalReport } from "./contract";
+import { allowedDemoFile, demoReviewSchema, engineeringDecisionSchema, engineeringReviewSchema, demoContract, questionSchema, questionsSchema, retrievalDecision, retrievalScore, selectedRetrievalFailure, type RetrievalReport, type EngineeringReview } from "./contract";
 const root = path.join(dataRoot, "retrieval-demo");
 const git = (dir: string, args: string[]) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8" }).trim();
 const fileHash = async (file: string) => sha(await readFile(file));
@@ -43,6 +43,14 @@ export type DemoState = {
 function directory(id: string) { if (!idPattern.test(id))
     throw new Error("Use a lowercase run ID with letters, digits, and hyphens."); return path.join(root, id); }
 const stateFile = (id: string) => path.join(directory(id), "state.json");
+type DemoRound=Pick<DemoState,"epoch"|"phase"|"reason"|"updatedAt"|"attempts"|"baseline"|"candidate"|"heldoutBaseline"|"heldoutCandidate"> & {review?:EngineeringReview};
+async function roundRecord(s:DemoState,review?:EngineeringReview){
+    if(!s.epoch||!s.baseline)return;
+    const file=path.join(directory(s.id),`epoch-${s.epoch}-round.json`);
+    const previous=await optionalJson<DemoRound>(file);
+    const row:DemoRound={epoch:s.epoch,phase:s.phase,reason:s.reason,updatedAt:s.updatedAt,attempts:s.attempts,baseline:s.baseline,candidate:s.candidate,heldoutBaseline:s.heldoutBaseline,heldoutCandidate:s.heldoutCandidate,review:review||previous?.review};
+    await atomicJson(file,row);
+}
 export async function demoState(id?: string) { const active = id || ((await optionalJson<{
     id: string;
 }>(path.join(root, "active.json")))?.id); return active ? optionalJson<DemoState>(stateFile(active)) : undefined; }
@@ -51,6 +59,7 @@ async function save(s: DemoState, message?: string) {
     if (message) { s.reason=message; s.events.push({at:s.updatedAt,message}); }
     await atomicJson(stateFile(s.id),s);
     await atomicJson(path.join(root,"active.json"),{id:s.id});
+    if(["awaiting_review","goal_reached","needs_input","bounded_stop"].includes(s.phase))await roundRecord(s);
     return s;
 }
 async function required(id: string) { const s = await demoState(id); if (!s)
@@ -132,7 +141,8 @@ export async function runDemo(id: string, { answers = true } = {}) {
         const start = Date.now(), deadline = start + demoContract.maxMinutes * 60000;
         const remaining = () => Math.max(1, deadline - Date.now());
         const epoch = s.epoch + 1;
-        s = { ...s, epoch, attempts: 0, phase: "measuring" };
+        // A fresh dataset gets a fresh comparison. Earlier rounds remain archived.
+        s = { ...s, epoch, attempts: 0, phase: "measuring",baseline:undefined,candidate:undefined,heldoutBaseline:undefined,heldoutCandidate:undefined,pending:undefined };
         try {
             await save(s, "Checking healthy-source product tests before model calls.");
             await runProcess(path.join(productRoot,"node_modules/.bin/vitest"),["run"],{cwd:productRoot,outputFile:path.join(directory(id),`epoch-${epoch}-foundation-tests.log`),timeoutMs:remaining(),test:true});
@@ -269,22 +279,41 @@ export async function runDemo(id: string, { answers = true } = {}) {
 }
 export async function addDemoQuestion(id: string, file: string) { return locked(id, async () => { const s = await required(id); const task = questionSchema.parse(JSON.parse(await readFile(path.resolve(file), "utf8"))); const f = path.join(directory(id), "development.json"), tasks = questionsSchema.parse(JSON.parse(await readFile(f, "utf8"))); if (tasks.some(t => t.id === task.id))
     throw new Error("This question was already added."); tasks.push(task); questionsSchema.parse(tasks); await atomicJson(f, tasks); return save(s, `Added ${task.id}. Existing review state is preserved; the next permitted measurement establishes a new dataset version.`); }); }
-export async function reviewDemo(id: string, accept: boolean) { return locked(id, async () => { const s = await required(id); if (s.phase !== "awaiting_review" || !s.pending)
+export async function reviewDemo(id: string, accept: boolean, input:unknown) { const reviewer=engineeringReviewSchema.parse(input);return locked(id, async () => { const s = await required(id); if (s.phase !== "awaiting_review" || !s.pending)
     throw new Error("No candidate awaits review."); await requireTrustedDependencies(s.pending.root,path.join(productRoot,"node_modules"));
     await requireRegularCandidateFiles(s.pending.root,s.pending.changedFiles);
     if (sha(await fingerprint(s.pending.root)) !== s.pending.treeHash)
-    throw new Error("The candidate changed after measurement. Re-measure before review."); await atomicJson(path.join(directory(id), `epoch-${s.epoch}-human-decision.json`), { accepted: accept, at: new Date().toISOString(), scope: "Local retrieval patch. No release or semantic-quality approval." }); if (accept)
-    s.currentRoot = s.pending.root; delete s.pending; s.phase = "prepared"; s.reason = accept ? "The engineer accepted the local candidate. The next run remeasures all active questions." : "The engineer rejected the candidate. Review guidance before another run."; return save(s, s.reason); }); }
+    throw new Error("The candidate changed after measurement. Re-measure before review.");
+    const review:EngineeringReview={...reviewer,accepted:accept,at:new Date().toISOString(),scope:"Local retrieval patch. No release or answer-quality approval."};
+    await atomicJson(path.join(directory(id), `epoch-${s.epoch}-engineering-decision.json`),review);
+    await roundRecord(s,review);
+    if (accept)s.currentRoot = s.pending.root;
+    delete s.pending;s.phase = "prepared";
+    return save(s,`${reviewer.reviewer} (${reviewer.reviewerType}) ${accept?"accepted":"rejected"} the local patch. The next permitted run measures all active questions again.`);
+}); }
+export async function saveDemoDecision(input:unknown){const {id,accepted,...review}=engineeringDecisionSchema.parse(input);return reviewDemo(id,accepted,review);}
+async function readRound(id:string,r:DemoRound){
+    const read=(f?:string)=>f?optionalJson<RetrievalReport>(f):undefined;
+    let patch="";try{patch=await readFile(path.join(directory(id),`epoch-${r.epoch}-candidate-${r.attempts}.patch`),"utf8");}catch{}
+    return {epoch:r.epoch,phase:r.phase,reason:r.reason,updatedAt:r.updatedAt,attempts:r.attempts,review:r.review,patch,baseline:await read(r.baseline),candidate:await read(r.candidate),heldoutBaseline:await read(r.heldoutBaseline),heldoutCandidate:await read(r.heldoutCandidate)};
+}
 export async function demoView(id?: string) { const state = await demoState(id); if (!state)
     return { state: null }; const activeQuestions=questionsSchema.parse(JSON.parse(await readFile(path.join(directory(state.id),"development.json"),"utf8"))); const read = async (f?: string) => f ? optionalJson<RetrievalReport>(f) : undefined; const patchFile = path.join(directory(state.id), `epoch-${state.epoch}-candidate-${state.attempts}.patch`); let patch = ""; try {
     patch = await readFile(patchFile, "utf8");
 }
-catch { } return { state, patch, activeQuestionCount:activeQuestions.length, contract: demoContract, baseline: await read(state.baseline), candidate: await read(state.candidate), heldoutBaseline: await read(state.heldoutBaseline), heldoutCandidate: await read(state.heldoutCandidate) }; }
-export async function watchDemo(id: string) {
+catch { }
+    const files=(await readdir(directory(state.id))).filter(f=>/^epoch-\d+-round\.json$/.test(f));
+    const records=(await Promise.all(files.map(f=>optionalJson<DemoRound>(path.join(directory(state.id),f))))).filter((r):r is DemoRound=>Boolean(r));
+    if(state.baseline&&!records.some(r=>r.epoch===state.epoch))records.push(state);
+    const rounds=await Promise.all(records.sort((a,b)=>a.epoch-b.epoch).map(r=>readRound(state.id,r)));
+    return { state, patch, rounds, activeQuestionCount:activeQuestions.length, contract: demoContract, baseline: await read(state.baseline), candidate: await read(state.candidate), heldoutBaseline: await read(state.heldoutBaseline), heldoutCandidate: await read(state.heldoutCandidate) }; }
+export async function watchDemo(id: string,options:{once?:boolean;answers?:boolean;intervalMs?:number;signal?:AbortSignal}={}) {
     let stopped = false;
     const stop = () => { stopped = true; };
     process.once("SIGINT", stop);
     process.once("SIGTERM", stop);
+    options.signal?.addEventListener("abort",stop);
+    if(options.signal?.aborted)stopped=true;
     let last = "";
     console.info("Watching this demo's source and question set. Ctrl+C stops the watcher.");
     try {
@@ -296,19 +325,22 @@ export async function watchDemo(id: string) {
                 if (s.phase === "awaiting_review")
                     console.info("Waiting for engineer review. No model calls.");
                 else if (s.phase === "prepared" || s.phase === "goal_reached") {
-                    const next = await runDemo(id);
+                    const currentDataset=sha(JSON.parse(await readFile(path.join(directory(id),"development.json"),"utf8")));
+                    if(s.phase==="prepared"||s.datasetHash!==currentDataset||s.sourceHash!==await productHash(s.currentRoot)){
+                        await save(s,"The watcher noticed a permitted run or changed inputs. Checking the active questions.");
+                    }
+                    const next = await runDemo(id,{answers:options.answers!==false});
                     console.info(`${next.phase}: ${next.reason}`);
+                    if(options.once)return next;
                 }
             }
-            await new Promise<void>(resolve => { const timer = setTimeout(resolve, 15000); if (stopped) {
-                clearTimeout(timer);
-                resolve();
-            } });
+            await new Promise<void>(resolve => {const finish=()=>{clearTimeout(timer);options.signal?.removeEventListener("abort",finish);resolve();};const timer=setTimeout(finish,options.intervalMs??15000);options.signal?.addEventListener("abort",finish,{once:true});if(stopped)finish();});
         }
     }
     finally {
         process.removeListener("SIGINT", stop);
         process.removeListener("SIGTERM", stop);
+        options.signal?.removeEventListener("abort",stop);
     }
 }
 
@@ -316,7 +348,8 @@ export async function watchDemo(id: string) {
 export async function saveDemoReview(input:unknown){
  const value=demoReviewSchema.parse(input);
  return locked(value.id,async()=>{const state=await required(value.id);
- const reports=await Promise.all([state.baseline,state.candidate].filter((f):f is string=>Boolean(f)).map(f=>optionalJson<RetrievalReport>(f)));
+ const view=await demoView(state.id);
+ const reports=[view.baseline,view.candidate,...(view.rounds||[]).flatMap(r=>[r.baseline,r.candidate])];
  const answer=reports.flatMap(r=>r?.cases.flatMap(c=>c.attempts.map(a=>a.answer))||[]).find(a=>a?.traceId===value.traceId);
  if(!answer)throw new Error("This answer is no longer in the current development comparison. Reload the page.");
  const row={...value,answerHash:sha(answer),at:new Date().toISOString(),scope:"Human review of a saved answer. This does not calibrate or enable the full quality judge."};

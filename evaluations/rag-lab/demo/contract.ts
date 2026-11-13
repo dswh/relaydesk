@@ -70,3 +70,11 @@ export function allowedDemoFile(file: string) { return file === "src/lib/ai/help
 export function selectedRetrievalFailure(report: RetrievalReport) { return retrievalScore(report).rows.find(r => !r.pass); }
 
 export const demoReviewSchema=z.object({id:z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),traceId:z.uuid(),verdict:z.enum(["pass","fail"]),critique:z.string().trim().min(8).max(4000),reviewer:z.string().trim().min(2).max(100)}).strict();
+
+export const engineeringReviewSchema=z.object({
+    reviewer:z.string().trim().min(2).max(100),
+    reviewerType:z.enum(["human","assistant"]),
+    rationale:z.string().trim().min(20).max(4000),
+}).strict();
+export type EngineeringReview=z.infer<typeof engineeringReviewSchema> & {accepted:boolean;at:string;scope:string};
+export const engineeringDecisionSchema=engineeringReviewSchema.extend({id:z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),accepted:z.boolean()}).strict();
