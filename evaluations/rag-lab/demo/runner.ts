@@ -3,6 +3,7 @@ import { copyFile, mkdir, readFile, readdir, symlink, writeFile, open, unlink, a
 import path from "node:path";
 import { atomicJson, dataRoot, labRoot, optionalJson, sha } from "../store";
 import { runProcess, productRoot } from "../loop";
+import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles} from "../worktree";
 import { allowedDemoFile, demoReviewSchema, demoContract, questionSchema, questionsSchema, retrievalDecision, retrievalScore, selectedRetrievalFailure, type RetrievalReport } from "./contract";
 const root = path.join(dataRoot, "retrieval-demo");
 const git = (dir: string, args: string[]) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8" }).trim();
@@ -54,8 +55,7 @@ async function save(s: DemoState, message?: string) {
 }
 async function required(id: string) { const s = await demoState(id); if (!s)
     throw new Error("Prepare this demo run first."); return s; }
-async function fingerprint(dir: string) { const names = git(dir, ["ls-files", "-c", "-o", "--exclude-standard"]).split("\n").filter(Boolean); return Object.fromEntries(await Promise.all([...new Set(names)].sort().map(async (n) => [n, await fileHash(path.join(dir, n)).catch(e => { if ((e as NodeJS.ErrnoException).code === "ENOENT")
-        return "missing"; throw e; })]))); }
+const fingerprint=workspaceFileHashes;
 async function locked<T>(id: string, operation: () => Promise<T>) { const file = path.join(directory(id), "controller.lock"); const handle = await open(file, "wx", 0o600).catch(() => { throw new Error("Another controller owns this run. Resolve that process before retrying."); }); try {
     await handle.writeFile(JSON.stringify({ pid: process.pid }));
     return await operation();
@@ -177,11 +177,13 @@ export async function runDemo(id: string, { answers = true } = {}) {
                 await runProcess("codex", ["exec", "--json", "--ephemeral", "--sandbox", "workspace-write", "-C", candidate, "-"], { cwd: candidate, outputFile: actorFile, timeoutMs: Math.min(180000, remaining()), input: prompt, actor: true });
                 if (protectedHash !== await trusted(s))
                     throw new Error("The external evaluation inputs changed during repair.");
+                await requireTrustedDependencies(candidate,path.join(productRoot,"node_modules"));
                 const after = await fingerprint(candidate), files = [...new Set([...Object.keys(before), ...Object.keys(after)])].filter(f => before[f] !== after[f]);
                 if (!files.length || files.some(f => !allowedDemoFile(f))) {
                     rejected.push({ attempt, reason: "No patch or changes outside the permitted product files." });
                     continue;
                 }
+                await requireRegularCandidateFiles(candidate,files);
                 let changedLines = 0;
                 for (const f of files) {
                     if (!(f in before)) {
@@ -241,6 +243,7 @@ export async function runDemo(id: string, { answers = true } = {}) {
                     await atomicJson(path.join(directory(id), "rejections.json"), rejected);
                     return save(s, s.reason);
                 }
+                await requireTrustedDependencies(candidate,path.join(productRoot,"node_modules"));
                 if (treeHash !== sha(await fingerprint(candidate)))
                     throw new Error("The candidate changed after it was frozen.");
                 const decisionFile = path.join(directory(id), `epoch-${epoch}-decision-${attempt}.json`);
@@ -279,7 +282,9 @@ export async function runDemo(id: string, { answers = true } = {}) {
 export async function addDemoQuestion(id: string, file: string) { return locked(id, async () => { const s = await required(id); const task = questionSchema.parse(JSON.parse(await readFile(path.resolve(file), "utf8"))); const f = path.join(directory(id), "development.json"), tasks = questionsSchema.parse(JSON.parse(await readFile(f, "utf8"))); if (tasks.some(t => t.id === task.id))
     throw new Error("This question was already added."); tasks.push(task); questionsSchema.parse(tasks); await atomicJson(f, tasks); return save(s, `Added ${task.id}. Existing review state is preserved; the next permitted measurement establishes a new dataset version.`); }); }
 export async function reviewDemo(id: string, accept: boolean) { return locked(id, async () => { const s = await required(id); if (s.phase !== "awaiting_review" || !s.pending)
-    throw new Error("No candidate awaits review."); if (sha(await fingerprint(s.pending.root)) !== s.pending.treeHash)
+    throw new Error("No candidate awaits review."); await requireTrustedDependencies(s.pending.root,path.join(productRoot,"node_modules"));
+    await requireRegularCandidateFiles(s.pending.root,s.pending.changedFiles);
+    if (sha(await fingerprint(s.pending.root)) !== s.pending.treeHash)
     throw new Error("The candidate changed after measurement. Re-measure before review."); await atomicJson(path.join(directory(id), `epoch-${s.epoch}-human-decision.json`), { accepted: accept, at: new Date().toISOString(), scope: "Local retrieval patch. No release or semantic-quality approval." }); if (accept)
     s.currentRoot = s.pending.root; delete s.pending; s.phase = "prepared"; s.reason = accept ? "The engineer accepted the local candidate. The next run remeasures all active questions." : "The engineer rejected the candidate. Review guidance before another run."; return save(s, s.reason); }); }
 export async function demoView() { const state = await demoState(); if (!state)

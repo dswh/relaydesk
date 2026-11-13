@@ -7,6 +7,7 @@ import { atomicJson, dataRoot, labRoot, optionalJson, sha } from "./store";
 import { candidateDecision, selectFailure, type Scorecard } from "./scorecard";
 import { judgeIdentity, requireValidatedJudge } from "./judge";
 import { loadLabTasks } from "./tasks";
+import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles} from "./worktree";
 
 export const productRoot = path.resolve(labRoot, "../..");
 const stateFile = path.join(dataRoot, "loop-state.json");
@@ -42,10 +43,7 @@ export type LoopState = {
 const git = (root: string, args: string[]) => execFileSync("git", ["-C", root, ...args], { encoding: "utf8" }).trim();
 async function save(state: Omit<LoopState,"updatedAt">) { const value = { ...state, updatedAt: new Date().toISOString() }; await atomicJson(stateFile, value); return value; }
 async function fileHash(file: string) { try { return sha(await readFile(file)); } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return "missing"; throw error; } }
-async function tree(root: string) {
-  const names = git(root, ["ls-files", "-c", "-o", "--exclude-standard"]).split("\n").filter(Boolean);
-  return Object.fromEntries(await Promise.all([...new Set(names)].sort().map(async name => [name, await fileHash(path.join(root,name))])));
-}
+const tree=workspaceFileHashes;
 async function sourceHash() {
   const names = ["src/lib/ai/help-chat.ts", "src/lib/ai/help-embeddings.ts", "src/lib/ai/help-model-provider.ts", "src/lib/ai/help-model-budget.ts", "src/lib/ai/rag-observability.ts", "src/lib/help-chat-config.ts", "src/lib/knowledge-repository.ts", "src/lib/knowledge.ts"];
   return sha(await Promise.all(names.map(async name => [name, await fileHash(path.join(productRoot,name))])));
@@ -137,8 +135,10 @@ async function runLoopLocked(options:{fixture?:boolean;force?:boolean}) {
       const outputFile=path.join(runDirectory,`actor-${attempt}.jsonl`);
       await runProcess("codex",["exec","--json","--ephemeral","--sandbox","workspace-write","-C",candidateRoot,"-"],{cwd:candidateRoot,outputFile,timeoutMs:remaining(),input:prompt,actor:true});
       if(await trustedFingerprint()!==protectedHash||await sourceHash()!==originalSourceHash)throw new Error("The trusted contract or source baseline changed during the attempt. Rebaseline before continuing.");
+      await requireTrustedDependencies(candidateRoot,path.join(productRoot,"node_modules"));
       const changed=changedFiles(candidate.files,await tree(candidateRoot));
       if(!changed.length||changed.some(f=>!allowed(f))){await reject(attempt,"No patch, or changes outside the permitted files.");continue;}
+      await requireRegularCandidateFiles(candidateRoot,changed);
       let size=0;
       for(const file of changed){
         if(!(file in candidate.files)){size+=(await readFile(path.join(candidateRoot,file),"utf8")).split("\n").length;continue;}
@@ -158,6 +158,7 @@ async function runLoopLocked(options:{fixture?:boolean;force?:boolean}) {
       const measuredTreeHash=sha(await tree(candidateRoot));
       const candidateFile=path.join(runDirectory,`candidate-${attempt}.json`);
       const measured=await measure(candidateRoot,candidateFile,remaining());
+      await requireTrustedDependencies(candidateRoot,path.join(productRoot,"node_modules"));
       if(sha(await tree(candidateRoot))!==measuredTreeHash)throw new Error("The candidate changed while checks were running. It needs a fresh measurement.");
       if(!sameEpoch(baseline,measured))throw new Error("The candidate and baseline use different evaluation epochs.");
       const decision=candidateDecision(baseline.scorecard,measured.scorecard,failure.caseId);
@@ -174,6 +175,8 @@ async function reviewCandidateLocked(accept:boolean){
   const state=await optionalJson<LoopState>(stateFile);
   if(!state?.pending||state.phase!=="awaiting_review")throw new Error("No candidate is waiting for review.");
   if(accept){
+    await requireTrustedDependencies(state.pending.candidateRoot,path.join(productRoot,"node_modules"));
+    await requireRegularCandidateFiles(state.pending.candidateRoot,state.pending.changedFiles);
     if(await sourceHash()!==state.pending.sourceHash)throw new Error("The source changed after this candidate was measured. Rebaseline before accepting it.");
     const changed=changedFiles(state.pending.baselineFiles,await tree(state.pending.candidateRoot));
     if(sha(await tree(state.pending.candidateRoot))!==state.pending.candidateTreeHash)throw new Error("The candidate changed after grading. Measure the new contents before accepting them.");
