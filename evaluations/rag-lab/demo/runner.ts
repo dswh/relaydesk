@@ -287,7 +287,7 @@ export async function reviewDemo(id: string, accept: boolean) { return locked(id
     if (sha(await fingerprint(s.pending.root)) !== s.pending.treeHash)
     throw new Error("The candidate changed after measurement. Re-measure before review."); await atomicJson(path.join(directory(id), `epoch-${s.epoch}-human-decision.json`), { accepted: accept, at: new Date().toISOString(), scope: "Local retrieval patch. No release or semantic-quality approval." }); if (accept)
     s.currentRoot = s.pending.root; delete s.pending; s.phase = "prepared"; s.reason = accept ? "The engineer accepted the local candidate. The next run remeasures all active questions." : "The engineer rejected the candidate. Review guidance before another run."; return save(s, s.reason); }); }
-export async function demoView() { const state = await demoState(); if (!state)
+export async function demoView(id?: string) { const state = await demoState(id); if (!state)
     return { state: null }; const read = async (f?: string) => f ? optionalJson<RetrievalReport>(f) : undefined; const patchFile = path.join(directory(state.id), `epoch-${state.epoch}-candidate-${state.attempts}.patch`); let patch = ""; try {
     patch = await readFile(patchFile, "utf8");
 }

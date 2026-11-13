@@ -18,8 +18,8 @@ export async function exportDemo(id:string,output:string){
  html=html.replace(live,`const d=${data};`);
  html=html.replace('<h1>A follow-up loses its context</h1>','<h1>Recorded RAG retrieval improvement</h1>');
  html=html.replace('<p>The help assistant',`<p><strong>Read-only replay of live measurements.</strong> Captured run ${s.id}. This page sends no model requests and cannot record an approval.</p><p>The help assistant`);
- html=html.replace(/<details><summary>Record your review of an actual answer<\/summary>.*?<\/details>/s,"");
- html=html.replace(/\$\('review-form'\)\.onsubmit=.*?\$\('refresh'\)\.onclick=refresh;refresh\(\);setInterval\(refresh,5000\);/s,"refresh();");
+ html=html.replace(/<details><summary>Record your review of an actual answer<\/summary>[\s\S]*?<\/details>/,"");
+ html=html.replace(/\$\('review-form'\)\.onsubmit=[\s\S]*?\$\('refresh'\)\.onclick=refresh;refresh\(\);setInterval\(refresh,5000\);/,"refresh();");
  // Keep a hidden select because answer rendering preserves its selection.
  html=html.replace('<div id="answers"></div>','<div id="answers"></div><select id="review-answer" hidden aria-hidden="true"></select>');
  html=html.replace('<button id="refresh">Refresh evidence</button>',"");
