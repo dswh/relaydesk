@@ -1,0 +1,57 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Build a RAG improvement loop</title><style>
+:root{--paper:#f7f4ed;--ink:#253d36;--teal:#356c64;--muted:#627268;--copper:#8b5e3c;--line:#d9ddd2}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:19px/1.6 Calibri,Arial,sans-serif}main{max-width:1060px;margin:auto;padding:48px 30px 80px}h1{font-size:44px;line-height:1.15;margin:0 0 22px}h2{font-size:29px;line-height:1.25;margin:34px 0 16px}p{margin:0 0 12px;max-width:80ch}a{color:var(--teal)}pre{padding:18px 22px;background:#e7eeea;overflow:auto;font:17px/1.7 ui-monospace,monospace}code{color:var(--teal)}mark{background:#efe2d6;color:var(--copper);font-weight:700}.steps{border-block:1px solid var(--line);margin:28px 0;padding:12px 0}.steps p{margin:14px 0}.steps strong{color:var(--teal)}details{margin:25px 0;border-top:1px solid var(--line);padding-top:18px}summary{cursor:pointer;font-weight:700}summary:focus-visible,a:focus-visible{outline:3px solid var(--copper);outline-offset:4px}.small{color:var(--muted);font-size:16px}@media(max-width:650px){main{padding:28px 18px}h1{font-size:34px}pre{font-size:14px}}</style></head><body><main>
+<h1>Build a RAG improvement loop</h1>
+<p>Your task is to help the assistant find the right help article when a short follow-up depends on an earlier question.</p>
+<p>The loop handles repeated checks and repair attempts. You review the proposed change.</p>
+<p><a href="loop-engineering-workshop-v27.html#slide-16">Back to the slides</a> · <a href="http://127.0.0.1:4181/demo">Open the local controller</a></p>
+<h2>The question we will follow</h2>
+<p>“How should our consumer handle duplicate RelayDesk webhook deliveries?”</p>
+<p>The next message is: “What should I do next?”</p>
+<p>If search sees only that last message, it loses the topic.</p>
+<p>The approved webhook article is the expected source. The check asks whether it ranks first in all three retrieval runs.</p>
+<div class="steps">
+<p><strong>1. Sensor:</strong> save the actual query, returned sources, and answer.</p>
+<p><strong>2. Regression protection:</strong> compare the same questions and keep every existing pass.</p>
+<p><strong>3. Controller:</strong> choose one failed question and give Codex its evidence.</p>
+<p><strong>4. Actuator:</strong> let Codex make a small change in a separate worktree.</p>
+<p><strong>5. Runner:</strong> run product tests, check all development questions, and then check the frozen patch on other questions.</p>
+<p><strong>6. Human feedback:</strong> review the answer and patch. Save reusable implementation guidance.</p>
+<p><strong>7. Flow control:</strong> wait during review. After review, measure the complete question set again.</p>
+</div>
+<h2>Start a fresh run</h2>
+<p>Use the prepared repository on <code>codex/rag-loop-reproducible-demo</code>.</p>
+<p>Complete the database, model, and LangSmith setup in the repository’s RAG demo runbook first.</p>
+<p>Replace the highlighted run ID with a new name. Reuse that same name in later commands.</p>
+<pre>pnpm rag:demo prepare --id <mark>workshop-01</mark>
+pnpm rag:demo run --id <mark>workshop-01</mark>
+RAG_REVIEW_PORT=4181 pnpm rag:review</pre>
+<p>Preparation creates an isolated starting state. The run measures the questions, requests a patch, and checks it.</p>
+<p>A failed candidate can lead to another attempt within the fixed limits. A useful candidate waits for your review.</p>
+<h2>Review what changed</h2>
+<p>Open the controller. Read the query before and after the change.</p>
+<p>Inspect the patch, product test results, and saved answers.</p>
+<p>Save a real answer verdict only after reading its evidence. Review the code patch separately.</p>
+<p>Add reusable implementation guidance to <code>evaluations/rag-lab/feedback.md</code>. The next repair prompt reads that file.</p>
+<pre># After reviewing the code and evidence, choose one:
+pnpm rag:demo accept --id <mark>workshop-01</mark>
+pnpm rag:demo reject --id <mark>workshop-01</mark></pre>
+<p>Acceptance chooses the measured local worktree as the next baseline. Release remains a separate decision.</p>
+<h2>Let new questions restart the check</h2>
+<p>Start the watcher in one terminal.</p>
+<pre>pnpm rag:demo watch --id <mark>workshop-01</mark></pre>
+<p>In another terminal, add the prepared question while a patch is still waiting for review.</p>
+<pre>pnpm rag:demo add-question --id <mark>workshop-01</mark> \
+  --file evaluations/rag-lab/demo/new-question.json</pre>
+<p>The watcher waits without model calls during review.</p>
+<p>After you accept or reject the patch, it measures a fresh baseline with the new question included.</p>
+<p>If a question fails, that evidence can start another bounded repair. At the goal, the watcher waits for changed inputs.</p>
+<p>Use Ctrl+C to stop watching. A blocked or bounded run needs attention before repair resumes.</p>
+<details><summary>Checks and limits</summary>
+<p>Questions, approved sources, models, and checks stay fixed during each before-and-after comparison.</p>
+<p>The agent can change three RAG files and add focused tests. Each patch has a 100-line limit.</p>
+<p>The runner permits three candidates or 20 minutes. The model transport preserves the shared spending cap.</p>
+<p>The retrieval goal checks which article search finds. Review answer quality separately.</p>
+<p>A broader answer-quality loop needs human labels and a validated judge.</p>
+</details>
+<p class="small">Slides 17 to 30 form the guided hands-on segment. Use the real controller screens as you work through them.</p>
+</main></body></html>
