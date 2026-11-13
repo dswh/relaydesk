@@ -3,7 +3,7 @@ import { copyFile, mkdir, readFile, readdir, symlink, writeFile, open, unlink, a
 import path from "node:path";
 import { atomicJson, dataRoot, labRoot, optionalJson, sha } from "../store";
 import { runProcess, productRoot } from "../loop";
-import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles} from "../worktree";
+import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles,codexRepairArguments} from "../worktree";
 import { allowedDemoFile, demoReviewSchema, demoContract, questionSchema, questionsSchema, retrievalDecision, retrievalScore, selectedRetrievalFailure, type RetrievalReport } from "./contract";
 const root = path.join(dataRoot, "retrieval-demo");
 const git = (dir: string, args: string[]) => execFileSync("git", ["-C", dir, ...args], { encoding: "utf8" }).trim();
@@ -174,7 +174,7 @@ export async function runDemo(id: string, { answers = true } = {}) {
                     "Leave a small uncommitted patch. No deploy, merge, external messages, or additional agents."
                 ].join("\n\n");
                 const actorFile = path.join(directory(id), `epoch-${epoch}-actor-${attempt}.jsonl`);
-                await runProcess("codex", ["exec", "--json", "--ephemeral", "--sandbox", "workspace-write", "-C", candidate, "-"], { cwd: candidate, outputFile: actorFile, timeoutMs: Math.min(180000, remaining()), input: prompt, actor: true });
+                await runProcess("codex", codexRepairArguments(candidate), { cwd: candidate, outputFile: actorFile, timeoutMs: Math.min(180000, remaining()), input: prompt, actor: true });
                 if (protectedHash !== await trusted(s))
                     throw new Error("The external evaluation inputs changed during repair.");
                 await requireTrustedDependencies(candidate,path.join(productRoot,"node_modules"));

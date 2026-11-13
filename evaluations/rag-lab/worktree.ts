@@ -36,3 +36,7 @@ export async function requireRegularCandidateFiles(root: string, files: string[]
     }
   }
 }
+
+export function codexRepairArguments(root: string) {
+  return ["exec", "--ignore-user-config", "--json", "--ephemeral", "--sandbox", "workspace-write", "-C", root, "-"];
+}

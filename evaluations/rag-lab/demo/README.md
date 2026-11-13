@@ -59,6 +59,9 @@ The ledger is never reset or copied into a fresh allowance.
 OpenRouter reservations cover this transport's embedding and generation calls.
 The Codex CLI uses the current Codex plan separately and is limited to one process at a time with a three-minute deadline per attempt.
 The whole run allows three candidates or 20 minutes.
+The invocation ignores the user configuration file while retaining account authentication and the workspace-write sandbox.
+This prevents an unsupported desktop model alias from breaking the CLI.
+The CLI uses its supported account default. Global configuration is unchanged.
 
 ## Run the workshop
 
@@ -151,3 +154,14 @@ Do not repeatedly optimize against the published held-out questions.
 The existing slide screenshots describe an earlier recorded quality run.
 Use this live demo as new evidence and explicitly name its narrower retrieval goal.
 Do not relabel its ranking score as the slides' full answer-quality score.
+
+## Replay without more model calls
+
+```sh
+pnpm rag:demo export --id workshop-01 --out docs/evidence/rag-retrieval-proof
+```
+
+Open the exported `report.html` for a read-only replay of the real recorded measurements.
+Its label distinguishes recorded evidence from a fresh live run.
+It cannot send a model request or save an approval.
+The export omits machine-specific state paths and includes the actual candidate patch and trace identifiers.

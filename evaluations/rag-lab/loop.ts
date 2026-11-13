@@ -7,7 +7,7 @@ import { atomicJson, dataRoot, labRoot, optionalJson, sha } from "./store";
 import { candidateDecision, selectFailure, type Scorecard } from "./scorecard";
 import { judgeIdentity, requireValidatedJudge } from "./judge";
 import { loadLabTasks } from "./tasks";
-import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles} from "./worktree";
+import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles,codexRepairArguments} from "./worktree";
 
 export const productRoot = path.resolve(labRoot, "../..");
 const stateFile = path.join(dataRoot, "loop-state.json");
@@ -133,7 +133,7 @@ async function runLoopLocked(options:{fixture?:boolean;force?:boolean}) {
       state=await save({...state,phase:"repairing",attempts:attempt,target:failure.caseId});
       const prompt=`${skill}\n\nDesired state: every development question passes, with zero critical failures.\nCurrent score: ${baseline.scorecard.passedQuestions}/${baseline.scorecard.totalQuestions}.\nTarget failure:\n${JSON.stringify(failure,null,2)}\n\nReviewed steering:\n${feedback}\n\nRejected hypotheses so far:\n${JSON.stringify(rejected)}\n\nMake one small shared correction in this candidate worktree. The external checker will evaluate the full frozen question set. Do not change grading artifacts. Leave the patch uncommitted.`;
       const outputFile=path.join(runDirectory,`actor-${attempt}.jsonl`);
-      await runProcess("codex",["exec","--json","--ephemeral","--sandbox","workspace-write","-C",candidateRoot,"-"],{cwd:candidateRoot,outputFile,timeoutMs:remaining(),input:prompt,actor:true});
+      await runProcess("codex",codexRepairArguments(candidateRoot),{cwd:candidateRoot,outputFile,timeoutMs:remaining(),input:prompt,actor:true});
       if(await trustedFingerprint()!==protectedHash||await sourceHash()!==originalSourceHash)throw new Error("The trusted contract or source baseline changed during the attempt. Rebaseline before continuing.");
       await requireTrustedDependencies(candidateRoot,path.join(productRoot,"node_modules"));
       const changed=changedFiles(candidate.files,await tree(candidateRoot));

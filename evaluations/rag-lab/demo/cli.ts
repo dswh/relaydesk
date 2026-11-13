@@ -1,4 +1,5 @@
 import { config as env } from "dotenv";
+import {exportDemo} from "./export";
 import { closeDatabase } from "../../../src/lib/db";
 import { prepareDemo, runDemo, demoState, addDemoQuestion, reviewDemo, watchDemo } from "./runner";
 env({ path: ".env.local", quiet: true });
@@ -7,7 +8,8 @@ const value = (name: string) => { const i = args.indexOf(`--${name}`); if (i < 0
     throw new Error(`Provide --${name}.`); return args[i + 1]!; };
 async function main() {
     let result: unknown;
-    if (command === "prepare")
+    if(command==="export")result=await exportDemo(value("id"),value("out"));
+    else if (command === "prepare")
         result = await prepareDemo(value("id"));
     else if (command === "watch") {
         await watchDemo(value("id"));
