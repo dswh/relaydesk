@@ -7,7 +7,7 @@ import { atomicJson, dataRoot, labRoot, optionalJson, sha } from "./store";
 import { candidateDecision, selectFailure, type Scorecard } from "./scorecard";
 import { judgeIdentity, requireValidatedJudge } from "./judge";
 import { loadLabTasks } from "./tasks";
-import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles,codexRepairArguments} from "./worktree";
+import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles,codexRepairArguments,productTestEnvironment} from "./worktree";
 
 export const productRoot = path.resolve(labRoot, "../..");
 const stateFile = path.join(dataRoot, "loop-state.json");
@@ -56,10 +56,10 @@ async function trustedFingerprint() {
   const names = (await readdir(labRoot)).filter(n => /\.(ts|json|txt|md)$/.test(n));
   return sha({ files: await Promise.all(names.sort().map(async name => [name, await fileHash(path.join(labRoot,name))])), tasks: await loadLabTasks() });
 }
-export async function runProcess(executable: string, args: string[], options: { cwd: string; outputFile: string; timeoutMs: number; input?: string; actor?: boolean }) {
+export async function runProcess(executable: string, args: string[], options: { cwd: string; outputFile: string; timeoutMs: number; input?: string; actor?: boolean; test?: boolean }) {
   if(interrupted)throw new Error("The engineer stopped this controller process.");
   await mkdir(path.dirname(options.outputFile), { recursive: true });
-  const env = { ...process.env };
+  const env:NodeJS.ProcessEnv = options.test ? productTestEnvironment(process.env) : { ...process.env };
   if (options.actor) for (const key of Object.keys(env)) if (/API_KEY|DATABASE_URL|LANGSMITH|GATEWAY|TOKEN|SECRET|PASSWORD/.test(key)) delete env[key];
   return new Promise<void>((resolve,reject) => {
     const child = spawn(executable,args,{cwd:options.cwd,env,stdio:["pipe","pipe","pipe"],detached:process.platform!=="win32"});
@@ -149,7 +149,7 @@ async function runLoopLocked(options:{fixture?:boolean;force?:boolean}) {
       }
       if(size>300){await reject(attempt,"The patch exceeds 300 changed lines. Use a smaller intervention.");continue;}
       const testLog=path.join(runDirectory,`tests-${attempt}.log`);
-      try{await runProcess(path.join(productRoot,"node_modules/.bin/vitest"),["run"],{cwd:candidateRoot,outputFile:testLog,timeoutMs:remaining()})}
+      try{await runProcess(path.join(productRoot,"node_modules/.bin/vitest"),["run"],{cwd:candidateRoot,outputFile:testLog,timeoutMs:remaining(),test:true})}
       catch(error){
         if(interrupted||Date.now()>=deadline)throw error;
         await reject(attempt,{issue:"Product tests failed. The next attempt starts from the baseline.",testEvidence:(await readFile(testLog,"utf8")).slice(-6000)});continue;

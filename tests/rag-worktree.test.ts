@@ -3,7 +3,7 @@ import {mkdtemp,mkdir,writeFile,symlink,unlink,rm} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import {describe,it,expect} from "vitest";
-import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles} from "../evaluations/rag-lab/worktree";
+import {workspaceFileHashes,requireTrustedDependencies,requireRegularCandidateFiles,productTestEnvironment} from "../evaluations/rag-lab/worktree";
 describe("candidate worktree integrity",()=>{
  it("handles the ignored dependency symlink without reading a directory",async()=>{
   const base=await mkdtemp(path.join(os.tmpdir(),"rag-tree-")),root=path.join(base,"candidate"),deps=path.join(base,"dependencies");
@@ -17,3 +17,5 @@ describe("candidate worktree integrity",()=>{
   }finally{await rm(base,{recursive:true,force:true})}
  });
 });
+
+describe("isolated product test environment",()=>{it("keeps OS paths while excluding live data, model access, and app overrides",()=>{const source={PATH:"/test/bin",HOME:"/test/home",DATABASE_URL:"postgres://private",OPENROUTER_API_KEY:"test-not-a-real-key",RELAYDESK_HELP_EMBEDDING_MODE:"gateway",LANGSMITH_API_KEY:"test-not-a-real-key",NODE_OPTIONS:"--require=live-loader"};expect(productTestEnvironment(source)).toEqual({PATH:"/test/bin",HOME:"/test/home",NODE_ENV:"test",CI:"1"});expect(source.DATABASE_URL).toBe("postgres://private")})});

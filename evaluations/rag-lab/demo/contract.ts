@@ -42,7 +42,7 @@ export function retrievalScore(report: RetrievalReport) {
     const passing = rows.filter(c => c.pass).length;
     return { metric: demoContract.metric, total: rows.length, passing, score: complete ? 100 * passing / rows.length : null, complete, goalReached: complete && passing === rows.length, answerQuality: "unscored" as const, rows };
 }
-export function retrievalDecision(before: RetrievalReport, after: RetrievalReport, { requireImprovement = true } = {}) {
+export function retrievalDecision(before: RetrievalReport, after: RetrievalReport, { requireImprovement = true, target }: { requireImprovement?:boolean; target?:string } = {}) {
     const issues: string[] = [];
     const b = retrievalScore(before), a = retrievalScore(after);
     for (const k of ["datasetHash", "corpusHash", "contractHash", "modelsHash", "split", "repeats"] as const)
@@ -61,6 +61,7 @@ export function retrievalDecision(before: RetrievalReport, after: RetrievalRepor
         if (prev && row.attempts.filter(x => x.rank !== 1).length > prev.attempts.filter(x => x.rank !== 1).length)
             issues.push(`More failed repeats: ${row.id}.`);
     }
+    if(target&&(!b.rows.some(r=>r.id===target&&!r.pass)||!a.rows.some(r=>r.id===target&&r.pass)))issues.push("The selected retrieval failure was not repaired.");
     if (requireImprovement && a.passing <= b.passing)
         issues.push("No additional questions retrieve the expected source first.");
     return { keep: issues.length === 0, issues, before: b.score, after: a.score, answerQuality: "unscored" as const };

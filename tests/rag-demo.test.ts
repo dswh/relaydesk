@@ -23,3 +23,5 @@ describe("reproducible retrieval improvement", () => {
 
 
 describe("human review input",()=>{it("requires an explicit verdict, reason, and reviewer",()=>{expect(demoReviewSchema.safeParse({id:"workshop-01",traceId:"9e5845c3-7bb8-40e8-b703-71d6af3eeb65",verdict:"pass",critique:"The answer follows the supplied source.",reviewer:"Engineer"}).success).toBe(true);expect(demoReviewSchema.safeParse({id:"workshop-01",verdict:"auto-pass"}).success).toBe(false)})});
+
+describe("selected retrieval target",()=>{it("does not accept improvement in a different failed question",()=>{expect(retrievalDecision(report([["D01",2],["D02",3]]),report([["D01",2],["D02",1]]),{target:"D01"}).keep).toBe(false)})});

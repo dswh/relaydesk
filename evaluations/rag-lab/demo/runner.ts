@@ -134,6 +134,8 @@ export async function runDemo(id: string, { answers = true } = {}) {
         const epoch = s.epoch + 1;
         s = { ...s, epoch, attempts: 0, phase: "measuring" };
         try {
+            await save(s, "Checking the isolated baseline product tests before model calls.");
+            await runProcess(path.join(productRoot,"node_modules/.bin/vitest"),["run"],{cwd:s.currentRoot,outputFile:path.join(directory(id),`epoch-${epoch}-baseline-tests.log`),timeoutMs:remaining(),test:true});
             await save(s, "Measuring a fresh development baseline.");
             const baseline = await measure(s, s.currentRoot, "development", `epoch-${epoch}-baseline.json`, remaining(), answers);
             s.baseline = baseline.file;
@@ -216,14 +218,15 @@ export async function runDemo(id: string, { answers = true } = {}) {
                 s.phase = "checking";
                 await save(s, "Checking the candidate scope and product regression tests.");
                 try {
-                    await runProcess(path.join(productRoot, "node_modules/.bin/vitest"), ["run"], { cwd: candidate, outputFile: path.join(directory(id), `epoch-${epoch}-tests-${attempt}.log`), timeoutMs: remaining() });
+                    await runProcess(path.join(productRoot, "node_modules/.bin/vitest"), ["run"], { cwd: candidate, outputFile: path.join(directory(id), `epoch-${epoch}-tests-${attempt}.log`), timeoutMs: remaining(),test:true });
                 }
                 catch (e) {
+                    if(process.exitCode===130)throw e;
                     rejected.push({ attempt, reason: String(e) });
                     continue;
                 }
                 const measured = await measure(s, candidate, "development", `epoch-${epoch}-candidate-${attempt}.json`, remaining(), answers);
-                const decision = retrievalDecision(baseline.report, measured.report);
+                const decision = retrievalDecision(baseline.report, measured.report,{target:failure.id});
                 if (!decision.keep) {
                     rejected.push({ attempt, decision });
                     await atomicJson(path.join(directory(id), "rejections.json"), rejected);

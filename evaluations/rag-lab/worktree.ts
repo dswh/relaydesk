@@ -40,3 +40,10 @@ export async function requireRegularCandidateFiles(root: string, files: string[]
 export function codexRepairArguments(root: string) {
   return ["exec", "--ignore-user-config", "--json", "--ephemeral", "--sandbox", "workspace-write", "-C", root, "-"];
 }
+
+export function productTestEnvironment(source: Record<string,string|undefined>) {
+  const safe = Object.fromEntries(Object.entries(source).filter(([key, value]) =>
+    value !== undefined && /^(PATH|HOME|USER|LOGNAME|TMPDIR|TEMP|TMP|SYSTEMROOT|COMSPEC|PATHEXT|LANG|LC_.+|TERM|NO_COLOR)$/i.test(key),
+  ));
+  return { ...safe, NODE_ENV: "test" as const, CI: "1" };
+}

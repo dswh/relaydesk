@@ -83,6 +83,8 @@ The controller measures the starting development set.
 Codex receives those failed examples and the repair skill.
 The candidate can change only three RAG implementation files and focused repair tests.
 The runner checks scope, a 100-line change limit, the full product unit suite, repeated development retrievals, and held-out regressions.
+Product unit tests use an isolated environment without live database credentials, model keys, or app overrides.
+The baseline unit suite runs before paid measurement, so a setup failure does not trigger repeated coding attempts.
 It keeps previously passing questions and rejects more failed repetitions.
 An improved candidate waits for engineer review.
 It is never merged, published, deployed, or marked human-approved automatically.
