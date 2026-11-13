@@ -134,8 +134,8 @@ export async function runDemo(id: string, { answers = true } = {}) {
         const epoch = s.epoch + 1;
         s = { ...s, epoch, attempts: 0, phase: "measuring" };
         try {
-            await save(s, "Checking the isolated baseline product tests before model calls.");
-            await runProcess(path.join(productRoot,"node_modules/.bin/vitest"),["run"],{cwd:s.currentRoot,outputFile:path.join(directory(id),`epoch-${epoch}-baseline-tests.log`),timeoutMs:remaining(),test:true});
+            await save(s, "Checking healthy-source product tests before model calls.");
+            await runProcess(path.join(productRoot,"node_modules/.bin/vitest"),["run"],{cwd:productRoot,outputFile:path.join(directory(id),`epoch-${epoch}-foundation-tests.log`),timeoutMs:remaining(),test:true});
             await save(s, "Measuring a fresh development baseline.");
             const baseline = await measure(s, s.currentRoot, "development", `epoch-${epoch}-baseline.json`, remaining(), answers);
             s.baseline = baseline.file;
