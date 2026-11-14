@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-14",
+  "deckSha256": "3a2d6b21bb052542e3bb2d96bbdce95edcb1a24b17c68d519fb45a92c31c441f",
+  "browserSlidesCaptured": 43,
+  "nativeApp": "Keynote",
+  "nativeSlidesChecked": [
+    6,
+    12,
+    15,
+    16,
+    20
+  ],
+  "nativeConnectorIssues": [
+    6,
+    15,
+    16
+  ],
+  "oldSlide6PlaceholderPresent": false,
+  "controllerInspected": [
+    "run1 before D03",
+    "run1 candidate D03",
+    "per-question comparison",
+    "review identity and rationale",
+    "run2 D08"
+  ],
+  "freshModelCalls": 0,
+  "reviewSubmissions": 0,
+  "deckModified": false,
+  "nativePowerPointInspected": false,
+  "storylineBrowserChecked": [
+    "overview",
+    "feedback diagram",
+    "fresh learner check and expandable reasoning",
+    "closing"
+  ],
+  "storylineSections": 43,
+  "storylineHorizontalOverflow": false
+}

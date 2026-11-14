@@ -69,3 +69,18 @@ An unchanged watcher pass made no model calls.
 The automatic goal is expected-source ranking.
 Answer quality remains unscored.
 No merge or deployment is part of the demonstration.
+
+## Rehearsal storyline and visual review
+
+`session-storyline.html` contains the complete 43-slide spoken flow.
+`session-storyline.json` is its editable content source.
+Rebuild the standalone script with `python3 docs/workshop/current/build-storyline.py --out /absolute/path/to/session-storyline.html`.
+The builder uses the committed diagram screenshots and makes no model calls.
+The script includes introductions, transitions, and explicit screen cues for slides 17 to 30 and the learner exercise.
+It preserves the distinction between code review, answer review, and manually approved implementation guidance.
+
+The fresh visual review on 14 November 2026 found that Keynote reroutes feedback connectors on slides 6, 15, and 16.
+The HTML diagrams show the intended routes.
+Repair and recheck those native routes before presenting the PowerPoint in Keynote.
+The underlying deck was not edited during the review.
+`internal/visual-review.json` records the scope of the actual checks.
