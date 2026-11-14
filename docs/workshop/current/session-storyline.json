@@ -166,7 +166,7 @@
       "This is feedback. We are choosing the next action using the result of the last one."
     ],
     "bridge": "What fills each of these boxes in our support-assistant example?",
-    "cue": "Trace the top path first, then the return path. Use the HTML diagram for this explanation until the Keynote connector routing is repaired.",
+    "cue": "Trace the top path first, then the return path from the System output through the Sensor.",
     "title": "How does feedback guide the next action?"
   },
   {

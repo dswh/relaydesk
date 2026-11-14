@@ -18,6 +18,7 @@ with ZipFile(a.pptx) as z:
         assert node.get('show')!='0',part
         all_text.append('\n'.join(node.xpath('//a:t/text()',namespaces=ns)))
     assert all_text[30].strip()=='Short Break'
+    assert 'I build useful agent systems.' not in all_text[1]
     for number,name in [(17,'1. The sensor'),(19,'2. Regression protection'),(21,'3. The controller'),(23,'4. The actuator'),(25,'5. Workflow execution'),(27,'6. Human feedback'),(29,'7. Flow control')]:
         assert name in all_text[number-1],number
     for part in z.namelist():
@@ -39,4 +40,8 @@ with ZipFile(a.pptx) as z:
         root=E.fromstring(z.read(slides[number-1]))
         assert root.findall('.//p:cxnSp',ns),number
     assert E.fromstring(z.read(slides[19])).findall('.//a:tbl',ns)
+    for number in [6,15,16]:
+        for c in E.fromstring(z.read(slides[number-1])).findall('.//p:cxnSp',ns):
+            g=c.find('p:spPr/a:prstGeom',ns)
+            assert g is not None and g.get('prst')=='straightConnector1',(number,'Unexpected bent connector')
 print(json.dumps({'slides':43,'hidden':0,'hands_on':[17,30],'short_break':31,'external_links':0,'media_verified':len(media),'native_table':20,'editable_diagrams':[15,16,26,30]}))

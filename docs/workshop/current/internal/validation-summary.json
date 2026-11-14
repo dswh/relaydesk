@@ -15,7 +15,7 @@
     30
   ],
   "sourceSha256": "a580d07241bc36a9afc61712d9e5d13f47d81aa29ee2340c4ad8d1fe256a9409",
-  "finalSha256": "3a2d6b21bb052542e3bb2d96bbdce95edcb1a24b17c68d519fb45a92c31c441f",
+  "finalSha256": "b58c7a2be69d425c54c42587ad960c2133cafd5239a3f09b5a75b271ab36503b",
   "rebuildContentMatches": true,
   "rebuildRendersMatch": 43,
   "checks": [
@@ -37,5 +37,13 @@
   "newQuestionAfterReview": "D08",
   "continuationQuestionCount": 8,
   "newRepairNeeded": false,
-  "unchangedWatcherModelCalls": 0
+  "unchangedWatcherModelCalls": 0,
+  "nativeArrowFixVerifiedIn": "Keynote",
+  "nativeArrowFixSlides": [
+    6,
+    15,
+    16
+  ],
+  "photoCaptionRemoved": true,
+  "speakerNotes": "Complete 43-slide storyline"
 }

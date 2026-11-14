@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {fixDiagramRoutes,refreshStorylineNotes,removePhotoCaption} from './fix-diagram-routes.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const C={paper:'#F7F4ED',ink:'#253D36',teal:'#356C64',copper:'#8B5E3C',muted:'#627268',line:'#D9DDD2',pale:'#E7EEEA'};
@@ -718,6 +719,9 @@ export async function updateDeck({presentation:p,input={}}){
   if(/\u2014|https?:\/\/|\bSources?:/i.test(body))throw new Error('Learner notes contain provenance on '+n);
   slide(n).speakerNotes.text=body;
  }
+ fixDiagramRoutes(p,start,end);
+ removePhotoCaption(p,start,end);
+ refreshStorylineNotes(p,start,end);
  if(input.render)await p.render({slide:Array.from({length:end-start+1},(_,i)=>start+i-1)});
  if(start===1&&end===43)await fs.writeFile(path.join(here,'slide-text.json'),JSON.stringify(p.slides.items.map((s,i)=>({number:i+1,title:s.toSnapshot().title,text:s.shapes.items.map(sh=>sh.toSnapshot().text).join('\n'),notes:s.speakerNotes.text})),null,2));
  return {slideCount:43,updated:[start,end],handsOn:[17,30]};

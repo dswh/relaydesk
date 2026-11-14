@@ -79,8 +79,9 @@ The builder uses the committed diagram screenshots and makes no model calls.
 The script includes introductions, transitions, and explicit screen cues for slides 17 to 30 and the learner exercise.
 It preserves the distinction between code review, answer review, and manually approved implementation guidance.
 
-The fresh visual review on 14 November 2026 found that Keynote reroutes feedback connectors on slides 6, 15, and 16.
-The HTML diagrams show the intended routes.
-Repair and recheck those native routes before presenting the PowerPoint in Keynote.
-The underlying deck was not edited during the review.
+The visual review found that Keynote rerouted the original bent feedback connectors on slides 6, 15, and 16.
+The current deck replaces those paths with editable straight segments.
+The corrected routes were visually verified in Keynote.
+Slide 2 also omits the caption beneath the portrait.
+The speaker notes contain the complete current storyline.
 `internal/visual-review.json` records the scope of the actual checks.

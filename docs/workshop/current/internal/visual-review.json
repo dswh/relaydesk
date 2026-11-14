@@ -34,5 +34,16 @@
     "closing"
   ],
   "storylineSections": 43,
-  "storylineHorizontalOverflow": false
+  "storylineHorizontalOverflow": false,
+  "resolution": {
+    "feedbackArrows": "Replaced bent connectors with editable straight segments. Routes verified in Keynote.",
+    "nativeSlidesChecked": [
+      6,
+      15,
+      16
+    ],
+    "photoCaptionRemoved": true,
+    "deckUpdated": true
+  },
+  "currentRemainingNativeConnectorIssues": []
 }
