@@ -59,11 +59,12 @@ Show the readiness result and stop.
 ### 4. Open the isolated app preview
 
 ```text
-Prepare the historical retrieval scenario with ID follow-up-01.
-Reuse that copy if I already prepared it.
+Prepare a fresh historical retrieval scenario with ID follow-up-01.
+If that ID is taken, pick a new one and leave existing copies intact.
 Start the copy with Webpack, using my local settings from the original checkout.
 Keep credentials in the original checkout.
-Share the landing-page link and stop before running evaluations.
+Share the copy path and landing-page link.
+Stop before running evaluations.
 ```
 
 - **Check** that the landing page opens.
@@ -71,7 +72,8 @@ Share the landing-page link and stop before running evaluations.
 - Ask how to handle duplicate webhook deliveries.
 - Look for **Webhook delivery and retries** under **Sources**.
 
-The isolated copy lives at `.worktrees/rag-follow-up-01`.
+The examples below use `.worktrees/rag-follow-up-01`.
+If Claude reports a different path, use that path for each check.
 Keep the original checkout open in your coding app.
 Measure from the original checkout and point each check at the isolated copy.
 Use a fresh scenario ID to start again from the historical state.
