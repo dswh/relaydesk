@@ -45,8 +45,6 @@
     "verify:help-chat": "pnpm eval:help-chat:deterministic && pnpm eval:help-chat:promptfoo && pnpm build && pnpm test:help-chat-browser",
     "perf:search": "docker run --rm -i --add-host=host.docker.internal:host-gateway grafana/k6:1.0.0 run - < benchmarks/ticket-search.k6.js",
     "lighthouse": "lhci autorun",
-    "eval:lighthouse-showcase": "pnpm build && pnpm test:blog-quality && pnpm lighthouse",
-    "verify:showcase": "pnpm db:verify && pnpm eval:lighthouse-showcase",
     "rag:preflight": "tsx evaluations/rag-lab/cli.ts preflight",
     "rag:capture": "tsx evaluations/rag-lab/cli.ts capture",
     "rag:review": "tsx evaluations/rag-lab/cli.ts review",
@@ -59,11 +57,10 @@
     "rag:contract": "tsx evaluations/rag-lab/cli.ts contract",
     "rag:budget": "tsx evaluations/rag-lab/cli.ts budget",
     "rag:measure": "tsx evaluations/rag-lab/measure.ts --out evaluations/rag-lab/data/manual-check.json",
-    "rag:loop:status": "tsx evaluations/rag-lab/cli.ts status",
-    "rag:loop": "tsx evaluations/rag-lab/cli.ts loop",
-    "rag:loop:accept": "tsx evaluations/rag-lab/cli.ts accept",
-    "rag:loop:reject": "tsx evaluations/rag-lab/cli.ts reject",
-    "rag:demo": "tsx evaluations/rag-lab/demo/cli.ts"
+    "eval:site-quality": "pnpm build && pnpm test:blog-quality && pnpm lighthouse",
+    "verify:performance": "pnpm db:verify && pnpm eval:site-quality",
+    "rag:check": "tsx evaluations/rag-lab/retrieval/check.ts",
+    "rag:scenario": "tsx evaluations/rag-lab/retrieval/scenario-cli.ts"
   },
   "dependencies": {
     "@openrouter/ai-sdk-provider": "3.1.0",

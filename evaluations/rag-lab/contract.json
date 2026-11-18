@@ -11,5 +11,5 @@
   "productSuccessTarget": 1,
   "maxCaptureCases": 50,
   "maxCaptureRepeats": 3,
-  "note": "Workshop acceptance policy. Calibrate the judge before using it to accept product changes. Candidate selection uses development cases. A separate, sealed final product dataset is required before release."
+  "note": "Project acceptance policy. Calibrate the judge before using it to accept product changes. Candidate selection uses development cases. A separate, sealed final product dataset is required before release."
 }

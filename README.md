@@ -1,11 +1,9 @@
 # RelayDesk
 
-Here for the Loop Engineering workshop? Start with the [attendee hands-on guide](docs/workshop/START_HERE.md).
-Use the `codex/rag-loop-reproducible-demo` branch for the seven-step exercise, the slide deck, and the recorded replay.
-
 RelayDesk is an AI customer support operations platform for teams that need fast, accurate, and accountable service. It combines a working team inbox, customer context, approved knowledge, operational analytics, and grounded reply assistance in one product.
 
-This repository is the product. Workshop scenarios are derived from real product surfaces only after the corresponding feature is working on `main`.
+The repository contains the application, synthetic data, evaluation suites, and bounded improvement loops.
+Start with the [RAG improvement project](docs/RAG_LOOP.md) to measure retrieval, propose a small repair, review it, and check new questions.
 
 ## Current product surface
 
@@ -69,12 +67,12 @@ The load gate uses Grafana k6 in Docker, runs 10 concurrent users for 30 seconds
 Run the complete multi-page public-site quality gate:
 
 ```bash
-pnpm eval:lighthouse-showcase
+pnpm eval:site-quality
 ```
 
 The gate builds the production site, validates all eight field notes with Playwright, then performs two Lighthouse runs each on the landing page, blog index, and representative long-form article. It requires 1.00 in accessibility, best practices, and SEO, at least 0.95 in performance, plus fixed Core Web Vitals budgets.
 
-Run the remaining showcase evaluators independently:
+Run the other evaluators independently:
 
 ```bash
 pnpm eval:api-docs
@@ -114,8 +112,6 @@ For the help-chat demo, run `pnpm demo:help-chat:setup`, open `/help/ask`, and r
 
 `main` is the deployable RelayDesk product. Normal work happens on `codex/` branches and enters `main` only after verification.
 
-Workshop scenario branches are frozen, believable product states. They are never the product architecture and they never replace `main`. Each scenario documents a customer or engineering impact, a measurable sensor, a bounded loop contract, and an objective stop condition.
+Scenario branches preserve specific product states for repeatable engineering experiments. Each loop has a measurable check, a bounded change scope, and an objective stop condition.
 
-Read [docs/PRODUCT.md](docs/PRODUCT.md) for product scope, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical boundaries, and [docs/WORKSHOP_SCENARIOS.md](docs/WORKSHOP_SCENARIOS.md) for the planned loop demonstrations.
-
-The print-friendly instructor version is available at [`/loop-runbook.html`](public/loop-runbook.html) when the app is running.
+Read [docs/PRODUCT.md](docs/PRODUCT.md) for product scope, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical boundaries, and [docs/LOOP_SCENARIOS.md](docs/LOOP_SCENARIOS.md) for the available improvement projects.

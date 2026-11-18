@@ -7,13 +7,11 @@ import { getHelpChatConfig } from "../../src/lib/help-chat-config";
 import { hasHelpModelKey } from "../../src/lib/ai/help-model-provider";
 import { captureAnswers } from "./capture";
 import { captures, dataRoot, feedback, labRoot, optionalJson } from "./store";
-import { selectFailure, type Scorecard } from "./scorecard";
 import { connection, enqueueCapture, setupLangSmith, syncFeedback } from "./langsmith";
 import { calibrateJudge } from "./judge";
 import { runExperiment } from "./experiment";
 import { startReview } from "./review-server";
 import { compareFiles } from "./compare";
-import { runLoop, reviewCandidate, watchLoop } from "./loop";
 
 loadEnvironment({ path: ".env.local", quiet: true });
 const [command = "help", ...args] = process.argv.slice(2);
@@ -41,16 +39,10 @@ async function preflight() {
 }
 async function main() {
   if (command === "review") { startReview(); return; }
-  if (command === "loop" && flag("watch")) { await watchLoop(); return; }
   let result: unknown;
   try {
     if (command === "preflight") result = await preflight();
     else if (command === "capture") result = await captureAnswers({ fixture: flag("fixture"), local: flag("local"), repeats: Number(option("repeats", "2")), limit: Number(option("limit", "15")), offset:Number(option("offset","0")) });
-    else if(command === "status") {
-      const state=await optionalJson(path.join(dataRoot,"loop-state.json"));
-      const measured=await optionalJson<{scorecard:Scorecard}>(path.join(dataRoot,"manual-check.json"));
-      result={state,manualScore:measured?.scorecard,selectedFailure:measured?selectFailure(measured.scorecard):null};
-    }
     else if(command === "budget") {
       const limitUSD=Number(process.env.RELAYDESK_MODEL_BUDGET_USD||0);
       const file=process.env.RELAYDESK_MODEL_BUDGET_FILE;
@@ -70,9 +62,6 @@ async function main() {
     } else if (command === "calibrate") { result = await calibrateJudge(flag("finalize")); if (!(result as { ready: boolean }).ready) process.exitCode = 2; }
     else if (command === "experiment") result = await runExperiment({ hardOnly: flag("hard-only"), repeats: Number(option("repeats", "3")), name: option("name", "candidate") });
     else if (command === "compare") result = await compareFiles(option("baseline", ""), option("candidate", ""), option("target", ""));
-    else if (command === "loop") result = await runLoop({fixture:flag("fixture"),force:flag("force")});
-    else if (command === "accept") result = await reviewCandidate(true);
-    else if (command === "reject") result = await reviewCandidate(false);
     else if (command === "contract") result = JSON.parse(await readFile(path.join(labRoot, "contract.json"), "utf8"));
     else result = { commands: ["pnpm rag:preflight", "pnpm rag:capture --fixture --local", "pnpm rag:review", "pnpm rag:langsmith:setup", "pnpm rag:capture", "pnpm rag:judge:validate", "pnpm rag:judge:validate --finalize", "pnpm rag:experiment --name baseline", "pnpm rag:experiment --name candidate"], dataDirectory: dataRoot };
     console.info(JSON.stringify(result, null, 2));

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { allowedDemoFile, demoReviewSchema, demoContract, retrievalDecision, retrievalScore, selectedRetrievalFailure, questionsSchema, type RetrievalReport } from "../evaluations/rag-lab/demo/contract";
+import { allowedRepairFile, retrievalContract, retrievalDecision, retrievalScore, selectedRetrievalFailure, questionsSchema, type RetrievalReport } from "../evaluations/rag-lab/retrieval/contract";
 function report(values: Array<[
     string,
     number | null
@@ -16,12 +16,10 @@ describe("reproducible retrieval improvement", () => {
     it("rejects incomplete coverage and unsafe evidence", () => { const a = report([["D01", 1]]); a.cases[0]!.attempts[0]!.approved = false; expect(retrievalDecision(report([["D01", 2]]), a).issues).toContain("Unapproved source: D01."); expect(retrievalDecision(report([["D01", 2], ["D02", 1]]), a).keep).toBe(false); });
     it("accepts a shared ranking improvement with preserved regressions", () => { expect(retrievalDecision(report([["D01", 2], ["D02", 1]]), report([["D01", 1], ["D02", 1]]))).toMatchObject({ keep: true, before: 50, after: 100, answerQuality: "unscored" }); });
     it("requires no regression on untouched questions even when they were already passing", () => { expect(retrievalDecision(report([["H01", 1]], "heldout"), report([["H01", 1]], "heldout"), { requireImprovement: false }).keep).toBe(true); expect(retrievalDecision(report([["H01", 1]], "heldout"), report([["H01", 2]], "heldout"), { requireImprovement: false }).keep).toBe(false); });
-    it("preserves safety and grading boundaries", () => { for (const f of ["evaluations/rag-lab/demo/contract.ts", "evaluations/rag-lab/demo/heldout.json", "src/lib/knowledge.ts", "src/lib/ai/help-model-provider.ts", "package.json", ".env.local"])
-        expect(allowedDemoFile(f)).toBe(false); expect(allowedDemoFile("src/lib/help-chat-config.ts")).toBe(true); expect(demoContract.maxCandidates).toBe(3); });
+    it("preserves safety and grading boundaries", () => { for (const f of ["evaluations/rag-lab/retrieval/contract.ts", "evaluations/rag-lab/retrieval/heldout.json", "src/lib/knowledge.ts", "src/lib/ai/help-model-provider.ts", "package.json", ".env.local"])
+        expect(allowedRepairFile(f)).toBe(false); expect(allowedRepairFile("src/lib/help-chat-config.ts")).toBe(true); expect(retrievalContract.maxCandidates).toBe(3); });
     it("rejects duplicate task IDs and malformed source contracts", () => { const q = { id: "D01", family: "context", question: "Where does this request go?", expectedSource: "kb_14" }; expect(questionsSchema.safeParse([q, q]).success).toBe(false); expect(questionsSchema.safeParse([{ ...q, expectedSource: "private-ticket" }]).success).toBe(false); });
 });
 
-
-describe("human review input",()=>{it("requires an explicit verdict, reason, and reviewer",()=>{expect(demoReviewSchema.safeParse({id:"workshop-01",traceId:"9e5845c3-7bb8-40e8-b703-71d6af3eeb65",verdict:"pass",critique:"The answer follows the supplied source.",reviewer:"Engineer"}).success).toBe(true);expect(demoReviewSchema.safeParse({id:"workshop-01",verdict:"auto-pass"}).success).toBe(false)})});
 
 describe("selected retrieval target",()=>{it("does not accept improvement in a different failed question",()=>{expect(retrievalDecision(report([["D01",2],["D02",3]]),report([["D01",2],["D02",1]]),{target:"D01"}).keep).toBe(false)})});

@@ -1,6 +1,6 @@
 # RelayDesk help-chat loop prompt
 
-Copy this prompt into the coding agent from a fresh participant worktree created from `codex/scenario-help-chat-rag-quality`.
+Copy this prompt into the coding agent from a fresh experiment worktree created from `codex/scenario-help-chat-rag-quality`.
 
 ```text
 Improve the RelayDesk customer help chat until the frozen evaluation gate passes.
@@ -28,7 +28,7 @@ Useful commands:
 
 Do not weaken a gate, edit the dataset or judge, delete a case, change a threshold,
 or edit help-center facts only to satisfy the evaluator. Stop when the complete gate
-passes twice, after 10 iterations, after 90 minutes, when the workshop spend limit is
+passes twice, after 10 iterations, after 90 minutes, when the configured spend limit is
 reached, or when a documented escalation condition occurs. Require human review before
 merging.
 ```

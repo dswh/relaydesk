@@ -35,7 +35,7 @@ export function compareExperiments(baseline: Experiment, candidate: Experiment, 
   }
   if (regressions.length) issues.push(`Task regressions: ${regressions.join(", ")}.`);
   const taskSuccessRate = candidate.rows.length ? candidate.rows.filter(r => score(r) === 1).length / candidate.rows.length : 0;
-  if (taskSuccessRate < targetRate) issues.push("The candidate is below the workshop task-success floor.");
+  if (taskSuccessRate < targetRate) issues.push("The candidate is below the required task-success floor.");
   return { decision: issues.length ? "revert_or_investigate" : "review_candidate", baseline: baseline.name, candidate: candidate.name, target, targetGain, taskSuccessRate, regressions, issues, releaseAuthorized: false, next: issues.length ? "Restore the baseline or investigate one failure before the next candidate." : "Review the diff, cost, and latency. Run the separate sealed final product cases before authorizing release." };
 }
 export async function compareFiles(baselineName: string, candidateName: string, target: string) {

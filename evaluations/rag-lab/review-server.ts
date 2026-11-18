@@ -3,11 +3,8 @@ import { randomBytes } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { captures, feedback, saveFeedback, labRoot, dataRoot, optionalJson, calibrationRows, familySplit } from "./store";
+import { captures, feedback, saveFeedback, labRoot, calibrationRows, familySplit } from "./store";
 import { syncFeedback } from "./langsmith";
-import type { LoopState } from "./loop";
-import { demoView, saveDemoReview, saveDemoDecision } from "./demo/runner";
-import { hasHelpModelKey } from "../../src/lib/ai/help-model-provider";
 
 async function body(request: IncomingMessage) {
   let text = "";
@@ -29,25 +26,9 @@ export function startReview(port = Number(process.env.RAG_REVIEW_PORT || 4180)) 
     try {
       if (request.headers.host !== `127.0.0.1:${port}` && request.headers.host !== `localhost:${port}`) return reply(403, { error: "Use the local review URL." });
       const url = new URL(request.url || "/", origin);
-      if (request.method === "GET" && ["/", "/workshop", "/demo"].includes(url.pathname)) {
-        const html = (await readFile(path.join(labRoot, url.pathname === "/demo" ? "demo/workshop.html" : url.pathname === "/workshop" ? "workshop.html" : "review.html"), "utf8")).replace("__REVIEW_TOKEN__", token);
+      if (request.method === "GET" && url.pathname === "/") {
+        const html = (await readFile(path.join(labRoot, "review.html"), "utf8")).replace("__REVIEW_TOKEN__", token);
         response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); response.end(html); return;
-      }
-      if(request.method === "GET" && url.pathname === "/api/demo") return reply(200,await demoView());
-      if(request.method === "POST" && url.pathname === "/api/demo/review") {
-        if(request.headers["x-review-token"]!==token||![origin,`http://localhost:${port}`].includes(request.headers.origin||"")||!request.headers["content-type"]?.startsWith("application/json"))return reply(403,{error:"Reload this local page before saving."});
-        return reply(200,await saveDemoReview(await body(request)));
-      }
-      if(request.method === "POST" && url.pathname === "/api/demo/decision") {
-        if(request.headers["x-review-token"]!==token||![origin,`http://localhost:${port}`].includes(request.headers.origin||"")||!request.headers["content-type"]?.startsWith("application/json"))return reply(403,{error:"Reload this local page before saving."});
-        return reply(200,await saveDemoDecision(await body(request)));
-      }
-      if(request.method === "GET" && url.pathname === "/api/loop") {
-        const state=await optionalJson<LoopState>(path.join(dataRoot,"loop-state.json"));
-        const latest=state?.latest&&path.resolve(state.latest).startsWith(dataRoot+path.sep)?await optionalJson(state.latest):null;
-        const baseline=state?.baseline&&path.resolve(state.baseline).startsWith(dataRoot+path.sep)?await optionalJson(state.baseline):null;
-        const contract=JSON.parse(await readFile(path.join(labRoot,"contract.json"),"utf8"));
-        return reply(200,{state,latest,baseline,contract,connections:{provider:hasHelpModelKey(),langsmith:Boolean(process.env.LANGSMITH_API_KEY)}});
       }
       if (request.method === "GET" && url.pathname === "/api/review") {
         const all = await captures(), labels = await feedback();
