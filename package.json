@@ -59,7 +59,7 @@
     "rag:measure": "tsx evaluations/rag-lab/measure.ts --out evaluations/rag-lab/data/manual-check.json",
     "eval:site-quality": "pnpm build && pnpm test:blog-quality && pnpm lighthouse",
     "verify:performance": "pnpm db:verify && pnpm eval:site-quality",
-    "rag:check": "tsx evaluations/rag-lab/retrieval/check.ts",
+    "rag:check": "tsx evaluations/rag-lab/retrieval/check-cli.ts",
     "rag:scenario": "tsx evaluations/rag-lab/retrieval/scenario-cli.ts"
   },
   "dependencies": {
