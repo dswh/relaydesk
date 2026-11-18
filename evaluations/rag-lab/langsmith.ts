@@ -20,7 +20,7 @@ export function connection(required = true) {
     : { project_name: project };
   return { client, destination, endpoint, agent, project };
 }
-function stableId(value: string) {
+export function stableId(value: string) {
   const h = sha(value).slice(0, 32).split(""); h[12] = "5"; h[16] = "8";
   const s = h.join("");return `${s.slice(0,8)}-${s.slice(8,12)}-${s.slice(12,16)}-${s.slice(16,20)}-${s.slice(20)}`;
 }

@@ -13,6 +13,8 @@ import { calibrateJudge } from "./judge";
 import { runExperiment } from "./experiment";
 import { startReview } from "./review-server";
 import { compareFiles } from "./compare";
+import { questionsSchema } from "./retrieval/contract";
+import { publishRetrievalDataset } from "./retrieval/langsmith-dataset";
 
 loadEnvironment({ path: ".env.local", quiet: true });
 const [command = "help", ...args] = process.argv.slice(2);
@@ -55,7 +57,11 @@ async function main() {
   try {
     if (command === "preflight") result = await preflight();
     else if (command === "capture") result = await captureAnswers({ fixture: flag("fixture"), local: flag("local"), repeats: Number(option("repeats", "2")), limit: Number(option("limit", "15")), offset:Number(option("offset","0")) });
-    else if (command === "cloud-setup") {
+    else if (command === "publish-retrieval") {
+      const file = option("dataset", path.join(labRoot, "retrieval/development.json"));
+      const questions = questionsSchema.parse(JSON.parse(await readFile(file, "utf8")));
+      result = await publishRetrievalDataset(questions);
+    } else if (command === "cloud-setup") {
       const capture = (await captures())[0];
       if (!capture) throw new Error("Capture a local smoke run or a live run before setting up the dataset.");
       result = await setupLangSmith(capture);

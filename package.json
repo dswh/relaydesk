@@ -49,6 +49,7 @@
     "rag:capture": "tsx evaluations/rag-lab/cli.ts capture",
     "rag:review": "tsx evaluations/rag-lab/cli.ts review",
     "rag:langsmith:setup": "tsx evaluations/rag-lab/cli.ts cloud-setup",
+    "rag:langsmith:retrieval": "tsx evaluations/rag-lab/cli.ts publish-retrieval",
     "rag:langsmith:enqueue": "tsx evaluations/rag-lab/cli.ts enqueue",
     "rag:feedback:sync": "tsx evaluations/rag-lab/cli.ts sync-feedback",
     "rag:judge:validate": "tsx evaluations/rag-lab/cli.ts calibrate",

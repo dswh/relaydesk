@@ -79,6 +79,23 @@ Measure from the original checkout and point each check at the isolated copy.
 Use a fresh scenario ID to start again from the historical state.
 The [evaluation reference](../evaluations/rag-lab/README.md) lists the underlying project tasks.
 
+## Use the search questions in LangSmith
+
+The six questions and their expected articles are in [development.json](../evaluations/rag-lab/retrieval/development.json).
+Send this as a regular Claude Code message after setup:
+
+```text
+Publish the six search questions to my LangSmith workspace.
+Give me the dataset link and show the six questions.
+```
+
+The publisher creates a private, versioned dataset in your workspace.
+Open its **Examples** tab to see each question and expected source.
+Ask Claude to use that dataset for the baseline and each repair check.
+The checker reads the questions from LangSmith and saves the ranks and total locally.
+It verifies that the question set stays the same during the check and across comparisons.
+See the [underlying project tasks](../evaluations/rag-lab/README.md#retrieval-checks).
+
 ## Measure the starting point
 
 ```sh
@@ -121,6 +138,7 @@ Use the report as feedback for the next attempt.
 
 Keep the original checkout, existing tests, questions, expected sources,
 source articles, evaluators, and models unchanged.
+Use the same question set as the baseline, as recorded in the report.
 Do not hardcode question IDs, questions, or source IDs.
 Do not start another coding agent or write an agent runner.
 
@@ -160,6 +178,7 @@ An optional `followUp` preserves the earlier user message.
 The two example question files in that directory show the format.
 
 Measure the expanded set into a new baseline file.
+If you use LangSmith, publish the expanded file as its own dataset.
 Then start a new goal against that baseline and the selected product version.
 A completed goal does not automatically watch the dataset for future changes.
 For recurring work, configure a separate trigger in your coding app.

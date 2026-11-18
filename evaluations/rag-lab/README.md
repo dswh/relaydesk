@@ -32,6 +32,17 @@ pnpm rag:scenario --id follow-up-01
 pnpm rag:check --product .worktrees/rag-follow-up-01
 ```
 
+To use LangSmith as the source of questions, publish the six examples and pass the returned dataset name to the checker.
+
+```sh
+pnpm rag:langsmith:retrieval
+pnpm rag:check --product .worktrees/rag-follow-up-01 --langsmith-dataset DATASET_NAME
+```
+
+For an expanded set, pass its file with `--dataset` to the publisher.
+The dataset name changes with the questions. Use the same name for before and after.
+Search scores are written to the local report, and traces are sent to LangSmith.
+
 For the app preview, start Next.js with Webpack in the isolated copy.
 Load the original checkout's local settings into the preview process.
 Keep the settings file in the original checkout.

@@ -9,6 +9,7 @@ import { corpusSnapshot } from "../corpus";
 import { connection } from "../langsmith";
 import { atomicJson, dataRoot, labRoot, sha } from "../store";
 import { retrievalContract, retrievalDecision, retrievalScore, questionsSchema, type RetrievalReport, type RetrievalAttempt } from "./contract";
+import { readRetrievalDataset } from "./langsmith-dataset";
 import type * as Chat from "../../../src/lib/ai/help-chat";
 import type * as Repository from "../../../src/lib/knowledge-repository";
 import type * as Configuration from "../../../src/lib/help-chat-config";
@@ -23,10 +24,16 @@ const option = (name: string, fallback: string) => {
 async function main() {
     const root = path.resolve(option("product", "."));
     const dataset = path.resolve(option("dataset", path.join(labRoot, "retrieval/development.json")));
+    const datasetName = option("langsmith-dataset", "");
+    if (datasetName && args.includes("--dataset")) throw new Error("Choose a local file or a LangSmith dataset.");
+    const cloud = connection(Boolean(datasetName));
+    const loadQuestions = async () => datasetName && cloud
+        ? readRetrievalDataset(cloud.client, datasetName)
+        : questionsSchema.parse(JSON.parse(await readFile(dataset, "utf8")));
     const output = path.resolve(option("out", path.join(dataRoot, "retrieval", `${Date.now()}.json`)));
     const baselineFile = option("baseline", "");
     if (await access(output).then(() => true, () => false)) throw new Error("The output already exists. Use a new report filename to preserve earlier measurements.");
-    const tasks = questionsSchema.parse(JSON.parse(await readFile(dataset, "utf8")));
+    const tasks = await loadQuestions();
     const chat = await import(pathToFileURL(path.join(root, "src/lib/ai/help-chat.ts")).href) as typeof Chat;
     const repo = await import(pathToFileURL(path.join(root, "src/lib/knowledge-repository.ts")).href) as typeof Repository;
     const configModule = await import(pathToFileURL(path.join(root, "src/lib/help-chat-config.ts")).href) as typeof Configuration;
@@ -37,16 +44,15 @@ async function main() {
         throw new Error("Unset RELAYDESK_HELP_INCLUDE_CONTEXT. The measured code must determine conversation handling.");
     const corpus = await corpusSnapshot(config.embeddingModel);
     const modelsHash = sha({ embedding: config.embeddingModel, generation: config.generationModel, provider: config.modelProvider, routing: config.openrouterProviders });
-    const cloud = connection(false);
     const hashProduct = async () => sha(await Promise.all(["src/lib/ai/help-chat.ts", "src/lib/help-chat-config.ts", "src/lib/knowledge-repository.ts"].map(async (f) => [f, sha(await readFile(path.join(root, f)))])));
     const productHash = await hashProduct();
-    const report: RetrievalReport = { schemaVersion: 1, measuredAt: new Date().toISOString(), manifest: { datasetHash: sha(tasks), corpusHash: corpus.hash, contractHash: sha(retrievalContract), modelsHash, productHash, split: option("split", "development"), repeats: 3 }, cases: [] };
+    const report: RetrievalReport = { schemaVersion: 1, measuredAt: new Date().toISOString(), manifest: { datasetHash: sha(tasks), ...(datasetName ? { langsmithDataset: datasetName } : {}), corpusHash: corpus.hash, contractHash: sha(retrievalContract), modelsHash, productHash, split: option("split", "development"), repeats: 3 }, cases: [] };
     for (const task of tasks) {
         const row = { ...task, attempts: [] as RetrievalAttempt[] };
         const messages = [{ role: "user" as const, content: task.question }, ...(task.followUp ? [{ role: "user" as const, content: task.followUp }] : [])];
         for (let repeat = 1; repeat <= 3; repeat++) {
             const query = chat.buildHelpRetrievalQuery(messages, config);
-            const trace = await captureRagTrace({ messages, query }, () => repo.retrieveHelpKnowledge(query, config), { name: "relaydesk.rag.retrieval-check", client: cloud?.client, destination: cloud?.destination, metadata: { source: "retrieval-improvement", split: report.manifest.split, synthetic: true, caseId: task.id, repeat } });
+            const trace = await captureRagTrace({ messages, query }, () => repo.retrieveHelpKnowledge(query, config), { name: "relaydesk.rag.retrieval-check", client: cloud?.client, destination: cloud?.destination, metadata: { source: "retrieval-improvement", split: report.manifest.split, synthetic: true, caseId: task.id, repeat, ...(datasetName ? { datasetName } : {}) } });
             const ids = trace.output.map(c => c.sourceId), index = ids.indexOf(task.expectedSource);
             const attempt: RetrievalAttempt = { repeat, query, rank: index < 0 ? null : index + 1, approved: ids.length > 0 && ids.every(id => publicKnowledgeArticles.some(a => a.id === id)), sourceIds: ids, traceId: trace.id };
             if (repeat === 1 && args.includes("--answers")) {
@@ -61,7 +67,7 @@ async function main() {
     }
     if ((await corpusSnapshot(config.embeddingModel)).hash !== corpus.hash)
         throw new Error("The corpus changed while measuring.");
-    if (await hashProduct() !== productHash || sha(JSON.parse(await readFile(dataset, "utf8"))) !== report.manifest.datasetHash)
+    if (await hashProduct() !== productHash || sha(await loadQuestions()) !== report.manifest.datasetHash)
         throw new Error("The product or question set changed during measurement. Run a fresh check.");
     if (cloud)
         await cloud.client.awaitPendingTraceBatches();

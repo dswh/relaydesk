@@ -26,6 +26,7 @@ export type RetrievalReport = {
     measuredAt: string;
     manifest: {
         datasetHash: string;
+        langsmithDataset?: string;
         corpusHash: string;
         contractHash: string;
         productHash: string;
