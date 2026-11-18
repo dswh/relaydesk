@@ -35,7 +35,7 @@ export const tickets: Ticket[] = [
         author: "Maya Chen",
         role: "customer",
         timestamp: "Today, 8:18 AM",
-        body: "Hi team, we added the TXT record your setup screen provided yesterday. Our DNS checker can see it, but RelayDesk still shows the domain as pending. We have 120 agents waiting to sign in for training this afternoon. Can you help us unblock this?",
+        body: "Hi team, we added the TXT record your setup screen provided yesterday. Our DNS checker can see it, but RelayDesk still shows the domain as pending. We have 120 agents waiting to sign in to the workspace. Can you help us unblock this?",
       },
       {
         id: "msg_1842_2",
@@ -60,7 +60,7 @@ export const tickets: Ticket[] = [
       },
     ],
     suggestedReply:
-      "Hi Maya, I checked the verification request for atlashealth.io. The TXT record is resolving correctly, but the original verification job did not retry after DNS propagation completed. I have restarted that check and the domain should move to Verified within five minutes. You do not need to change the record. I will stay on this ticket and confirm before your agent training begins.",
+      "Hi Maya, I checked the verification request for atlashealth.io. The TXT record is resolving correctly, but the original verification job did not retry after DNS propagation completed. I have restarted that check and the domain should move to Verified within five minutes. You do not need to change the record. I will stay on this ticket and confirm when your agents can sign in.",
   },
   {
     id: "RD-1839",

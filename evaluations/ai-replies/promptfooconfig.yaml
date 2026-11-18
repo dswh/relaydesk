@@ -29,7 +29,7 @@ tests:
     vars:
       ticketId: RD-1842
       allowedCitations: kb_14,runbook_6
-      requiredActions: restarted|restart;verified|verification;five minutes|training
+      requiredActions: restarted|restart;verified|verification;five minutes|agents can sign in
   - description: Usage export pagination gap
     vars:
       ticketId: RD-1839

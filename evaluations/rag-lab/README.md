@@ -6,14 +6,23 @@
 
 ## Configuration
 
-Use `.env.rag.example` for the dedicated PostgreSQL database, OpenRouter models, tracing project, and persistent spending cap.
+Follow [the setup guide](../../docs/RAG_LOOP.md#setup) for PostgreSQL, OpenRouter, and LangSmith.
+Use `.env.rag.example` as the local settings template.
 Keep credentials in ignored `.env.local`.
 Use the same embedding model for indexing and queries.
-Set an absolute `RELAYDESK_MODEL_BUDGET_FILE` path and preserve that ledger across commands.
 
 ```sh
+pnpm install --frozen-lockfile
+docker compose -f compose.rag-evals.yaml up -d --wait
+pnpm db:migrate
 pnpm rag:preflight --remote
-pnpm rag:budget
+```
+
+If the index is missing or stale, rebuild it and check readiness again.
+
+```sh
+pnpm knowledge:index
+pnpm rag:preflight --remote
 ```
 
 ## Retrieval checks
@@ -22,6 +31,10 @@ pnpm rag:budget
 pnpm rag:scenario --id follow-up-01
 pnpm rag:check --product .worktrees/rag-follow-up-01
 ```
+
+For the app preview, start Next.js with Webpack in the isolated copy.
+Load the original checkout's local settings into the preview process.
+Keep the settings file in the original checkout.
 
 Scenario preparation creates an isolated historical product state without model calls.
 Each check measures the selected product once and returns the queries, source ranks, and score.

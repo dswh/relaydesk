@@ -51,6 +51,7 @@ export default function HomePage() {
             <a href="#operating-model">How it works</a>
             <a href="#control-plane">Platform</a>
             <Link href="/blog">Field notes</Link>
+            <Link className="landing-nav-ask" href="/help/ask">Ask RelayDesk</Link>
             <Link className="landing-nav-cta" href="/inbox">
               Open workspace <ArrowRight size={14} aria-hidden="true" />
             </Link>
@@ -125,7 +126,7 @@ export default function HomePage() {
               <span><Clock3 size={17} aria-hidden="true" /></span>
               <div>
                 <p>Next accountable action</p>
-                <strong>Restart verification and confirm before training</strong>
+                <strong>Restart verification and confirm sign-in works</strong>
               </div>
               <CheckCircle2 size={19} aria-hidden="true" />
             </article>

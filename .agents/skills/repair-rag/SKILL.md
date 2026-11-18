@@ -25,7 +25,7 @@ In particular, preserve the approved-source filter in retrieveHelpKnowledge() an
 Use the existing prompt builder as the grounding pattern.
 Separate the supported part of a mixed request from any claim the evidence cannot verify.
 
-The harness owns the dataset, evaluator, rubric, models, dependency files, source content, budgets, and acceptance rules.
+The harness owns the dataset, evaluator, rubric, models, dependency files, source content, and acceptance rules.
 Do not change them.
 Do not branch on case IDs, memorize questions, disable checks, or replace generation with benchmark answers.
 

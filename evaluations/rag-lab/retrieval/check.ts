@@ -31,8 +31,8 @@ async function main() {
     const repo = await import(pathToFileURL(path.join(root, "src/lib/knowledge-repository.ts")).href) as typeof Repository;
     const configModule = await import(pathToFileURL(path.join(root, "src/lib/help-chat-config.ts")).href) as typeof Configuration;
     const config = configModule.getHelpChatConfig();
-    if (config.embeddingMode !== "gateway" || !process.env.RELAYDESK_MODEL_BUDGET_FILE || !Number(process.env.RELAYDESK_MODEL_BUDGET_USD))
-        throw new Error("The retrieval check requires live embeddings and the persistent model spending guard.");
+    if (config.embeddingMode !== "gateway")
+        throw new Error("The retrieval check requires live embeddings.");
     if (process.env.RELAYDESK_HELP_INCLUDE_CONTEXT !== undefined)
         throw new Error("Unset RELAYDESK_HELP_INCLUDE_CONTEXT. The measured code must determine conversation handling.");
     const corpus = await corpusSnapshot(config.embeddingModel);

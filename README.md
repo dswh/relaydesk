@@ -25,6 +25,8 @@ The Northstar Labs workspace is fully synthetic. PostgreSQL is used when `DATABA
 
 ## Run locally
 
+For **Ask RelayDesk** with OpenRouter and LangSmith, follow the [step-by-step setup](docs/RAG_LOOP.md#setup).
+
 Requirements: Node.js 22 or newer, pnpm 10, and Docker Desktop.
 
 ```bash

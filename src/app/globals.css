@@ -3419,12 +3419,29 @@ a {
     padding: 0 20px;
   }
 
-  .landing-nav-links > a:not(.landing-nav-cta) {
+  .landing-nav {
+    flex-wrap: wrap;
+    gap: 10px;
+    height: auto;
+    min-height: 78px;
+    padding: 12px 0;
+  }
+
+  .landing-nav-links {
+    font-size: 11px;
+    gap: 12px;
+  }
+
+  .landing-nav-links > a:not(.landing-nav-cta, .landing-nav-ask) {
     display: none;
   }
 
+  .landing-nav-ask {
+    padding: 10px 0;
+    white-space: nowrap;
+  }
+
   .landing-nav-cta {
-    font-size: 11px;
     min-height: 36px;
     padding: 0 11px;
   }

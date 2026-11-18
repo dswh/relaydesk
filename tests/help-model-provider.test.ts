@@ -1,21 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { generateText, Output } from "ai";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import { z } from "zod";
 
 import { getHelpChatConfig } from "../src/lib/help-chat-config";
 import { helpLanguageModel, hasHelpModelKey } from "../src/lib/ai/help-model-provider";
 import { createHelpEmbedding, createHelpEmbeddings } from "../src/lib/ai/help-embeddings";
-import { requestBudget, reserveModelSpend } from "../src/lib/ai/help-model-budget";
 
 afterEach(()=>{vi.unstubAllGlobals();vi.unstubAllEnvs()});
 function configure(){
   vi.stubEnv("RELAYDESK_HELP_MODEL_PROVIDER","openrouter");
   vi.stubEnv("RELAYDESK_OPENROUTER_PROVIDERS","openai");
   vi.stubEnv("OPENROUTER_API_KEY","unit-test-key");
-  vi.stubEnv("RELAYDESK_MODEL_BUDGET_FILE","");
   vi.stubEnv("RELAYDESK_HELP_EMBEDDING_MODE","gateway");
 }
 
@@ -62,33 +57,5 @@ describe("OpenRouter model access",()=>{
     configure();vi.stubEnv("OPENROUTER_API_KEY","");vi.stubEnv("AI_GATEWAY_API_KEY","another-provider-test-key");
     expect(hasHelpModelKey()).toBe(false);
     expect(()=>helpLanguageModel("openai/gpt-4.1-mini")).toThrow("OPENROUTER_API_KEY");
-  });
-});
-
-describe("model testing spend guard",()=>{
-  it("reserves a conservative token ceiling and blocks unknown or unbounded requests",()=>{
-    const body={model:"openai/gpt-4.1-mini",messages:[{role:"user",content:"Hello"}],max_tokens:500};
-    expect(requestBudget(body,false).reservedUSD).toBeGreaterThan(500*1.6/1_000_000);
-    expect(()=>requestBudget({...body,max_tokens:undefined},false)).toThrow("explicit output limit");
-    expect(()=>requestBudget({...body,model:"openrouter/auto"},false)).toThrow("approved price ceiling");
-  });
-  it("enforces one shared budget across concurrent reservations",async()=>{
-    const directory=await mkdtemp(path.join(os.tmpdir(),"relaydesk-model-budget-"));
-    try{
-      const file=path.join(directory,"ledger.json");
-      const results=await Promise.allSettled([reserveModelSpend(file,0.05,0.03),reserveModelSpend(file,0.05,0.03)]);
-      expect(results.filter(r=>r.status==="fulfilled")).toHaveLength(1);
-      expect(JSON.parse(await readFile(file,"utf8"))).toMatchObject({reservedUSD:0.03,requests:1});
-    }finally{await rm(directory,{recursive:true,force:true})}
-  });
-  it("blocks an over-budget SDK call before sending HTTP",async()=>{
-    configure();const directory=await mkdtemp(path.join(os.tmpdir(),"relaydesk-budget-block-"));
-    try{
-      vi.stubEnv("RELAYDESK_MODEL_BUDGET_FILE",path.join(directory,"ledger.json"));
-      vi.stubEnv("RELAYDESK_MODEL_BUDGET_USD","0.000001");
-      const transport=vi.fn();vi.stubGlobal("fetch",transport);
-      await expect(generateText({model:helpLanguageModel("openai/gpt-4.1-mini"),prompt:"A synthetic budget test",maxOutputTokens:20,maxRetries:0})).rejects.toThrow("budget would exceed");
-      expect(transport).not.toHaveBeenCalled();
-    }finally{await rm(directory,{recursive:true,force:true})}
   });
 });

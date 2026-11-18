@@ -55,7 +55,6 @@
     "rag:experiment": "tsx evaluations/rag-lab/cli.ts experiment",
     "rag:compare": "tsx evaluations/rag-lab/cli.ts compare",
     "rag:contract": "tsx evaluations/rag-lab/cli.ts contract",
-    "rag:budget": "tsx evaluations/rag-lab/cli.ts budget",
     "rag:measure": "tsx evaluations/rag-lab/measure.ts --out evaluations/rag-lab/data/manual-check.json",
     "eval:site-quality": "pnpm build && pnpm test:blog-quality && pnpm lighthouse",
     "verify:performance": "pnpm db:verify && pnpm eval:site-quality",

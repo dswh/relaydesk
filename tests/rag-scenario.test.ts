@@ -13,7 +13,7 @@ async function repository() {
     await writeFile(path.join(root, ".gitignore"), ".worktrees/\nnode_modules/\n.env.local\n");
     const source = "includeConversationContext: booleanValue(process.env.RELAYDESK_HELP_INCLUDE_CONTEXT,\n      true),\ntopK: numberValue(process.env.RELAYDESK_HELP_TOP_K, 5)\n";
     await writeFile(path.join(root, "src/lib/help-chat-config.ts"), source);
-    await writeFile(path.join(root, ".env.local"), "RELAYDESK_MODEL_BUDGET_FILE=/private/shared-ledger.json\n");
+    await writeFile(path.join(root, ".env.local"), "OPENROUTER_API_KEY=unit-test-key\n");
     execFileSync("git", ["-C", root, "add", ".gitignore", "src"]);
     execFileSync("git", ["-C", root, "-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "Healthy product"]);
     return {root, source};
@@ -31,7 +31,7 @@ describe("isolated retrieval scenario", () => {
             expect(execFileSync("git", ["-C", root, "status", "--porcelain"], {encoding: "utf8"})).toBe("");
             expect(await realpath(path.join(scenario.product, "node_modules"))).toBe(path.join(root, "node_modules"));
             await expect(readFile(path.join(scenario.product, ".env.local"))).rejects.toThrow();
-            expect(await readFile(path.join(root, ".env.local"), "utf8")).toContain("/private/shared-ledger.json");
+            expect(await readFile(path.join(root, ".env.local"), "utf8")).toBe("OPENROUTER_API_KEY=unit-test-key\n");
             await expect(prepareRetrievalScenario(root, "context-01")).rejects.toThrow("already exists");
         } finally { await rm(root, {recursive: true, force: true}); }
     });

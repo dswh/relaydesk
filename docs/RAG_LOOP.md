@@ -6,63 +6,76 @@
 
 ## Setup
 
-Use Node.js 22 or newer, pnpm 10.10.0, Git, and Docker with Compose.
-Open this project in your coding app.
-No second coding CLI is required.
+- Open Docker Desktop and wait for the engine to start.
+- Open your clone in a local Claude Code Desktop session.
+- Send one prompt at a time as a regular message.
+- Check each result before moving on.
 
-```sh
-pnpm install --frozen-lockfile
-cp .env.rag.example .env.local
+### 1. Install the project
+
+```text
+Check that Git, Node.js 22 or newer, pnpm 10.10.0, and Docker Compose are available.
+Use the codex/rag-loop-reproducible-demo branch.
+Preserve any local changes.
+Install the dependencies from the lockfile.
+Report the active branch and stop.
 ```
 
-Copy the example only in a fresh checkout.
-Keep an existing `.env.local` and its spending ledger.
+**Check** that Claude reports the branch and a successful install.
 
-Fill in your own OpenRouter and LangSmith keys privately.
-Create the `relaydesk-rag` tracing project in your LangSmith workspace.
-Set its API endpoint for your region.
-Use `LANGSMITH_WORKSPACE_ID` if your account requires it.
-Leave `LANGSMITH_AGENT_ID` empty when using project addressing.
+### 2. Connect OpenRouter and LangSmith
 
-Set `RELAYDESK_MODEL_BUDGET_FILE` to an absolute path in this checkout, ending in `evaluations/rag-lab/data/model-budget.json`.
-For example, a checkout at `/home/engineer/relaydesk` uses `/home/engineer/relaydesk/evaluations/rag-lab/data/model-budget.json`.
-Keep that same ledger for all measurements.
-Leave `RELAYDESK_HELP_INCLUDE_CONTEXT` unset so the code controls conversation handling.
-
-Start Docker, then run:
-
-```sh
-docker compose -f compose.rag-evals.yaml up -d --wait
-pnpm db:migrate
-pnpm rag:budget
-pnpm knowledge:index
-pnpm rag:preflight --remote
+```text
+Prepare my ignored local settings from .env.rag.example.
+Keep existing keys private and preserve their values.
+Use the dedicated RAG database settings.
+Show me which settings still need my input and where to enter them.
+Keep key values out of chat.
+Stop so I can fill in any missing settings.
 ```
 
-Indexing makes paid embedding requests.
-Skip indexing when an existing index already matches the configured model and articles.
-Preflight should report `liveReady: true` and `langsmithAuthenticated: true`.
-The $0.50 reservation cap covers this project's OpenRouter requests.
-Coding-app usage and LangSmith charges are separate.
-Do not reset the ledger to renew the allowance.
+- Add your OpenRouter and LangSmith keys to `.env.local`.
+- Use the `relaydesk-rag` tracing project in your LangSmith workspace.
+- Create the project in LangSmith if it is missing.
+- Use your region's API endpoint and workspace ID if required.
+- Leave `LANGSMITH_AGENT_ID` empty when using a project.
+- Leave `RELAYDESK_HELP_INCLUDE_CONTEXT` unset so the app controls it.
+- **Check** that Claude confirms the required settings are present.
 
-## Prepare an isolated starting state
+### 3. Prepare the database and search index
 
-Start from a clean checkout:
-
-```sh
-pnpm rag:scenario --id follow-up-01
+```text
+Start the dedicated Docker database and apply pending migrations.
+Check the index against the approved articles and configured embedding model.
+Build it only if it is missing or out of date.
+Run the readiness check with LangSmith access enabled.
+Show the readiness result and stop.
 ```
 
-This creates `.worktrees/rag-follow-up-01` from the current commit and applies the recorded historical retrieval configuration there.
-The original product source stays healthy.
-Preparation starts no agent and makes no model requests.
-Use a new ID to create another independent scenario.
+- **Check** that Docker shows the database as healthy.
+- Look for five articles and ten indexed sections.
+- Look for `liveReady: true` and `langsmithAuthenticated: true`.
 
+### 4. Open the isolated app preview
+
+```text
+Prepare the historical retrieval scenario with ID follow-up-01.
+Reuse that copy if I already prepared it.
+Start the copy with Webpack, using my local settings from the original checkout.
+Keep credentials in the original checkout.
+Share the landing-page link and stop before running evaluations.
+```
+
+- **Check** that the landing page opens.
+- Click **Ask RelayDesk** in the navbar.
+- Ask how to handle duplicate webhook deliveries.
+- Look for **Webhook delivery and retries** under **Sources**.
+
+The isolated copy lives at `.worktrees/rag-follow-up-01`.
 Keep the original checkout open in your coding app.
-Give the agent `.worktrees/rag-follow-up-01` as its allowed product directory.
-Run the evaluation commands below from the original checkout.
-They measure the selected product directory using the original evaluation code and questions.
+Measure from the original checkout and point each check at the isolated copy.
+Use a fresh scenario ID to start again from the historical state.
+The [evaluation reference](../evaluations/rag-lab/README.md) lists the underlying project tasks.
 
 ## Measure the starting point
 
@@ -105,13 +118,13 @@ It saves a fresh timestamped report for each measurement.
 Use the report as feedback for the next attempt.
 
 Keep the original checkout, existing tests, questions, expected sources,
-source articles, evaluators, models, and budget settings unchanged.
+source articles, evaluators, and models unchanged.
 Do not hardcode question IDs, questions, or source IDs.
 Do not start another coding agent or write an agent runner.
 
 Stop when all checks pass and present the patch for my review.
 Stop after three repair attempts or twenty minutes if it is still failing.
-Stop earlier if model access, the spending cap, or missing evidence blocks work.
+Stop earlier if model access or missing evidence blocks work.
 Report the actual evidence and reason for stopping.
 Do not commit, merge, or deploy.
 ```
@@ -120,7 +133,6 @@ The coding app chooses the next investigation or edit.
 `pnpm rag:check` only measures the current state once and returns a report.
 It does not make a repair, start an agent, schedule work, or keep watching.
 The turn and time limits in the goal are instructions for the coding app.
-The OpenRouter reservation cap is enforced separately by the model transport.
 
 ## Check the reserved questions after fixing the patch
 

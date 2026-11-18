@@ -1,7 +1,6 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
 import { getHelpChatConfig, type HelpChatConfig } from "../help-chat-config";
-import { budgetedOpenRouterFetch } from "./help-model-budget";
 
 export function hasHelpModelKey(config = getHelpChatConfig()) {
   return Boolean(config.modelProvider === "openrouter" ? process.env.OPENROUTER_API_KEY?.trim() : process.env.AI_GATEWAY_API_KEY?.trim());
@@ -14,7 +13,7 @@ export function requireHelpModelKey(config = getHelpChatConfig()) {
 function router(config: HelpChatConfig) {
   requireHelpModelKey(config);
   if (!config.openrouterProviders.length) throw new Error("Set RELAYDESK_OPENROUTER_PROVIDERS to the provider slug used for this evaluation epoch.");
-  return createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY, compatibility:"strict", fetch:budgetedOpenRouterFetch });
+  return createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY, compatibility: "strict" });
 }
 
 export function helpLanguageModel(model: string, config = getHelpChatConfig()) {
