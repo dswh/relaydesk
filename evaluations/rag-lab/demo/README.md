@@ -2,6 +2,7 @@
 
 This implementation is on `codex/rag-loop-reproducible-demo`.
 It supports the seven guided workshop steps on slides 17 to 30.
+Attendees should begin with the [hands-on setup guide](../../../docs/workshop/START_HERE.md) and its blank `.env.workshop.example` file.
 
 The recorded live proof is in [`docs/evidence/rag-retrieval-proof`](../../../docs/evidence/rag-retrieval-proof/README.md).
 It improved development retrieval from 4/6 to 6/6 and held-out retrieval from 1/3 to 3/3.

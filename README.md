@@ -1,5 +1,8 @@
 # RelayDesk
 
+Here for the Loop Engineering workshop? Start with the [attendee hands-on guide](docs/workshop/START_HERE.md).
+Use the `codex/rag-loop-reproducible-demo` branch for the seven-step exercise, the slide deck, and the recorded replay.
+
 RelayDesk is an AI customer support operations platform for teams that need fast, accurate, and accountable service. It combines a working team inbox, customer context, approved knowledge, operational analytics, and grounded reply assistance in one product.
 
 This repository is the product. Workshop scenarios are derived from real product surfaces only after the corresponding feature is working on `main`.
